@@ -22,8 +22,8 @@ otc_pairs = [
 
 # List of randomized responses
 responses = [
-    "📊 **{pair}:** ⬆️⬆️⬆️ 🟢",
-    "📊 **{pair}:** ⬇️⬇️⬇️ 🔴"
+    "🔮 **Forecast for {pair}:** BUY 📈🚀💰",
+    "🔮 **Forecast for {pair}:** SELL 📉🔥⚡"
 ]
 
 # Create a Flask app
