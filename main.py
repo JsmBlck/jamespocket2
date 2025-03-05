@@ -20,20 +20,10 @@ otc_pairs = [
     "CAD/CHF OTC", "NZD/JPY OTC", "EUR/CHF OTC", "GBP/JPY OTC"
 ]
 
-# List of randomized response phrases
-random_phrases = [
-    "Bullish trend spotted",
-    "Downtrend pattern spotted",
-    "Strong upward momentum detected",
-    "Bearish pressure increasing",
-    "Reversal signal forming",
-    "Volatility spike observed"
-]
-
 # List of randomized responses
 responses = [
-    "📊 **{pair}:** {phrase} ⬆️⬆️⬆️ 🟢",
-    "📊 **{pair}:** {phrase} ⬇️⬇️⬇️ 🔴"
+    "📊 **{pair}:** ⬆️⬆️⬆️ 🟢",
+    "📊 **{pair}:** ⬇️⬇️⬇️ 🔴"
 ]
 
 # Create a Flask app
@@ -85,11 +75,22 @@ Our bot provides real-time trading signals for OTC Forex pairs, helping you make
 
 # Function to simulate analysis and send the final signal
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🔍 Analyzing {pair}... Gathering data from market indicators...")
-    await asyncio.sleep(random.randint(2, 5))
-    phrase = random.choice(random_phrases)
-    response = random.choice(responses).format(pair=pair, phrase=phrase)
-    await analyzing_message.edit_text(response, parse_mode="Markdown")
+    # Send an "Analyzing..." message
+    analyzing_message = await update.message.reply_text(
+        f"🔍 Analyzing {pair}...",
+        parse_mode="Markdown"
+    )
+    # Simulate analysis delay (3 seconds)
+    await asyncio.sleep(3)
+    # Randomly select a response template
+    response_template = random.choice(responses)
+    # Replace {pair} with the selected pair
+    response = response_template.format(pair=pair)
+    # Edit the "Analyzing..." message to show the final signal
+    await analyzing_message.edit_text(
+        response,
+        parse_mode="Markdown"  # Enable Markdown formatting
+    )
 
 # Handle messages
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
