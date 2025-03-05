@@ -75,21 +75,26 @@ Our bot provides real-time trading signals for OTC Forex pairs, helping you make
 
 # Function to simulate analysis and send the final signal
 async def simulate_analysis(update: Update, pair: str) -> None:
-    # Send an "Analyzing..." message
+    # First message: Analyzing
     analyzing_message = await update.message.reply_text(
         f"🔍 Analyzing {pair}...",
         parse_mode="Markdown"
     )
-    # Simulate analysis delay (3 seconds)
-    await asyncio.sleep(3)
-    # Randomly select a response template
+    await asyncio.sleep(2)  # Wait 2 seconds
+
+    # Second message: Detecting trends
+    detecting_message = await update.message.reply_text(
+        f"📊 Detecting trends...",
+        parse_mode="Markdown"
+    )
+    await asyncio.sleep(2)  # Wait 2 seconds
+
+    # Final signal update
     response_template = random.choice(responses)
-    # Replace {pair} with the selected pair
     response = response_template.format(pair=pair)
-    # Edit the "Analyzing..." message to show the final signal
-    await analyzing_message.edit_text(
+    await detecting_message.edit_text(
         response,
-        parse_mode="Markdown"  # Enable Markdown formatting
+        parse_mode="Markdown"
     )
 
 # Handle messages
