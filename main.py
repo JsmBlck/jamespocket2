@@ -77,9 +77,8 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
     confidence = random.randint(75, 80)
-    timestamp = time.strftime("%I:%M %p")
     response_template = random.choice(responses)
-    response = response_template.format(pair=pair, confidence=confidence, timestamp=timestamp)
+    response = response_template.format(pair=pair, confidence=confidence)
 
     await analyzing_message.edit_text(response, parse_mode="Markdown")
 
