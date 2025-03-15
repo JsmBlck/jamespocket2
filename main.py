@@ -15,7 +15,7 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # List of Admin IDs
-ADMIN_IDS = [6992481448, 1234567890]  # Add multiple admin IDs here
+ADMIN_IDS = [6992481448, 7947707536]  # Add multiple admin IDs here
 
 # List of OTC pairs
 otc_pairs = [
