@@ -4,6 +4,7 @@ import asyncio
 import threading 
 import requests
 import time
+import json
 from flask import Flask
 from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup
@@ -17,8 +18,21 @@ TOKEN = os.getenv("TELEGRAM_TOKEN")
 # List of Admin IDs
 ADMIN_IDS = [6992481448, 7947707536]  # Updated admin IDs
 
+# Load authorized users from file
+def load_users():
+    try:
+        with open("members.txt", "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set(ADMIN_IDS)
+
+# Save authorized users to file
+def save_users():
+    with open("members.txt", "w") as f:
+        json.dump(list(AUTHORIZED_USERS), f)
+
 # Authorized users list (only these users can use the bot)
-AUTHORIZED_USERS = set(ADMIN_IDS)
+AUTHORIZED_USERS = load_users()
 
 # List of OTC pairs
 otc_pairs = [
@@ -81,6 +95,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
         new_user_id = int(context.args[0])
         AUTHORIZED_USERS.add(new_user_id)
+        save_users()
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
