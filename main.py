@@ -60,7 +60,7 @@ def save_members():
 
 # Authorized members
 exclusive_members = load_members()
-ADMIN_ID = 6992481448  # Replace with your Telegram ID
+ADMIN_ID = [6992481448, 7947707536]  # Replace with your Telegram ID
 
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
