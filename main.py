@@ -15,7 +15,10 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # List of Admin IDs
-ADMIN_IDS = [6992481448, 7947707536]  # Add multiple admin IDs here
+ADMIN_IDS = [6992481448, 7947707536]  # Updated admin IDs
+
+# Authorized users list (only these users can use the bot)
+AUTHORIZED_USERS = set(ADMIN_IDS)
 
 # List of OTC pairs
 otc_pairs = [
@@ -48,8 +51,11 @@ def keep_alive():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
-    print(f"User {user.id} ({user.username}) started the bot.")
+    if user.id not in AUTHORIZED_USERS:
+        await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
+        return
 
+    print(f"User {user.id} ({user.username}) started the bot.")
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
 
@@ -65,6 +71,19 @@ Our bot provides real-time trading signals for OTC Forex pairs.
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
     await update.message.reply_text(welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
+
+async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.message.from_user
+    if user.id not in ADMIN_IDS:
+        await update.message.reply_text("❌ You are not authorized to use this command.")
+        return
+    
+    try:
+        new_user_id = int(context.args[0])
+        AUTHORIZED_USERS.add(new_user_id)
+        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
+    except (IndexError, ValueError):
+        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
 
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_message = await update.message.reply_text(f"🔍 Scanning {pair}...", parse_mode="Markdown")
@@ -86,9 +105,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await analyzing_message.edit_text(response, parse_mode="Markdown")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_message = update.message.text
     user = update.message.from_user
-
+    if user.id not in AUTHORIZED_USERS:
+        await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
+        return
+    
+    user_message = update.message.text
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
         asyncio.create_task(simulate_analysis(update, user_message))
@@ -101,6 +123,7 @@ def run_flask():
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("addmember", add_member))  # Add member command
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     flask_thread = Thread(target=run_flask)
