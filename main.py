@@ -134,7 +134,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     steps = [random.choice(variation) for variation in step_variations]
 
     for step in steps:
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
     confidence = random.randint(75, 80)
