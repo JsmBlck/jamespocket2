@@ -16,6 +16,9 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
+ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
+LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
+
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -24,12 +27,6 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open("TelegramBotMembers").sheet1
-
-# List of Admin IDs
-ADMIN_IDS = [6992481448, 7947707536]  
-
-# Channel ID for logging user activity (replace with your actual channel ID)
-LOG_CHANNEL_ID = -1002666027470  # Replace with your log channel ID
 
 # Load authorized users from Google Sheets
 def load_users():
