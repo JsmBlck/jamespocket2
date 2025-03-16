@@ -86,7 +86,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     print(f"User {user.id} ({user.username}) started the bot.")
 
-    # Log user start event (even unauthorized users)
     await log_activity(context, f"👤 **User Started:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}")
 
     if user.id not in AUTHORIZED_USERS:
@@ -121,16 +120,27 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         save_users()
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
-        # Log new user addition
         await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
 
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
 
+async def simulate_analysis(update: Update, pair: str):
+    """Simulates analyzing the selected OTC pair and sends a signal."""
+    await update.message.reply_text(f"🔍 Analyzing {pair}... Please wait.")
+
+    await asyncio.sleep(random.randint(2, 5))
+
+    confidence = random.randint(60, 95)
+    signal_template = random.choice(responses)
+    signal_message = signal_template.format(pair=pair, confidence=confidence)
+
+    await update.message.reply_text(signal_message, parse_mode="Markdown")
+    await log_activity(update.get_bot(), f"📊 **Analysis Completed:**\n📈 Pair: {pair}\n📌 Signal: {signal_message}")
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     
-    # Log every user message (even if unauthorized)
     await log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {update.message.text}")
 
     if user.id not in AUTHORIZED_USERS:
@@ -140,10 +150,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     user_message = update.message.text
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-
-        # Log user selection
         await log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
-
         await simulate_analysis(update, user_message)
     else:
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
@@ -156,13 +163,10 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("addmember", add_member))  
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
+    
     flask_thread = Thread(target=run_flask)
     flask_thread.start()
-
-    keep_alive_thread = threading.Thread(target=keep_alive)
-    keep_alive_thread.start()
-
+    threading.Thread(target=keep_alive).start()
     print("Bot is running...")
     application.run_polling()
 
