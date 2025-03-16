@@ -137,10 +137,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        await log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
+        await log_activity(context, f"📌 Trade Selection:\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
         await simulate_analysis(update, user_message)
     elif not user_message.startswith("/"):
-        await log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {user_message}")
+        await log_activity(context, f"📩 Message Received:\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
 
 def run_flask():
