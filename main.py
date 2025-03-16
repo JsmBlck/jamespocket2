@@ -113,16 +113,16 @@ Our bot provides real-time trading signals for OTC Forex pairs.
 
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_messages = [
-        "⚡ Scanning **{pair}**...",
-        "🤖 AI analyzing **{pair}**...",
-        "📡 Data crunching **{pair}**...",
-        "🔍 Processing **{pair}**...",
-        "📊 Evaluating **{pair}**..."
+        f"⚡ Scanning {pair}...",
+        f"🤖 AI analyzing {pair}...",
+        f"📡 Data crunching {pair}...",
+        f"🔍 Processing {pair}...",
+        f"📊 Evaluating {pair}..."
     ]
     
-    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages), parse_mode="Markdown")
 
-     step_variations = [
+    step_variations = [
         [f"🛰️ Processing data for {pair}...", f"📡 Gathering insights for {pair}...", f"🔍 Extracting indicators for {pair}..."],
         [f"🤖 Running AI model for {pair}...", f"🧠 Predicting trends for {pair}...", f"🔬 Simulating movement for {pair}..."],
         [f"✅ Generating signal for {pair}...", f"📊 Finalizing analysis for {pair}...", f"📌 Confirming trade for {pair}..."]
