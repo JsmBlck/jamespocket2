@@ -54,14 +54,14 @@ otc_pairs = [
 
 # AI-like responses
 responses = [
-    "⬆️ **BUY Signal for {pair}** \nConfidence: {confidence}%",
-    "⬇️ **SELL Signal for {pair}** \nConfidence: {confidence}%",
-    "⬆️ **BUY Opportunity for {pair}** \nConfidence: {confidence}%",
-    "⬇️ **SELL Alert for {pair}** \nConfidence: {confidence}%",
-    "⬆️ **Potential BUY for {pair}** \nConfidence: {confidence}%",
-    "⬇️ **Strong SELL Signal for {pair}** \nConfidence: {confidence}%",
-    "⬆️ **BUY Setup for {pair}** \nConfidence: {confidence}%",
-    "⬇️ **SELL Opportunity for {pair}** \nConfidence: {confidence}%"
+    "⬆️ **BUY Signal for {pair}** \n\n🔥 Confidence: {confidence}%\n\n🤖 LunaX Signal Bot",
+    "⬇️ **SELL Signal for {pair}** \n\n📉 Confidence: {confidence}%\n\n🚀 LunaX Signal Bot",
+    "⬆️ **BUY Opportunity for {pair}** \n\n📈 Confidence: {confidence}%\n\n⚡ LunaX Signal Bot",
+    "⬇️ **SELL Alert for {pair}** \n\n⏳ Confidence: {confidence}%\n\n💡 LunaX Signal Bot",
+    "⬆️ **Potential BUY for {pair}** \n\n💰 Confidence: {confidence}%\n\n🔍 LunaX Signal Bot",
+    "⬇️ **Strong SELL Signal for {pair}** \n\n⚠️ Confidence: {confidence}%\n\n📊 LunaX Signal Bot",
+    "⬆️ **BUY Setup for {pair}** \n\n📌 Confidence: {confidence}%\n\n📡 LunaX Signal Bot",
+    "⬇️ **SELL Opportunity for {pair}** \n\n🔴 Confidence: {confidence}%\n\n🛰️ LunaX Signal Bot"
 ]
 
 # Image file IDs (replace with actual Telegram file IDs)
