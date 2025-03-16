@@ -72,14 +72,14 @@ async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+    print(f"User {user.id} ({user.username}) started the bot.")
+
+    # Log user start event (even unauthorized users)
+    await log_activity(context, f"👤 **User Started:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}")
+
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
-
-    print(f"User {user.id} ({user.username}) started the bot.")
-
-    # Log user start event
-    await log_activity(context, f"👤 **User Started:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}")
 
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
@@ -136,6 +136,10 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+    
+    # Log every user message (even if unauthorized)
+    await log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {update.message.text}")
+
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
