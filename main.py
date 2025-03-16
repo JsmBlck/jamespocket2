@@ -187,20 +187,13 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     confidence = random.randint(75, 80)
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
-
-    # Define multiple images for BUY and SELL
-    buy_images = ["AgACAgUAAxkBAAKoeGfXFrnEQl8MM1xgIsN2tPB9e6q5AAJTwTEbswi5VgbbUQFoQg5PAQADAgADcwADNgQ", "AgACAgUAAxkBAAKoeGfXFrnEQl8MM1xgIsN2tPB9e6q5AAJTwTEbswi5VgbbUQFoQg5PAQADAgADcwADNgQ", "AgACAgUAAxkBAAKoeGfXFrnEQl8MM1xgIsN2tPB9e6q5AAJTwTEbswi5VgbbUQFoQg5PAQADAgADcwADNgQ"]
-    sell_images = ["AgACAgUAAxkBAAKodmfXFrYnjhxh-wsJcDm1pcjGjC8UAAJSwTEbswi5VtcdWgjFsLqrAQADAgADeAADNgQ", "AgACAgUAAxkBAAKodmfXFrYnjhxh-wsJcDm1pcjGjC8UAAJSwTEbswi5VtcdWgjFsLqrAQADAgADeAADNgQ", "AgACAgUAAxkBAAKodmfXFrYnjhxh-wsJcDm1pcjGjC8UAAJSwTEbswi5VtcdWgjFsLqrAQADAgADeAADNgQ"]
-
-    # Randomly pick an image
-    image_id = random.choice(buy_images) if signal_type == "BUY" else random.choice(sell_images)
-
+    image_id = buy_image_id if signal_type == "BUY" else sell_image_id
     response_template = random.choice([r for r in responses if signal_type in r])
     caption = response_template.format(pair=pair, confidence=confidence)
 
-    # Delete the last message before sending final response with image
-    await analyzing_message.delete()
-    await update.message.reply_photo(photo=open(image_id, "rb"), caption=caption, parse_mode="Markdown")
+    # Edit the last message and attach the image
+    await analyzing_message.edit_text(caption, parse_mode="Markdown")
+    await analyzing_message.reply_photo(photo=image_id)
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
