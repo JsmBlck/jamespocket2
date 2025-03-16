@@ -125,19 +125,25 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
 
-async def simulate_analysis(update: Update, pair: str):
-    """Simulates analyzing the selected OTC pair and sends a signal."""
-    await update.message.reply_text(f"🔍 Analyzing {pair}... Please wait.")
+async def simulate_analysis(update: Update, pair: str) -> None:
+    analyzing_message = await update.message.reply_text(f"🔍 Scanning {pair}...", parse_mode="Markdown")
 
-    await asyncio.sleep(random.randint(2, 5))
+    steps = [
+        "📊 Detecting market patterns...",
+        "🔎 Analyzing price action...",
+        "📌 Finalizing signal..."
+    ]
 
-    confidence = random.randint(60, 95)
-    signal_template = random.choice(responses)
-    signal_message = signal_template.format(pair=pair, confidence=confidence)
+    for step in steps:
+        await asyncio.sleep(2)
+        await analyzing_message.edit_text(step, parse_mode="Markdown")
 
-    await update.message.reply_text(signal_message, parse_mode="Markdown")
-    await log_activity(update.get_bot(), f"📊 **Analysis Completed:**\n📈 Pair: {pair}\n📌 Signal: {signal_message}")
+    confidence = random.randint(75, 80)
+    response_template = random.choice(responses)
+    response = response_template.format(pair=pair, confidence=confidence)
 
+    await analyzing_message.edit_text(response, parse_mode="Markdown")
+    
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     
