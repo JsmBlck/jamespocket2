@@ -16,7 +16,10 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # List of Admin IDs
-ADMIN_IDS = [6992481448, 7947707536]  # Updated admin IDs
+ADMIN_IDS = [6992481448, 7947707536]  
+
+# Channel ID for logging user activity (replace with your actual channel ID)
+LOG_CHANNEL_ID = -1002666027470  # Replace with your log channel ID
 
 # Load authorized users from file
 def load_users():
@@ -31,7 +34,7 @@ def save_users():
     with open("members.txt", "w") as f:
         json.dump(list(AUTHORIZED_USERS), f)
 
-# Authorized users list (only these users can use the bot)
+# Authorized users list
 AUTHORIZED_USERS = load_users()
 
 # List of OTC pairs
@@ -46,7 +49,7 @@ responses = [
     "📉 **Signal: SELL {pair}** \nConfidence: {confidence}%"
 ]
 
-# Create a Flask app
+# Flask app
 app = Flask(__name__)
 
 @app.route('/')
@@ -63,6 +66,10 @@ def keep_alive():
             print(f"❌ Ping failed: {e}")
         time.sleep(300)
 
+async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
+    """Send logs to the log channel."""
+    await context.bot.send_message(chat_id=LOG_CHANNEL_ID, text=message)
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     if user.id not in AUTHORIZED_USERS:
@@ -70,6 +77,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     print(f"User {user.id} ({user.username}) started the bot.")
+
+    # Log user start event
+    await log_activity(context, f"👤 **User Started:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}")
+
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
 
@@ -97,6 +108,10 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         AUTHORIZED_USERS.add(new_user_id)
         save_users()
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
+
+        # Log new user addition
+        await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
+
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
 
@@ -128,6 +143,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     user_message = update.message.text
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
+
+        # Log user selection
+        await log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
+
         asyncio.create_task(simulate_analysis(update, user_message))
     else:
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
@@ -138,7 +157,7 @@ def run_flask():
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("addmember", add_member))  # Add member command
+    application.add_handler(CommandHandler("addmember", add_member))  
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     flask_thread = Thread(target=run_flask)
