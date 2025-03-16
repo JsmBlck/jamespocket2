@@ -54,14 +54,61 @@ otc_pairs = [
 
 # AI-like responses
 responses = [
-    "⬆️ **BUY Signal for {pair}** \n\n🔥 Confidence: {confidence}%\n\n🤖 LunaX Signal Bot",
-    "⬇️ **SELL Signal for {pair}** \n\n📉 Confidence: {confidence}%\n\n🚀 LunaX Signal Bot",
-    "⬆️ **BUY Opportunity for {pair}** \n\n📈 Confidence: {confidence}%\n\n⚡ LunaX Signal Bot",
-    "⬇️ **SELL Alert for {pair}** \n\n⏳ Confidence: {confidence}%\n\n💡 LunaX Signal Bot",
-    "⬆️ **Potential BUY for {pair}** \n\n💰 Confidence: {confidence}%\n\n🔍 LunaX Signal Bot",
-    "⬇️ **Strong SELL Signal for {pair}** \n\n⚠️ Confidence: {confidence}%\n\n📊 LunaX Signal Bot",
-    "⬆️ **BUY Setup for {pair}** \n\n📌 Confidence: {confidence}%\n\n📡 LunaX Signal Bot",
-    "⬇️ **SELL Opportunity for {pair}** \n\n🔴 Confidence: {confidence}%\n\n🛰️ LunaX Signal Bot"
+    "🟢 **BUY Signal for {pair}** \n\n"
+    "📡 **AI Analysis:** Market momentum detected 📈\n"
+    "🧠 **Trend Prediction:** Upward breakout potential ✅\n"
+    "⚙️ **Algorithm Confidence:** {confidence}%\n"
+    "🔍 **Data Sources:** Multi-indicator convergence 📊\n\n"
+    "🤖 LunaX Signal Bot - Precision in Trading 🚀",
+
+    "🔴 **SELL Signal for {pair}** \n\n"
+    "📡 **AI Analysis:** Bearish pressure increasing 📉\n"
+    "🧠 **Trend Prediction:** Price drop likely 🔻\n"
+    "⚙️ **Algorithm Confidence:** {confidence}%\n"
+    "🔍 **Data Sources:** Volatility spike detected 📊\n\n"
+    "🤖 LunaX Signal Bot - Smart Market Insights 🛰️",
+
+    "🟢 **BUY Opportunity for {pair}** \n\n"
+    "⚡ **AI-Driven Forecast:** Entry zone detected 🔥\n"
+    "🔍 **Technical Metrics:** RSI, MACD, Bollinger Bands aligned 📊\n"
+    "⚙️ **Confidence Score:** {confidence}%\n"
+    "🛠️ **Risk-to-Reward Ratio:** Favorable entry 📈\n\n"
+    "🤖 LunaX Signal Bot - Future-Driven Trading 🚀",
+
+    "🔴 **SELL Alert for {pair}** \n\n"
+    "📡 **AI Computation:** Market downturn projected 📉\n"
+    "🧠 **Trend Confidence:** {confidence}%\n"
+    "🔍 **Indicators Triggered:** RSI divergence, Moving Averages cross 🔴\n"
+    "⏳ **Projected Price Action:** Decline expected soon ⚠️\n\n"
+    "🤖 LunaX Signal Bot - AI-Powered Precision 📊",
+
+    "🟢 **Potential BUY for {pair}** \n\n"
+    "🧠 **Deep Learning Model:** Bullish breakout anticipated 📈\n"
+    "📡 **Multi-Source Data:** Liquidity surge detected 🔎\n"
+    "⚙️ **Trade Probability:** {confidence}%\n"
+    "🛠️ **Automated Analysis:** Strong market positioning 💰\n\n"
+    "🤖 LunaX Signal Bot - AI at the Core 🔥",
+
+    "🔴 **Strong SELL Signal for {pair}** \n\n"
+    "📊 **AI Risk Assessment:** Bearish divergence confirmed 📉\n"
+    "📡 **Market Structure Shift:** Resistance level hit 🔻\n"
+    "⚙️ **Confidence Score:** {confidence}%\n"
+    "🛠️ **Machine Learning Model:** Trend reversal detected ⚠️\n\n"
+    "🤖 LunaX Signal Bot - Smarter Trading Insights 🛰️",
+
+    "🟢 **BUY Setup for {pair}** \n\n"
+    "📡 **AI Projection:** Long position favored 🏆\n"
+    "🔍 **Key Technicals:** Support retest, bullish candlestick pattern 📊\n"
+    "⚙️ **Market Sentiment:** Positive trend confirmation ✅\n"
+    "📌 **Trade Execution Level:** Optimized for profit 🚀\n\n"
+    "🤖 LunaX Signal Bot - Future Ready Trading 🔥",
+
+    "🔴 **SELL Opportunity for {pair}** \n\n"
+    "🧠 **Neural Network Prediction:** Market rejection detected 🚨\n"
+    "📡 **Volatility Spike:** Unstable conditions ahead 📊\n"
+    "⚙️ **Sell Confirmation:** {confidence}%\n"
+    "🔍 **Price Projection:** Lower lows incoming 📉\n\n"
+    "🤖 LunaX Signal Bot - AI Precision Trading 💯"
 ]
 
 # Image file IDs (replace with actual Telegram file IDs)
