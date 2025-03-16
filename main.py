@@ -5,7 +5,7 @@ import threading
 import requests
 import time
 import json
-gimport gspread
+import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
