@@ -65,8 +65,8 @@ responses = [
 ]
 
 # Image file IDs (replace with actual Telegram file IDs)
-buy_image_id = "AgACAgUAAxkBAAKoUmfXDom9yi0INRGli5kzUcq0_FaxAAJGwTEbswi5VvG4JJcFCKkCAQADAgADeQADNgQ"
-sell_image_id = "AgACAgUAAxkBAAKoVGfXDrroEhX0j45Ta7zEM_JRpKGMAAJHwTEbswi5VqSrKAiy10sDAQADAgADcwADNgQ"
+buy_image_id = "AgACAgUAAxkBAAKoeGfXFrnEQl8MM1xgIsN2tPB9e6q5AAJTwTEbswi5VgbbUQFoQg5PAQADAgADcwADNgQ"
+sell_image_id = "AgACAgUAAxkBAAKodmfXFrYnjhxh-wsJcDm1pcjGjC8UAAJSwTEbswi5VtcdWgjFsLqrAQADAgADeAADNgQ"
 
 # Flask app
 app = Flask(__name__)
@@ -144,10 +144,10 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     response_template = random.choice([r for r in responses if signal_type in r])
     caption = response_template.format(pair=pair, confidence=confidence)
 
-    # Edit the last message and attach the image
-    await analyzing_message.edit_text(caption, parse_mode="Markdown")
-    await analyzing_message.reply_photo(photo=image_id)
-
+    # Delete the last message before sending final response with image
+    await analyzing_message.delete()
+    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
+    
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     if user.id not in ADMIN_IDS:
