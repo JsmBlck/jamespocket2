@@ -2,3 +2,5 @@ requests
 python-telegram-bot[ext]
 flask
 python-dotenv
+gspread
+oauth2client
