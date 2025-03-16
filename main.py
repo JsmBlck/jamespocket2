@@ -23,7 +23,7 @@ import json
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
-sheet = client.open("LUNAX USERS").sheet1
+sheet = client.open("TelegramBotMembers").sheet1
 
 # List of Admin IDs
 ADMIN_IDS = [6992481448, 7947707536]  
