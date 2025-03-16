@@ -80,13 +80,13 @@ def keep_alive():
 
 async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
     """Send logs to the log channel."""
-    await context.bot.send_message(chat_id=LOG_CHANNEL_ID, text=message)
+    asyncio.create_task(context.bot.send_message(chat_id=LOG_CHANNEL_ID, text=message))
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     print(f"User {user.id} ({user.username}) started the bot.")
 
-    await log_activity(context, f"👤 **User Started:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}")
+    asyncio.create_task(log_activity(context, f"👤 **User Started:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}"))
 
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
@@ -108,23 +108,6 @@ Our bot provides real-time trading signals for OTC Forex pairs.
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
     await update.message.reply_text(welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
 
-async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user = update.message.from_user
-    if user.id not in ADMIN_IDS:
-        await update.message.reply_text("❌ You are not authorized to use this command.")
-        return
-    
-    try:
-        new_user_id = int(context.args[0])
-        AUTHORIZED_USERS.add(new_user_id)
-        save_users()
-        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
-
-        await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
-
-    except (IndexError, ValueError):
-        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
-
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_message = await update.message.reply_text(f"🔍 Scanning {pair}...", parse_mode="Markdown")
 
@@ -143,11 +126,11 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     response = response_template.format(pair=pair, confidence=confidence)
 
     await analyzing_message.edit_text(response, parse_mode="Markdown")
-    
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     
-    await log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {update.message.text}")
+    asyncio.create_task(log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {update.message.text}"))
 
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
@@ -156,8 +139,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     user_message = update.message.text
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        await log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
-        await simulate_analysis(update, user_message)
+        asyncio.create_task(log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}"))
+        asyncio.create_task(simulate_analysis(update, user_message))
     else:
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
 
@@ -165,9 +148,8 @@ def run_flask():
     app.run(host="0.0.0.0", port=8080)
 
 def main() -> None:
-    application = Application.builder().token(TOKEN).build()
+    application = Application.builder().token(TOKEN).concurrent_updates(True).build()
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("addmember", add_member))  
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     flask_thread = Thread(target=run_flask)
