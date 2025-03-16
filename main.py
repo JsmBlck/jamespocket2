@@ -115,18 +115,26 @@ Our bot provides real-time trading signals for OTC Forex pairs.
     await update.message.reply_text(welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
 
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🔍 Scanning {pair}...", parse_mode="Markdown")
+    analyzing_messages = [
+        "⚡ Scanning {pair}...",
+        "🤖 AI analyzing {pair}...",
+        "📡 Data crunching {pair}...",
+        "🔍 Processing {pair}...",
+        "📊 Evaluating {pair}..."
+    ]
+    
+    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
     step_variations = [
-    ["🤖 Deploying AI-driven market scan...", "🛰️ Running deep market analysis...", "📡 Initiating algorithmic trend detection..."],
-    ["🔬 Processing historical price data...", "📉 Evaluating volatility and momentum shifts...", "📊 Calculating real-time price correlations..."],
-    ["⚡ Computing final trade signal...", "🧠 Applying neural network validation...", "📍 Confirming AI-predicted trade opportunity..."]
-]
+        ["🛰️ Processing data...", "📡 Gathering insights...", "🔍 Extracting indicators..."],
+        ["🤖 Running AI model...", "🧠 Predicting trends...", "🔬 Simulating movement..."],
+        ["✅ Generating signal...", "📊 Finalizing analysis...", "📌 Confirming trade..."]
+    ]
 
     steps = [random.choice(variation) for variation in step_variations]
 
     for step in steps:
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
     confidence = random.randint(75, 80)
