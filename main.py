@@ -118,10 +118,10 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_message = await update.message.reply_text(f"🔍 Scanning {pair}...", parse_mode="Markdown")
 
     step_variations = [
-        ["📊 Detecting market trends...", "📊 Identifying trading patterns...", "📊 Scanning market movements..."],
-        ["🔎 Analyzing price fluctuations...", "🔎 Evaluating price dynamics...", "🔎 Examining price action..."],
-        ["📌 Confirming final signal...", "📌 Generating final prediction...", "📌 Finalizing trade analysis..."]
-    ]
+    ["📡 Detecting market trends...", "📢 Identifying trading patterns...", "🛰️ Scanning market movements..."],
+    ["🔬 Analyzing price fluctuations...", "📉 Evaluating price dynamics...", "📈 Examining price action..."],
+    ["✅ Confirming final signal...", "🛠️ Generating final prediction...", "📍 Finalizing trade analysis..."]
+]
 
     steps = [random.choice(variation) for variation in step_variations]
 
