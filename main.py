@@ -5,6 +5,8 @@ import threading
 import requests
 import time
 import json
+gimport gspread
+from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup
@@ -15,24 +17,32 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
+# Google Sheets setup
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("TelegramBotMembers").sheet1
+
 # List of Admin IDs
 ADMIN_IDS = [6992481448, 7947707536]  
 
 # Channel ID for logging user activity (replace with your actual channel ID)
 LOG_CHANNEL_ID = -1002666027470  # Replace with your log channel ID
 
-# Load authorized users from file
+# Load authorized users from Google Sheets
 def load_users():
     try:
-        with open("members.txt", "r") as f:
-            return set(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
+        users = sheet.col_values(1)
+        return set(map(int, users)) | set(ADMIN_IDS)
+    except Exception as e:
+        print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
-# Save authorized users to file
+# Save authorized users to Google Sheets
 def save_users():
-    with open("members.txt", "w") as f:
-        json.dump(list(AUTHORIZED_USERS), f)
+    sheet.clear()
+    for idx, user_id in enumerate(AUTHORIZED_USERS):
+        sheet.update_cell(idx + 1, 1, user_id)
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
@@ -115,25 +125,6 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
 
-async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🔍 Scanning {pair}...", parse_mode="Markdown")
-
-    steps = [
-        "📊 Detecting market patterns...",
-        "🔎 Analyzing price action...",
-        "📌 Finalizing signal..."
-    ]
-
-    for step in steps:
-        await asyncio.sleep(2)
-        await analyzing_message.edit_text(step, parse_mode="Markdown")
-
-    confidence = random.randint(75, 80)
-    response_template = random.choice(responses)
-    response = response_template.format(pair=pair, confidence=confidence)
-
-    await analyzing_message.edit_text(response, parse_mode="Markdown")
-
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     
@@ -151,7 +142,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         # Log user selection
         await log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
 
-        asyncio.create_task(simulate_analysis(update, user_message))
+        await simulate_analysis(update, user_message)
     else:
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
 
