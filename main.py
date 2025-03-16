@@ -64,6 +64,10 @@ responses = [
     "⬇️ **SELL Opportunity for {pair}** \nConfidence: {confidence}%"
 ]
 
+# Image file IDs (replace with actual Telegram file IDs)
+buy_image_id = "AgACAgUAAxkBAAKoUmfXDom9yi0INRGli5kzUcq0_FaxAAJGwTEbswi5VvG4JJcFCKkCAQADAgADeQADNgQ"
+sell_image_id = "gACAgUAAxkBAAKoVGfXDrroEhX0j45Ta7zEM_JRpKGMAAJHwTEbswi5VqSrKAiy10sDAQADAgADeQADNgQ"
+
 # Flask app
 app = Flask(__name__)
 
@@ -113,19 +117,19 @@ Our bot provides real-time trading signals for OTC Forex pairs.
 
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_messages = [
-        f"⚡ Scanning {pair}...",
-        f"🤖 AI analyzing {pair}...",
-        f"📡 Data crunching {pair}...",
-        f"🔍 Processing {pair}...",
-        f"📊 Evaluating {pair}..."
+        "⚡ Scanning {pair}...",
+        "🤖 AI analyzing {pair}...",
+        "📡 Data crunching {pair}...",
+        "🔍 Processing {pair}...",
+        "📊 Evaluating {pair}..."
     ]
     
-    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages), parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
     step_variations = [
-        [f"🛰️ Processing data for {pair}...", f"📡 Gathering insights for {pair}...", f"🔍 Extracting indicators for {pair}..."],
-        [f"🤖 Running AI model for {pair}...", f"🧠 Predicting trends for {pair}...", f"🔬 Simulating movement for {pair}..."],
-        [f"✅ Generating signal for {pair}...", f"📊 Finalizing analysis for {pair}...", f"📌 Confirming trade for {pair}..."]
+        ["🛰️ Processing data...", "📡 Gathering insights...", "🔍 Extracting indicators..."],
+        ["🤖 Running AI model...", "🧠 Predicting trends...", "🔬 Simulating movement..."],
+        ["✅ Generating signal...", "📊 Finalizing analysis...", "📌 Confirming trade..."]
     ]
 
     steps = [random.choice(variation) for variation in step_variations]
@@ -135,10 +139,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
     confidence = random.randint(75, 80)
-    response_template = random.choice(responses)
-    response = response_template.format(pair=pair, confidence=confidence)
+    signal_type = "BUY" if random.random() > 0.5 else "SELL"
+    image_id = buy_image_id if signal_type == "BUY" else sell_image_id
+    response_template = random.choice([r for r in responses if signal_type in r])
+    caption = response_template.format(pair=pair, confidence=confidence)
 
-    await analyzing_message.edit_text(response, parse_mode="Markdown")
+    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
