@@ -129,19 +129,18 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+    user_message = update.message.text
     
-    asyncio.create_task(log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {update.message.text}"))
-
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
     
-    user_message = update.message.text
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        asyncio.create_task(log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}"))
-        asyncio.create_task(simulate_analysis(update, user_message))
-    else:
+        await log_activity(context, f"📌 **Trade Selection:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n📈 Pair: {user_message}")
+        await simulate_analysis(update, user_message)
+    elif not user_message.startswith("/"):
+        await log_activity(context, f"📩 **Message Received:**\n🆔 ID: {user.id}\n👤 Username: @{user.username}\n💬 Message: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
 
 def run_flask():
