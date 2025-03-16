@@ -57,14 +57,14 @@ otc_pairs = [
 
 # AI-like responses
 responses = [
-    "⬆️ **BUY Signal for {pair}** \n📊 Confidence: {confidence}%",
-    "⬇️ **SELL Signal for {pair}** \n📊 Confidence: {confidence}%",
-    "⬆️ **BUY Opportunity for {pair}** \n📊 Confidence: {confidence}%",
-    "⬇️ **SELL Alert for {pair}** \n📊 Confidence: {confidence}%",
-    "⬆️ **Potential BUY for {pair}** \n📊 Confidence: {confidence}%",
-    "⬇️ **Strong SELL Signal for {pair}** \n📊 Confidence: {confidence}%",
-    "⬆️ **BUY Setup for {pair}** \n📊 Confidence: {confidence}%",
-    "⬇️ **SELL Opportunity for {pair}** \n📊 Confidence: {confidence}%"
+    "⬆️ **BUY Signal for {pair}** \nConfidence: {confidence}%",
+    "⬇️ **SELL Signal for {pair}** \nConfidence: {confidence}%",
+    "⬆️ **BUY Opportunity for {pair}** \nConfidence: {confidence}%",
+    "⬇️ **SELL Alert for {pair}** \nConfidence: {confidence}%",
+    "⬆️ **Potential BUY for {pair}** \nConfidence: {confidence}%",
+    "⬇️ **Strong SELL Signal for {pair}** \nConfidence: {confidence}%",
+    "⬆️ **BUY Setup for {pair}** \nConfidence: {confidence}%",
+    "⬇️ **SELL Opportunity for {pair}** \nConfidence: {confidence}%"
 ]
 
 # Flask app
