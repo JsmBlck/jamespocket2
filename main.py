@@ -66,7 +66,7 @@ responses = [
 
 # Image file IDs (replace with actual Telegram file IDs)
 buy_image_id = "AgACAgUAAxkBAAKoUmfXDom9yi0INRGli5kzUcq0_FaxAAJGwTEbswi5VvG4JJcFCKkCAQADAgADeQADNgQ"
-sell_image_id = "gACAgUAAxkBAAKoVGfXDrroEhX0j45Ta7zEM_JRpKGMAAJHwTEbswi5VqSrKAiy10sDAQADAgADeQADNgQ"
+sell_image_id = "AgACAgUAAxkBAAKoVGfXDrroEhX0j45Ta7zEM_JRpKGMAAJHwTEbswi5VqSrKAiy10sDAQADAgADcwADNgQ"
 
 # Flask app
 app = Flask(__name__)
