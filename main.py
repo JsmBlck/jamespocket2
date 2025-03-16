@@ -191,9 +191,9 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     response_template = random.choice([r for r in responses if signal_type in r])
     caption = response_template.format(pair=pair, confidence=confidence)
 
-    # Edit the last message and attach the image
-    await analyzing_message.edit_text(caption, parse_mode="Markdown")
-    await analyzing_message.reply_photo(photo=image_id)
+    # Delete the last message before sending final response with image
+    await analyzing_message.delete()
+    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
