@@ -153,20 +153,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     asyncio.create_task(log_activity(context, f"User Started: \n{user.id} \n@{user.username}"))
     
-    og_message = (
-        f"User Started the Bot\n"
-        f"User ID: {user.id}\n"
-        f"Username: {user.username}"
+    log_message = (
+        f"🔔 User Started the Bot\n"
+        f"👤 User ID: {user.id}\n"
+        f"📛 Username: {user.username}"
     )
     
     log_message = escape_markdown_v2(log_message)
-    
-    await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="MarkdownV2")
     
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
 
+    await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="MarkdownV2")
+
+    
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
 
