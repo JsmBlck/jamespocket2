@@ -6,6 +6,7 @@ import requests
 import time
 import json
 import gspread
+import re
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
@@ -152,7 +153,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     asyncio.create_task(log_activity(context, f"User Started: \n{user.id} \n@{user.username}"))
     
-    log_message = (f"User Started: \n{user.id} \n@{user.username}")
+    og_message = (
+        f"User Started the Bot\n"
+        f"User ID: {user.id}\n"
+        f"Username: {user.username}"
+    )
+    
+    log_message = escape_markdown_v2(log_message)
     
     await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="MarkdownV2")
     
@@ -269,6 +276,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
+
+def escape_markdown_v2(text):
+    """Escape special characters for MarkdownV2"""
+    return re.sub(r"([_*[\]()~`>#+\-=|{}.!])", r"\\\1", text)
 
 def run_flask():
     app.run(host="0.0.0.0", port=8080)
