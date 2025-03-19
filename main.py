@@ -18,6 +18,7 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
+USER_STARTED_LOG_ID = int(os.getenv("USER_STARTED_LOG_ID", "0"))
 
 
 # Google Sheets setup
@@ -48,8 +49,14 @@ AUTHORIZED_USERS = load_users()
 
 # List of OTC pairs
 otc_pairs = [
-    "AED/CNY OTC", "AUD/CHF OTC", "BHD/CNY OTC", "EUR/USD OTC", 
-    "CAD/CHF OTC", "NZD/JPY OTC", "EUR/CHF OTC", "GBP/JPY OTC"
+    "🇦🇪/🇨🇳 AED/CNY OTC", 
+    "🇦🇺/🇨🇭 AUD/CHF OTC", 
+    "🇧🇭/🇨🇳 BHD/CNY OTC", 
+    "🇪🇺/🇺🇸 EUR/USD OTC", 
+    "🇨🇦/🇨🇭 CAD/CHF OTC", 
+    "🇳🇿/🇯🇵 NZD/JPY OTC", 
+    "🇪🇺/🇨🇭 EUR/CHF OTC", 
+    "🇬🇧/🇯🇵 GBP/JPY OTC"
 ]
 
 # AI-like responses
@@ -144,7 +151,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print(f"User {user.id} ({user.username}) started the bot.")
 
     asyncio.create_task(log_activity(context, f"User Started: \n{user.id} \n@{user.username}"))
-
+    
+    log_message = (f"User Started: \n{user.id} \n@{user.username")
+    
+    await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="Markdown")
+    
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
@@ -173,7 +184,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         "🔍 Processing {pair}...",
         "📊 Evaluating {pair}..."
     ]
-    
+
     analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
     step_variations = [
@@ -188,6 +199,32 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         await asyncio.sleep(1)
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
+    BUY_IMAGES = [
+        "AgACAgUAAxkBAAIC3Wfa0e3y-ouFKa6JOE5TrjMyVpYQAAI0xjEbJdXZVlAqAqzY7xPZAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIC32fa0fFFdgk8AAHApNIrPmAFUHhGBwACNcYxGyXV2VYAAfujv7riO-IBAAMCAAN5AAM2BA",
+        "AgACAgUAAxkBAAIC4Wfa0fUMZIXOcxda79GylW6-y54UAAI2xjEbJdXZVmuEQW-_v5l5AQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIC42fa0fpL2URh_isSZJOXNrxOpzIlAAI3xjEbJdXZVsHl6tcbg9SRAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIDImfa1Mf68oZHY2FkYPokoinkYOlvAAJCxjEbJdXZVi8iv4nmyXOYAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIDJGfa1M0rxAfqK0_W8v6C0_M_8eRjAAJDxjEbJdXZVjRnqLuYoipWAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIDJmfa1M_y6xW2vZeMihGtRTs5Wm6SAAJExjEbJdXZVunXgA9Y_hjwAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIDKGfa1NJpYUQkFhngymP8-gioQ9HCAAJGxjEbJdXZVlEarAO3d22MAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIDKmfa1NWuyzq8Y5vfW1Zkpzqdf_wgAAJIxjEbJdXZVnPqB5rjVa8LAQADAgADeQADNgQ"
+    ]
+    SELL_IMAGES = [
+        "AgACAgUAAxkBAAIEU2fa57niAxLnKpMeaKE5s57MDEJDAAJ5xjEbJdXZVp-owMy8c7xrAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEVWfa579UPg_FN0cklGntfYzF2wyBAAJ6xjEbJdXZVvlKWKPY6im2AQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEV2fa58Jd1oXJgR0LNuvRmAYP4UilAAJ7xjEbJdXZVr-3Zfgi5IpDAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEWWfa58a5_-Fd9U42iFPefMN19NmEAAJ8xjEbJdXZVrBV8Mn5BbpiAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEW2fa58j02bHojLQVXQWSb5dAlZ6dAAJ9xjEbJdXZVi06ljg6lLNwAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEXWfa58tBU--AK00Jk3hq2xlljS3EAAJ-xjEbJdXZVhkFOsaPRky6AQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEX2fa582HGTvYtsES2jzVG2zCX7aCAAJ_xjEbJdXZVp1E2cU6r-ZkAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEYWfa59A02wmUPzJeFbw1-j4je4YjAAKAxjEbJdXZVoSm5PZcGWVJAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEY2fa59TzGzQ2W18wNWIb3yWCtiywAAKBxjEbJdXZVu_xYOcUbp-bAQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAIEZWfa59iDaH-55zwTJiuYK0ePMU3bAAKCxjEbJdXZVm3aJGmv8Bh0AQADAgADeQADNgQ"
+    ]
+    buy_image_id = random.choice(BUY_IMAGES)
+    sell_image_id = random.choice(SELL_IMAGES)
+    
     confidence = random.randint(75, 80)
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
     image_id = buy_image_id if signal_type == "BUY" else sell_image_id
