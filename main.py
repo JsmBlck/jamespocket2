@@ -154,7 +154,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     log_message = (f"User Started: \n{user.id} \n@{user.username}")
     
-    await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="Markdown")
+    await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="MarkdownV2")
     
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
