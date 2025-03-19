@@ -152,7 +152,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     asyncio.create_task(log_activity(context, f"User Started: \n{user.id} \n@{user.username}"))
     
-   log_message = (f"User Started: \n{user.id} \n@{user.username}")
+    log_message = (f"User Started: \n{user.id} \n@{user.username}")
 
     await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="Markdown")
     
