@@ -201,7 +201,8 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         ["✅ Generating signal for {pair}...", "📊 Finalizing analysis for {pair}...", "📌 Confirming trade for {pair}..."]
     ]
 
-    steps = [random.choice(variation) for variation in step_variations]
+    # steps = [random.choice(variation) for variation in step_variations]
+    steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
 
     for step in steps:
         await asyncio.sleep(random.uniform(1.5, 2.0)) 
