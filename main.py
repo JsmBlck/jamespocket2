@@ -243,6 +243,16 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await analyzing_message.delete()
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
+    follow_up_messages = [
+        "🔄 Ready for the next trade? Choose another OTC pair.",
+        "📈 Let's keep it going! Select another pair.",
+        "🧐 What's next? Drop another OTC pair below.",
+        "⚡ Keep the momentum! Enter another OTC pair.",
+        "🚀 Ready for more signals? Send your next OTC pair."
+    ]
+    await asyncio.sleep(1)  # Small delay before follow-up
+    await update.message.reply_text(random.choice(follow_up_messages))
+
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     if user.id not in ADMIN_IDS:
