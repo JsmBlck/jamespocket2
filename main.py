@@ -162,7 +162,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     log_message = escape_markdown_v2(log_message)
     
     if user.id not in AUTHORIZED_USERS:
-        await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
+        await update.message.reply_text(
+    "❌ Access Denied. You are not authorized to use this bot.\n\n"
+    "To get access, kindly join the channel: https://t.me/+zPRC_d9dHMM0NDBl "
+    "or message @JoinLunaX."
+)
         return
 
     await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="MarkdownV2")
