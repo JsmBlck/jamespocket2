@@ -204,7 +204,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     steps = [random.choice(variation) for variation in step_variations]
 
     for step in steps:
-        await asyncio.sleep(1)
+        await asyncio.sleep(random.uniform(1.5, 2.0)) 
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
     BUY_IMAGES = [
@@ -250,7 +250,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         "⚡ Keep the momentum! Enter another OTC pair.",
         "🚀 Ready for more signals? Send your next OTC pair."
     ]
-    await asyncio.sleep(1)  # Small delay before follow-up
+    await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
