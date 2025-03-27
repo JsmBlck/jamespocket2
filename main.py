@@ -39,11 +39,19 @@ def load_users():
         print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
-# Save authorized users to Google Sheets
+# Save authorized users to Google Sheets with better error handling
 def save_users():
-    sheet.clear()
-    for idx, user_id in enumerate(AUTHORIZED_USERS):
-        sheet.update_cell(idx + 1, 1, user_id)
+    try:
+        sheet.batch_clear(["A1:A1000"])  # Clear only relevant range
+        time.sleep(1)  # Avoid API rate limit issues
+        
+        if AUTHORIZED_USERS:  # Only update if there are users
+            values = [[user_id] for user_id in AUTHORIZED_USERS]
+            sheet.update("A1:A{}".format(len(values)), values)
+    except APIError as e:
+        print(f"APIError while saving users: {e}")
+    except Exception as e:
+        print(f"Unexpected error while saving users: {e}")
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
