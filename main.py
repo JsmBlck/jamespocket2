@@ -287,6 +287,28 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
 
+async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.message.from_user
+    if user.id not in ADMIN_IDS:
+        await update.message.reply_text("❌ You are not authorized to use this command.")
+        return
+
+    try:
+        remove_user_id = int(context.args[0])
+        if remove_user_id in AUTHORIZED_USERS:
+            AUTHORIZED_USERS.remove(remove_user_id)
+            save_users()
+            await update.message.reply_text(f"✅ User {remove_user_id} has been removed successfully.")
+
+            # Log user removal
+            await log_activity(context, f"❌ **User Removed:** {remove_user_id} by @{user.username}")
+
+        else:
+            await update.message.reply_text("⚠️ User ID not found in the authorized list.")
+
+    except (IndexError, ValueError):
+        await update.message.reply_text("⚠️ Usage: /removemember <user_id>")
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     user_message = update.message.text
@@ -314,6 +336,7 @@ def main() -> None:
     application = Application.builder().token(TOKEN).concurrent_updates(True).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("addmember", add_member))  
+    application.add_handler(CommandHandler("removemember", add_member))  
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     flask_thread = Thread(target=run_flask)
