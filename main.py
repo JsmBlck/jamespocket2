@@ -1,3 +1,4 @@
+
 import os
 import random
 import asyncio
@@ -13,7 +14,6 @@ from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from gspread.exceptions import APIError
 
 # Load environment variables
 load_dotenv()
@@ -40,19 +40,11 @@ def load_users():
         print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
-# Save authorized users to Google Sheets with better error handling
+# Save authorized users to Google Sheets
 def save_users():
-    try:
-        sheet.batch_clear(["A1:A1000"])  # Clear only relevant range
-        time.sleep(1)  # Avoid API rate limit issues
-        
-        if AUTHORIZED_USERS:  # Only update if there are users
-            values = [[user_id] for user_id in AUTHORIZED_USERS]
-            sheet.update("A1:A{}".format(len(values)), values)
-    except APIError as e:
-        print(f"APIError while saving users: {e}")
-    except Exception as e:
-        print(f"Unexpected error while saving users: {e}")
+    sheet.clear()
+    for idx, user_id in enumerate(AUTHORIZED_USERS):
+        sheet.update_cell(idx + 1, 1, user_id)
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
@@ -267,45 +259,23 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
 
-import asyncio
-
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print("add_member command received")  # Debugging
     user = update.message.from_user
-
     if user.id not in ADMIN_IDS:
         await update.message.reply_text("❌ You are not authorized to use this command.")
         return
 
     try:
-        # Ensure user provides an argument
-        if not context.args:
-            await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
-            return
-
-        # Convert argument to integer
         new_user_id = int(context.args[0])
-
-        # Add new user
         AUTHORIZED_USERS.add(new_user_id)
-
-        # Run save_users in a separate thread to avoid blocking
-        await asyncio.to_thread(save_users)
-
-        # Notify success
+        save_users()
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
         # Log new user addition
-        if user.username:
-            await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
-        else:
-            await log_activity(context, f"✅ **User Added:** {new_user_id} by an unknown admin")
+        await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
 
-    except ValueError:
-        await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
-    except Exception as e:
-        await update.message.reply_text("❌ An error occurred while adding the user.")
-        print(f"Error in add_member: {e}")
+    except (IndexError, ValueError):
+        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
