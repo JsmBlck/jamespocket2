@@ -267,23 +267,44 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
 
+import asyncio
+
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+
     if user.id not in ADMIN_IDS:
         await update.message.reply_text("❌ You are not authorized to use this command.")
         return
 
     try:
+        # Ensure user provides an argument
+        if not context.args:
+            await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
+            return
+
+        # Convert argument to integer
         new_user_id = int(context.args[0])
+
+        # Add new user
         AUTHORIZED_USERS.add(new_user_id)
-        save_users()
+
+        # Run save_users in a separate thread to avoid blocking
+        await asyncio.to_thread(save_users)
+
+        # Notify success
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
         # Log new user addition
-        await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
+        if user.username:
+            await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
+        else:
+            await log_activity(context, f"✅ **User Added:** {new_user_id} by an unknown admin")
 
-    except (IndexError, ValueError):
-        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
+    except ValueError:
+        await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
+    except Exception as e:
+        await update.message.reply_text("❌ An error occurred while adding the user.")
+        print(f"Error in add_member: {e}")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
