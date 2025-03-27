@@ -13,6 +13,7 @@ from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from gspread.exceptions import APIError
 
 # Load environment variables
 load_dotenv()
