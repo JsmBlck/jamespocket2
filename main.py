@@ -270,6 +270,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 import asyncio
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    print("add_member command received")  # Debugging
     user = update.message.from_user
 
     if user.id not in ADMIN_IDS:
