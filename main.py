@@ -36,25 +36,6 @@ if response.status_code == 200:
 else:
     print("Error fetching the sheet:", response.status_code)
 
-
-# Load authorized users from Google Sheets
-def load_users():
-    try:
-        users = sheet.col_values(1)
-        return set(map(int, users)) | set(ADMIN_IDS)
-    except Exception as e:
-        print(f"Error loading users: {e}")
-        return set(ADMIN_IDS)
-
-# Save authorized users to Google Sheets
-def save_users():
-    sheet.clear()
-    for idx, user_id in enumerate(AUTHORIZED_USERS):
-        sheet.update_cell(idx + 1, 1, user_id)
-
-# Authorized users list
-AUTHORIZED_USERS = load_users()
-
 # List of OTC pairs
 otc_pairs = [
     "🇦🇪/🇨🇳 AED/CNY OTC", 
