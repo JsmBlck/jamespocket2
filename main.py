@@ -23,12 +23,19 @@ USER_STARTED_LOG_ID = int(os.getenv("USER_STARTED_LOG_ID", "0"))
 
 
 # Google Sheets setup
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-import json
-creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-client = gspread.authorize(creds)
-sheet = client.open("TelegramBotMembers").sheet1
+SHEET_ID = "1g61ou8L1fE8LipIv6gJ9HitFuBS-IHM3jSnwYZsC6H4"
+SHEET_NAME = "Sheet1"  # Change this if needed
+URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
+
+response = requests.get(URL)
+
+
+if response.status_code == 200:
+    data = response.text
+    print(data)  # This prints the sheet content as CSV
+else:
+    print("Error fetching the sheet:", response.status_code)
+
 
 # Load authorized users from Google Sheets
 def load_users():
