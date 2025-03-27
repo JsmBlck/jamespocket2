@@ -259,22 +259,33 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+    
+    # Check if user is an admin
     if user.id not in ADMIN_IDS:
         await update.message.reply_text("❌ You are not authorized to use this command.")
+        return
+
+    # Ensure an argument (user_id) is provided
+    if not context.args:
+        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
         return
 
     try:
         new_user_id = int(context.args[0])
         AUTHORIZED_USERS.add(new_user_id)
-        save_users()
+        
+        # Ensure save_users() function exists
+        if "save_users" in globals():
+            save_users()  
+        
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
-        # Log new user addition
-        await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
+        # Log new user addition (check if function exists)
+        if "log_activity" in globals():
+            await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
 
-    except (IndexError, ValueError):
-        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
-
+    except ValueError:
+        await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
