@@ -12,7 +12,8 @@ from flask import Flask
 from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup
 from dotenv import load_dotenv
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater, CallbackContext
+from oauth2client.service_account import ServiceAccountCredentials
 
 # Load environment variables
 load_dotenv()
@@ -21,20 +22,30 @@ ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
 USER_STARTED_LOG_ID = int(os.getenv("USER_STARTED_LOG_ID", "0"))
 
-
 # Google Sheets setup
-SHEET_ID = "1g61ou8L1fE8LipIv6gJ9HitFuBS-IHM3jSnwYZsC6H4"
-SHEET_NAME = "Sheet1"  # Change this if needed
-URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+client = gspread.authorize(creds)
+sheet = client.open("TelegramBotMembers").sheet1
 
-response = requests.get(URL)
 
+def load_users():
+    try:
+        users = sheet.col_values(1)
+        return set(map(int, users)) | set(ADMIN_IDS)
+    except Exception as e:
+        print(f"Error loading users: {e}")
+        return set(ADMIN_IDS)
 
-if response.status_code == 200:
-    data = response.text
-    print(data)  # This prints the sheet content as CSV
-else:
-    print("Error fetching the sheet:", response.status_code)
+# Save authorized users to Google Sheets
+def save_users():
+    sheet.clear()
+    for idx, user_id in enumerate(AUTHORIZED_USERS):
+        sheet.update_cell(idx + 1, 1, user_id)
+
+# Authorized users list
+AUTHORIZED_USERS = load_users()
 
 # List of OTC pairs
 otc_pairs = [
