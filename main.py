@@ -316,6 +316,12 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /removemember <user_id>")
 
+
+async def get_id(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+    update.message.reply_text(f"This is your Telegram ID:\n`{user.id}`\n\n📨 Copy this and send it to @JoinLunaX", parse_mode="Markdown")
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     user_message = update.message.text
@@ -342,8 +348,9 @@ def run_flask():
 def main() -> None:
     application = Application.builder().token(TOKEN).concurrent_updates(True).build()
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("id", get_id))
     application.add_handler(CommandHandler("addmember", add_member))  
-    application.add_handler(CommandHandler("removemember", add_member))  
+    application.add_handler(CommandHandler("removemember", remove_member))  
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     flask_thread = Thread(target=run_flask)
