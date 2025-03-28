@@ -297,7 +297,7 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         remove_user_id = int(context.args[0])
         if remove_user_id in AUTHORIZED_USERS:
             AUTHORIZED_USERS.remove(remove_user_id)
-            save_users()
+            save_users()  # Now removes ID from Google Sheets
             await update.message.reply_text(f"✅ User {remove_user_id} has been removed successfully.")
 
             # Log user removal
