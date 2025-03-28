@@ -178,22 +178,28 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return  # <-- This was incorrectly indented before
 
     
+    photo_id = "AgACAgUAAxkBAAK-5GfmzGVZc5gQEmPD0v0Q-e5VaRBpAAIVyjEbNTgxV8zN_n29nXRLAQADAgADeAADNgQ"  # Replace with your actual Telegram file ID
+
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
 
-Our bot provides real-time trading signals for OTC Forex pairs.
+🚀 Our bot provides real-time trading signals for OTC Forex pairs.
 
 🔹 *How It Works:*
-✔️ Select an OTC Forex pair from the options below.
-✔️ Receive a trading signal with market analysis.
-✔️ Execute the trade quickly for optimal results.
+✅ Select an OTC Forex pair from the options below.
+✅ Receive a trading signal with market analysis.
+✅ Execute the trade quickly for optimal results.
 
 ⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
     """
+
+    # Define the keyboard layout (pairs in 2 columns)
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-    await update.message.reply_text(welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
 
+    # Send photo with caption
+    await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
+    
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_messages = [
         "⚡ Scanning {pair}...",
