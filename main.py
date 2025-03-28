@@ -10,7 +10,7 @@ import re
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater, CallbackContext
 from oauth2client.service_account import ServiceAccountCredentials
@@ -161,15 +161,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     log_message = escape_markdown_v2(log_message)
     
     if user.id not in AUTHORIZED_USERS:
-        await update.message.reply_text(
-    "❌ Access Denied. You are not authorized to use this bot.\n\n"
-    "To get access, kindly join the channel: https://t.me/+zPRC_d9dHMM0NDBl "
-    "or message @JoinLunaX."
-)
+    keyboard = [
+        [InlineKeyboardButton("🔗 Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
+        "❌ *Access Denied!*\n\n"
+        "You are not authorized to use this bot.\n\n"
+        "🔹 *To get access:*\n"
+        "👉 Click the button below to join our channel.\n"
+        "👉 Or message @JoinLunaX.",
+        parse_mode="Markdown",
+        reply_markup=reply_markup
+    )
         return
-
-    await context.bot.send_message(chat_id=USER_STARTED_LOG_ID, text=log_message, parse_mode="MarkdownV2")
-
     
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
