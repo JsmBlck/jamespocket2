@@ -200,7 +200,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
-async def simulate_analysis(update: Update, pair: str) -> None:
+async def simulate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, pair: str) -> None:
     user = update.message.from_user
     analyzing_messages = [
         "⚡ Scanning {pair}...",
