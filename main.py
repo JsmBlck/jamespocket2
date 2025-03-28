@@ -150,7 +150,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     print(f"User {user.id} ({user.username}) started the bot.")
 
-    asyncio.create_task(log_activity(context, f"🚀 User Started\n👤 Name: {user.full_name}\n📛 Username: @{user.username}\n🆔 ID: {user.id}"))
+    asyncio.create_task(log_activity(context, f"User Started\n👤 Name: {user.full_name}\nUsername: @{user.username}\nID: {user.id}"))
 
     log_message = (
         f"🔔 User Started the Bot\n"
@@ -331,7 +331,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        await log_activity(context, f"📌 Trade Selection Logged\n👤 Name: {user.full_name}\n📛 Username: @{user.username}\n🆔 ID: {user.id}\n🎯 Selected: {user_message}")
+        await log_activity(context, f"Trade Selection: \n👤 Name: {user.full_name} | Username: @{user.username} | ID: {user.id}\nSelected: {user_message}")
         await simulate_analysis(update, user_message)
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
