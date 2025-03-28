@@ -270,6 +270,8 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
 
+from telegram import ReplyKeyboardMarkup
+
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     
@@ -293,9 +295,31 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
-        # Send verification message to the user
+        # Send verification message with a photo and keyboard to the user
         try:
-            await context.bot.send_message(chat_id=new_user_id, text="🎉 You’re now verified! You can fully use LunaX Bot. 🚀")
+            photo_id = "AgACAgUAAxkBAAK-5GfmzGVZc5gQEmPD0v0Q-e5VaRBpAAIVyjEbNTgxV8zN_n29nXRLAQADAgADeAADNgQ"  # Replace with your actual Telegram file ID
+            
+            welcome_message = """
+📊 *Welcome to the Binary Trading Assistant!*
+
+🚀 Our bot provides real-time trading signals for OTC Forex pairs.
+
+🔹 *How It Works:*
+✅ Select an OTC Forex pair from the options below.
+✅ Receive a trading signal with market analysis.
+✅ Execute the trade quickly for optimal results.
+
+⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
+"""
+
+            # Define the keyboard layout (pairs in 2 columns)
+            otc_pairs = [["EUR/USD", "GBP/USD"], ["USD/JPY", "AUD/USD"], ["BTC/USD", "ETH/USD"]]
+            keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+
+            # Send photo with caption and buttons
+            await context.bot.send_photo(chat_id=new_user_id, photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
+
         except Exception as e:
             print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
         
