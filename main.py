@@ -169,7 +169,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         photo_file_id = "AgACAgUAAxkBAAK-MGfmEiS9TQABGbrCW1zX9XImAAERgYQAAsTDMRtNaDhX9l3iGZFTwTkBAAMCAANtAAM2BA"  # Replace with your actual file ID
 
         await update.message.reply_photo(
-    photo=photo_url,
+    photo=photo_file_id,
     caption=(
         "❌ *Access Denied!*\n\n"
         "You need to get verified to access this bot.\n\n"
