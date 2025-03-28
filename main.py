@@ -150,7 +150,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     print(f"User {user.id} ({user.username}) started the bot.")
 
-    asyncio.create_task(log_activity(context, f"User Started\nName: {user.full_name}\nUsername: @{user.username}\nID: {user.id}"))
+    asyncio.create_task(log_activity(context, f"User Started\n{user.full_name} | @{user.username} | {user.id}"))
 
     log_message = (
         f"🔔 User Started the Bot\n"
