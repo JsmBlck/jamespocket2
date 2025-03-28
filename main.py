@@ -145,7 +145,7 @@ async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
-    asyncio.create_task(log_activity(context, f"User Started✅\n{user.full_name} | @{user.username} | {user.id}"))
+    asyncio.create_task(log_activity(context, f"✅ User Started\n{user.full_name} | @{user.username} | {user.id}"))
     
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
