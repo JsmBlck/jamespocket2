@@ -201,7 +201,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
 async def simulate_analysis(update: Update, pair: str) -> None:
-    user = update.message.from_user
     analyzing_messages = [
         "⚡ Scanning {pair}...",
         "🤖 AI analyzing {pair}...",
@@ -270,10 +269,16 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     ]
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
-    user_info = f"👤 **User:** [{user.full_name}](tg://user?id={user.id})\n🔹 **Username:** @{user.username if user.username else 'N/A'}\n🆔 **User ID:** `{user.id}`\n"
+    user = update.effective_user
+    user_info = f"👤 **User:** [{user.full_name}](tg://user?id={user.id})\n" \
+            f"🔹 **Username:** @{user.username if user.username else 'N/A'}\n" \
+            f"🆔 **User ID:** `{user.id}`\n"
+
+# Combine user info with bot signal caption
     channel_caption = f"{user_info}\n{caption}"
 
-    asyncio.create_task(log_activity(context, f"{channel_caption}"))
+# Send the message to the channel (assuming log_activity() sends it)
+    asyncio.create_task(log_activity(context, channel_caption))
     
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
