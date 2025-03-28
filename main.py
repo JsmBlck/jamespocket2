@@ -161,7 +161,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     log_message = escape_markdown_v2(log_message)
     
     if user.id not in AUTHORIZED_USERS:
-    keyboard = [
+        keyboard = [
         [InlineKeyboardButton("🔗 Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
