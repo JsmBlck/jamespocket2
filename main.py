@@ -259,6 +259,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     # Delete the last message before sending final response with image
     await analyzing_message.delete()
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
+    await context.bot.send_photo(chat_id=CHANNEL_ID, photo=image_id, caption=caption, parse_mode="Markdown")
 
     follow_up_messages = [
         "🔄 Ready for the next trade? Choose another OTC pair.",
@@ -269,8 +270,6 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     ]
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
-
-from telegram import ReplyKeyboardMarkup
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
