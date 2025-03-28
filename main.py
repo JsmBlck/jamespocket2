@@ -297,11 +297,9 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         # Send verification message with a photo and keyboard to the user
         try:
-            photo_id = "AgACAgUAAxkBAAK-5GfmzGVZc5gQEmPD0v0Q-e5VaRBpAAIVyjEbNTgxV8zN_n29nXRLAQADAgADeAADNgQ"  # Replace with your actual Telegram file ID
+            photo_id = "AgACAgUAAxkBAAK_D2fm5vj4L07Nm7tZHcsGJPbvT5i0AAKOyjEbNTg5V9RWc1P7RewiAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
             
             welcome_message = """
-📊 *Welcome to the Binary Trading Assistant!*
-
 🚀 Our bot provides real-time trading signals for OTC Forex pairs.
 
 🔹 *How It Works:*
