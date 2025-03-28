@@ -150,8 +150,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     print(f"User {user.id} ({user.username}) started the bot.")
 
-    asyncio.create_task(log_activity(context, f"User Started: \n{user.id} \n@{user.username}"))
-    
+    asyncio.create_task(log_activity(context, f"User Started: \n👤 Name: {user.full_name} \n📛 Username: @{user.username} \n🆔 ID: {user.id}"))
+
     log_message = (
         f"🔔 User Started the Bot\n"
         f"👤 User ID: {user.id}\n"
@@ -166,13 +166,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await update.message.reply_text(
-    "❌ *Access Denied!*\n\n"
-    "You need to get verified to access this bot.\n\n"
-    "🔹 *How to Get Verified:*\n"
-    "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
-    "👉 Read the instructions posted in the channel.\n"
-    "👉 If you have questions, message @JoinLunaX.",
+        photo_file_id = "AgACAgUAAxkBAAK-MGfmEiS9TQABGbrCW1zX9XImAAERgYQAAsTDMRtNaDhX9l3iGZFTwTkBAAMCAANtAAM2BA"  # Replace with your actual file ID
+
+        await update.message.reply_photo(
+    photo=photo_url,
+    caption=(
+        "❌ *Access Denied!*\n\n"
+        "You need to get verified to access this bot.\n\n"
+        "🔹 *How to Get Verified:*\n"
+        "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
+        "👉 Read the instructions posted in the channel.\n"
+        "👉 If you have questions, message @JoinLunaX."
+    ),
     parse_mode="Markdown",
     reply_markup=reply_markup
 )
