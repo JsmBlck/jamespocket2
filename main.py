@@ -145,7 +145,7 @@ async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
-    asyncio.create_task(log_activity(context, f"User Started\n{user.full_name} | @{user.username} | {user.id}"))
+    asyncio.create_task(log_activity(context, f"User Started✅\n{user.full_name} | @{user.username} | {user.id}"))
 
     log_message = (
         f"🔔 User Started the Bot\n"
@@ -347,7 +347,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        await log_activity(context, f"Trade Selection: \n{user.full_name} | @{user.username} | {user.id}\nSelected: {user_message}")
+        await log_activity(context, f"Trade Selection📊: \n{user.full_name} | @{user.username} | {user.id}\nSelected: {user_message}")
         await simulate_analysis(update, user_message)
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
