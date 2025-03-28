@@ -313,7 +313,6 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 """
 
             # Define the keyboard layout (pairs in 2 columns)
-            otc_pairs = [["EUR/USD", "GBP/USD"], ["USD/JPY", "AUD/USD"], ["BTC/USD", "ETH/USD"]]
             keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
