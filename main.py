@@ -149,9 +149,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
-        [InlineKeyboardButton("Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")],
-        [InlineKeyboardButton("☝️To Get Access☝️", url="https://t.me/+zPRC_d9dHMM0NDBl")]
+    [
+        InlineKeyboardButton("🔹 Join Channel 🔹", url="https://t.me/+zPRC_d9dHMM0NDBl")
+    ],
+    [
+        InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+zPRC_d9dHMM0NDBl")
     ]
+]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         photo_file_id = "AgACAgUAAxkBAAK-MGfmEiS9TQABGbrCW1zX9XImAAERgYQAAsTDMRtNaDhX9l3iGZFTwTkBAAMCAANtAAM2BA"  # Replace with your actual file ID
