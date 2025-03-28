@@ -293,6 +293,8 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
+        await send_message(new_user_id, "🎉 You’re now verified! You can fully use LunaX Bot. 🚀", context)
+
         # Log new user addition (check if function exists)
         if "log_activity" in globals():
             await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
