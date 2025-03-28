@@ -295,7 +295,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         try:
         await send_message(new_user_id, "🎉 You’re now verified! You can fully use LunaX Bot. 🚀", context)
-        except Exception as e:
+    except Exception as e:
         print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
 
         
