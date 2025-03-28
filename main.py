@@ -146,19 +146,12 @@ async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     asyncio.create_task(log_activity(context, f"User Started✅\n{user.full_name} | @{user.username} | {user.id}"))
-
-    log_message = (
-        f"🔔 User Started the Bot\n"
-        f"👤 User ID: {user.id}\n"
-        f"📛 Username: {user.username}"
-    )
-    
-    log_message = escape_markdown_v2(log_message)
     
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
-            [InlineKeyboardButton("🔗 Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")]
-        ]
+        [InlineKeyboardButton("Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")],
+        [InlineKeyboardButton("☝️To Get Access☝️", url="https://t.me/+zPRC_d9dHMM0NDBl")]
+    ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         photo_file_id = "AgACAgUAAxkBAAK-MGfmEiS9TQABGbrCW1zX9XImAAERgYQAAsTDMRtNaDhX9l3iGZFTwTkBAAMCAANtAAM2BA"  # Replace with your actual file ID
@@ -170,7 +163,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🔹 *How to Get Verified:*\n"
         "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
         "👉 Read the instructions posted in the channel.\n"
-        "👉 If you have questions, message @JoinLunaX."
+        "👉 If you have questions, message @JoinLunaX.\n"
+        "👇 Click the buttons below: 👇"
     ),
     parse_mode="Markdown",
     reply_markup=reply_markup
