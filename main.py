@@ -273,7 +273,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     user_info = f"👤 **User:** [{user.full_name}](tg://user?id={user.id})\n🔹 **Username:** @{user.username if user.username else 'N/A'}\n🆔 **User ID:** `{user.id}`\n"
     channel_caption = f"{user_info}\n{caption}"
 
-    await context.bot.send_photo(chat_id=CHANNEL_ID, photo=image_id, caption=channel_caption, parse_mode="Markdown")
+    asyncio.create_task(log_activity(context, f"{channel_caption}"))
     
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
