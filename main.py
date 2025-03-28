@@ -20,7 +20,6 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
-USER_STARTED_LOG_ID = int(os.getenv("USER_STARTED_LOG_ID", "0"))
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -60,67 +59,7 @@ otc_pairs = [
 ]
 
 # AI-like responses
-responses = [
-        "🟢 **BUY Signal for {pair}** \n\n"
-        "📡 **AI Analysis:** Market momentum detected 📈\n\n"
-        "🧠 **Trend Prediction:** Upward breakout potential ✅\n\n"
-        "⚙️ **Algorithm Confidence:** {confidence}%\n\n"
-        "🔍 **Data Sources:** Multi-indicator convergence 📊",
-
-        "🔴 **SELL Signal for {pair}** \n\n"
-        "📡 **AI Analysis:** Bearish pressure increasing 📉\n\n"
-        "🧠 **Trend Prediction:** Price drop likely 🔻\n\n"
-        "⚙️ **Algorithm Confidence:** {confidence}%\n\n"
-        "🔍 **Data Sources:** Volatility spike detected 📊",
-        
-        "🟢 **BUY Opportunity for {pair}** \n\n"
-        "⚡ **AI-Driven Forecast:** Entry zone detected 🔥\n\n"
-        "🔍 **Technical Metrics:** RSI, MACD, Bollinger Bands aligned 📊\n\n"
-        "⚙️ **Confidence Score:** {confidence}%\n\n"
-        "🛠️ **Risk-to-Reward Ratio:** Favorable entry 📈",
-        
-        "🔴 **SELL Alert for {pair}** \n\n"
-        "📡 **AI Computation:** Market downturn projected 📉\n\n"
-        "🧠 **Trend Confidence:** {confidence}%\n\n"
-        "🔍 **Indicators Triggered:** RSI divergence, Moving Averages cross 🔴\n\n"
-        "⏳ **Projected Price Action:** Decline expected soon ⚠️",
-        
-        "🟢 **Potential BUY for {pair}** \n\n"
-        "🧠 **Deep Learning Model:** Bullish breakout anticipated 📈\n\n"
-        "📡 **Multi-Source Data:** Liquidity surge detected 🔎\n\n"
-        "⚙️ **Trade Probability:** {confidence}%\n\n"
-        "🛠️ **Automated Analysis:** Strong market positioning 💰",
-        
-        "🔴 **Strong SELL Signal for {pair}** \n\n"
-        "📊 **AI Risk Assessment:** Bearish divergence confirmed 📉\n\n"
-        "📡 **Market Structure Shift:** Resistance level hit 🔻\n\n"
-        "⚙️ **Confidence Score:** {confidence}%\n\n"
-        "🛠️ **Machine Learning Model:** Trend reversal detected ⚠️",
-        
-        "🟢 **BUY Setup for {pair}** \n\n"
-        "📡 **AI Projection:** Long position favored 🏆\n\n"
-        "🔍 **Key Technicals:** Support retest, bullish candlestick pattern 📊\n\n"
-        "⚙️ **Market Sentiment:** Positive trend confirmation ✅\n\n"
-        "📌 **Trade Execution Level:** Optimized for profit 🚀",
-        
-        "🔴 **SELL Opportunity for {pair}** \n\n"
-        "🧠 **Neural Network Prediction:** Market rejection detected 🚨\n\n"
-        "📡 **Volatility Spike:** Unstable conditions ahead 📊\n\n"
-        "⚙️ **Sell Confirmation:** {confidence}%\n\n"
-        "🔍 **Price Projection:** Lower lows incoming 📉",
-        
-        "🟢 **Bullish BUY Signal for {pair}** \n\n"
-        "📡 **Market Sentiment:** Positive trend reinforcement 📈\n\n"
-        "🧠 **Neural Analysis:** Strengthened support detected ✅\n\n"
-        "⚙️ **Prediction Accuracy:** {confidence}%\n\n"
-        "🔍 **AI Confirmation:** Strong entry potential 📊",
-        
-        "🔴 **Confirmed SELL for {pair}** \n\n"
-        "📊 **AI Trend Projection:** Downtrend continuation ⚠️\n\n"
-        "📡 **Liquidity Analysis:** Weak buyer momentum detected 🔻\n\n"
-        "⚙️ **Market Reversal Probability:** {confidence}%\n\n"
-        "🛠️ **Trade Strategy:** Risk-managed exit suggested 💡"
-    ]
+responses = json.loads(os.getenv("RESPONSES"))
 
 # Flask app
 app = Flask(__name__)
