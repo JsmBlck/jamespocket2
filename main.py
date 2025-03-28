@@ -167,14 +167,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await update.message.reply_text(
-            "❌ *Access Denied!*\n\n"
-            "You are not authorized to use this bot.\n\n"
-            "🔹 *To get access:*\n"
-            "👉 Click the button below to join our channel.\n"
-            "👉 Or message @JoinLunaX.",
-            parse_mode="Markdown",
-            reply_markup=reply_markup
-        )
+    "❌ *Access Denied!*\n\n"
+    "You need to get verified to access this bot.\n\n"
+    "🔹 *How to Get Verified:*\n"
+    "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
+    "👉 Read the instructions posted in the channel.\n"
+    "👉 If you have questions, message @JoinLunaX.",
+    parse_mode="Markdown",
+    reply_markup=reply_markup
+)
         return  # <-- This was incorrectly indented before
 
     
