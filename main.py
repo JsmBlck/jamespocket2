@@ -200,8 +200,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
-async def simulate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, pair: str) -> None:
-    user = update.message.from_user
+async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_messages = [
         "⚡ Scanning {pair}...",
         "🤖 AI analyzing {pair}...",
@@ -257,18 +256,9 @@ async def simulate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     response_template = random.choice([r for r in responses if signal_type in r])
     caption = response_template.format(pair=pair, confidence=confidence)
 
-    # Delete the last message before sending final response with imagez
+    # Delete the last message before sending final response with image
     await analyzing_message.delete()
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
-
-    user_info = f"👤 **User:** [{user.full_name}](tg://user?id={user.id})\n" \
-            f"🔹 **Username:** @{user.username if user.username else 'N/A'}\n" \
-            f"🆔 **User ID:** `{user.id}`\n"
-
-    # Combine user info with bot signal caption
-    channel_caption = f"{user_info}\n{caption}"
-
-    await context.bot.send_photo(chat_id=LOG_CHANNEL_ID, photo=image_id, caption=channel_caption, parse_mode="Markdown")
 
     follow_up_messages = [
         "🔄 Ready for the next trade? Choose another OTC pair.",
