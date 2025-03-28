@@ -59,7 +59,8 @@ otc_pairs = [
 ]
 
 # AI-like responses
-responses = json.loads(os.getenv("RESPONSES"))
+responses_json = os.getenv("RESPONSES", "[]")
+responses = json.loads(responses_json)["RESPONSES"]  
 
 # Flask app
 app = Flask(__name__)
