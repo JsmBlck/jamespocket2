@@ -295,7 +295,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         # Send verification message to the user
         try:
-            await send_message(new_user_id, "🎉 You’re now verified! You can fully use LunaX Bot. 🚀", context)
+            await context.bot.send_message(chat_id=new_user_id, text="🎉 You’re now verified! You can fully use LunaX Bot. 🚀")
         except Exception as e:
             print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
         
