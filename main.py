@@ -121,9 +121,6 @@ responses = [
         "⚙️ **Market Reversal Probability:** {confidence}%\n\n"
         "🛠️ **Trade Strategy:** Risk-managed exit suggested 💡"
     ]
-# Image file IDs (replace with actual Telegram file IDs)
-buy_image_id = "AgACAgUAAxkBAAKoeGfXFrnEQl8MM1xgIsN2tPB9e6q5AAJTwTEbswi5VgbbUQFoQg5PAQADAgADcwADNgQ"
-sell_image_id = "AgACAgUAAxkBAAKodmfXFrYnjhxh-wsJcDm1pcjGjC8UAAJSwTEbswi5VtcdWgjFsLqrAQADAgADeAADNgQ"
 
 # Flask app
 app = Flask(__name__)
