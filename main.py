@@ -331,7 +331,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        await log_activity(context, f"Trade Selection: \nName: {user.full_name}\nUsername: @{user.username}\nID: {user.id}\nSelected: {user_message}")
+        await log_activity(context, f"Trade Selection: \n{user.full_name}\n | @{user.username} | {user.id}\nSelected: {user_message}")
         await simulate_analysis(update, user_message)
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
