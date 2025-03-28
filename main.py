@@ -171,8 +171,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_photo(
     photo=photo_file_id,
     caption=(
-        "❌ *Access Denied!*\n\n"
-        "You need to get verified to access this bot.\n\n"
+        "*You need to get verified to access this bot.*\n\n"
         "🔹 *How to Get Verified:*\n"
         "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
         "👉 Read the instructions posted in the channel.\n"
