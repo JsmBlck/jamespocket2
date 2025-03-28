@@ -162,20 +162,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
-        [InlineKeyboardButton("🔗 Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+            [InlineKeyboardButton("🔗 Join Channel", url="https://t.me/+zPRC_d9dHMM0NDBl")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text(
-        "❌ *Access Denied!*\n\n"
-        "You are not authorized to use this bot.\n\n"
-        "🔹 *To get access:*\n"
-        "👉 Click the button below to join our channel.\n"
-        "👉 Or message @JoinLunaX.",
-        parse_mode="Markdown",
-        reply_markup=reply_markup
-    )
-        return
+        await update.message.reply_text(
+            "❌ *Access Denied!*\n\n"
+            "You are not authorized to use this bot.\n\n"
+            "🔹 *To get access:*\n"
+            "👉 Click the button below to join our channel.\n"
+            "👉 Or message @JoinLunaX.",
+            parse_mode="Markdown",
+            reply_markup=reply_markup
+        )
+        return  # <-- This was incorrectly indented before
+
     
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
