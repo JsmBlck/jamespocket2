@@ -243,7 +243,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             photo_id = "AgACAgUAAxkBAAK_D2fm5vj4L07Nm7tZHcsGJPbvT5i0AAKOyjEbNTg5V9RWc1P7RewiAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
             
             welcome_message = f"""
-🚀 Hey *{first_name}*! You are now Verified!
+🚀 Hey *{first_name}*! You are now Verified!✅
 
 Our bot provides real-time trading signals for OTC Forex pairs.
 
