@@ -286,11 +286,9 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
-    await update.message.reply_text(
-        f"This is your Telegram ID:\n\n`{user.id}`\n\nCopy this and send it to @JoinLunaX",
-        parse_mode="Markdown"
-    )
-
+    await update.message.reply_text("🔹 Your Exclusive Access Telegram ID:")
+    await update.message.reply_text(f"`{user.id}`", parse_mode="Markdown")
+    await update.message.reply_text("📌 Copy this and send it to @JoinLunaX to verify your access.")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
