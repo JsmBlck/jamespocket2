@@ -229,12 +229,23 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
+
+        try:
+            chat = await context.bot.get_chat(new_user_id)
+            first_name = chat.first_name if chat.first_name else "Trader"  # Default name if unavailable
+        except Exception as e:
+            print(f"⚠️ Failed to retrieve user info for {new_user_id}: {e}")
+            first_name = "Trader"  # Use a fallback name
+
+
         # Send verification message with a photo and keyboard to the user
         try:
             photo_id = "AgACAgUAAxkBAAK_D2fm5vj4L07Nm7tZHcsGJPbvT5i0AAKOyjEbNTg5V9RWc1P7RewiAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
             
-            welcome_message = """
-🚀 Our bot provides real-time trading signals for OTC Forex pairs.
+            welcome_message = f"""
+🚀 Hey *{first_name}*! You are now Verified!
+
+Our bot provides real-time trading signals for OTC Forex pairs.
 
 🔹 *How It Works:*
 ✅ Select an OTC Forex pair from the options below.
