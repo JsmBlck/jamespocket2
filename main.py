@@ -286,7 +286,7 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
-    await update.message.reply_text("🔹 Your Exclusive Access Telegram ID:")
+    await update.message.reply_text("🔹 Your Exclusive Access ID:")
     await update.message.reply_text(f"`{user.id}`", parse_mode="Markdown")
     await update.message.reply_text("📌 Copy this and send it to @JoinLunaX to verify your access.")
 
@@ -316,7 +316,7 @@ def run_flask():
 def main() -> None:
     application = Application.builder().token(TOKEN).concurrent_updates(True).build()
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("id", get_id))
+    application.add_handler(CommandHandler("AccessID", get_id))
     application.add_handler(CommandHandler("addmember", add_member))  
     application.add_handler(CommandHandler("removemember", remove_member))  
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
