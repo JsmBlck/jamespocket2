@@ -39,6 +39,17 @@ def load_users():
         print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
+def save_users():
+    existing_data = sheet.get_all_values()  # Get all existing data
+    user_ids = [row[0] for row in existing_data]  # Extract Telegram IDs (first column)
+
+    for user_id in AUTHORIZED_USERS:
+        if str(user_id) not in user_ids:
+            sheet.append_row([user_id])  # Append new user if not in the sheet
+
+    print("✅ Users saved successfully!")
+
+
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
@@ -262,7 +273,7 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         remove_user_id = int(context.args[0])
         if remove_user_id in AUTHORIZED_USERS:
             AUTHORIZED_USERS.remove(remove_user_id)
-            store_user_info()  # Now removes ID from Google Sheets
+            save_users()  # Now removes ID from Google Sheets
             await update.message.reply_text(f"✅ User {remove_user_id} has been removed successfully.")
 
             # Log user removal
@@ -273,13 +284,6 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /removemember <user_id>")
-
-
-def store_user_info(user_id, username, first_name, pocket_option_id):
-    # Just append the new user data (allows duplicates)
-    sheet.append_row([user_id, username, first_name, pocket_option_id])
-
-    print(f"User {user_id} saved successfully!")  # L
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
