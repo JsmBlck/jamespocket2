@@ -104,7 +104,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🔹 *How to Get Verified:*\n"
         "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
         "👉 Read the instructions posted in the channel.\n"
-        "👉 If you have questions, message @OmniAlgoSupport.\n"
+        "👉 If you have questions, message @Optrex_Support.\n"
         "👇 Click the buttons below: 👇"
     ),
     parse_mode="Markdown",
