@@ -113,10 +113,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return  # <-- This was incorrectly indented before
 
     
-    photo_id = "AgACAgUAAxkBAAK-5GfmzGVZc5gQEmPD0v0Q-e5VaRBpAAIVyjEbNTgxV8zN_n29nXRLAQADAgADeAADNgQ"  # Replace with your actual Telegram file ID
+    photo_id = "AgACAgUAAxkBAALBoWfpgi4TEsUT4q_-UZWERqDoz4KnAALlwzEbWvFJV4J8B6g5SSh3AQADAgADdwADNgQ"  # Replace with your actual Telegram file ID
 
     welcome_message = """
-📊 *Welcome to the Binary Trading Assistant!*
 
 🚀 Our bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
 
