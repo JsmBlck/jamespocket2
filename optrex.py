@@ -62,7 +62,6 @@ responses = json.loads(responses_json)["RESPONSES"]
 # Flask app
 @app.route('/webhook', methods=['POST'])
 
-@app.route('/')
 def home():
     return "Bot is running!"
 
