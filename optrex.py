@@ -29,6 +29,11 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet3")  # Us
 
+app = Flask(__name__)
+
+WEBHOOK_URL = "https://jamespocket2-k9lz.onrender.com"  # Replace with your actual webhook URL
+
+
 
 def load_users():
     try:
