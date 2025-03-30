@@ -320,9 +320,6 @@ def escape_markdown_v2(text):
     """Escape special characters for MarkdownV2"""
     return re.sub(r"([_*[\]()~`>#+\-=|{}.!])", r"\\\1", text)
 
-def run_flask():
-    app.run(host="0.0.0.0", port=8080)
-
 application = Application.builder().token(TOKEN).concurrent_updates(True).build()
 application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("AccessID", get_id))
@@ -337,20 +334,8 @@ def webhook():
     application.update_queue.put(update)
     return "OK", 200
 
-def run_flask():
-    app.run(host="0.0.0.0", port=5000)
-
 if __name__ == "__main__":
-    # Start Flask in a separate thread
-    threading.Thread(target=run_flask, daemon=True).start()
-    
-    # Set the webhook
+    # Start Flask server
     application.bot.setWebhook(WEBHOOK_URL)
-
     print("Bot is running with Webhook...")
-    application.run_webhook(
-        listen="0.0.0.0",
-        port=5000,
-        url_path="/webhook",
-        webhook_url=WEBHOOK_URL
-    )
+    app.run(host="0.0.0.0", port=5000)  # Flask will handle the webhook
