@@ -39,24 +39,11 @@ def load_users():
         print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
-def save_users(user_id, username, first_name, pocket_option_id):
-    existing_data = sheet.get_all_values()  # Get all existing data
-    user_ids = [row[0] for existing_data in existing_data]  # Extract Telegram IDs
-
-    if str(user_id) in user_ids:
-        row = user_ids.index(str(user_id)) + 1  # Find the existing row
-        sheet.batch_update([
-            {"range": f"B{row}", "values": [[username]]},
-            {"range": f"C{row}", "values": [[first_name]]},
-            {"range": f"D{row}", "values": [[pocket_option_id]]}
-        ])
-    else:
-        # Append new user if not found
-        sheet.append_row([user_id, username, first_name, pocket_option_id])
-
-    print(f"✅ User {user_id} saved successfully!")
-
-
+# Save authorized users to Google Sheets
+def save_users():
+    sheet.clear()
+    for idx, user_id in enumerate(AUTHORIZED_USERS):
+        sheet.update_cell(idx + 1, 1, user_id)
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
@@ -158,7 +145,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     step_variations = [
         ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Scrapping {pair}..."],
-        ["🤖 Optrex Scanning {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
+        ["🤖 Optrex Scanning the {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
         ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
     ]
 
@@ -209,6 +196,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         await update.message.reply_text("❌ You are not authorized to use this command.")
         return
 
+    # Ensure an argument (user_id) is provided
     if not context.args:
         await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
         return
@@ -216,16 +204,51 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
         new_user_id = int(context.args[0])
         AUTHORIZED_USERS.add(new_user_id)
-
+        
+        # Ensure save_users() function exists
         if "save_users" in globals():
-            chat = await context.bot.get_chat(new_user_id)
-            username = chat.username if chat.username else "Unknown"
-            first_name = chat.first_name if chat.first_name else "Trader"
-            pocket_option_id = "N/A"  # Set a default value
-
-            save_users(new_user_id, username, first_name, pocket_option_id)  # ✅ Pass arguments here
-
+            save_users()  
+        
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
+
+
+        try:
+            chat = await context.bot.get_chat(new_user_id)
+            first_name = chat.first_name if chat.first_name else "Trader"  # Default name if unavailable
+        except Exception as e:
+            print(f"⚠️ Failed to retrieve user info for {new_user_id}: {e}")
+            first_name = "Trader"  # Use a fallback name
+
+
+        # Send verification message with a photo and keyboard to the user
+        try:
+            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
+            
+            welcome_message = f"""
+🚀 Hey *{first_name}*! You are now Verified!✅
+
+🚀 Optrex bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
+
+🔹 *How It Works:*
+✅ Select an OTC Forex pair from the options below.  
+✅ Receive a trading signal with market analysis.  
+✅ Execute the trade quickly for the best results.  
+
+⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
+    """
+            # Define the keyboard layout (pairs in 2 columns)
+            keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+
+            # Send photo with caption and buttons
+            await context.bot.send_photo(chat_id=new_user_id, photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
+
+        except Exception as e:
+            print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
+        
+        # Log new user addition (check if function exists)
+        if "log_activity" in globals():
+            await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
 
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
@@ -251,6 +274,7 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /removemember <user_id>")
+
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
