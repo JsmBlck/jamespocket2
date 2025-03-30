@@ -95,7 +95,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        photo_file_id = "AgACAgUAAxkBAAK-MGfmEiS9TQABGbrCW1zX9XImAAERgYQAAsTDMRtNaDhX9l3iGZFTwTkBAAMCAANtAAM2BA"  # Replace with your actual file ID
+        photo_file_id = "AgACAgUAAxkBAALBoWfpgi4TEsUT4q_-UZWERqDoz4KnAALlwzEbWvFJV4J8B6g5SSh3AQADAgADdwADNgQ"  # Replace with your actual file ID
 
         await update.message.reply_photo(
     photo=photo_file_id,
@@ -223,7 +223,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         # Send verification message with a photo and keyboard to the user
         try:
-            photo_id = "AgACAgUAAxkBAAK_D2fm5vj4L07Nm7tZHcsGJPbvT5i0AAKOyjEbNTg5V9RWc1P7RewiAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
+            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
             
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
