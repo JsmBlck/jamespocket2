@@ -136,19 +136,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_messages = [
-    "🤖 Optrex Checking {pair}...",
-    "🤖 Optrex Reviewing {pair}...",
-    "🤖 Optrex Assessing {pair}...",
-    "🤖 Optrex Scanning {pair}...",
-    "🤖 Optrex Calculating {pair}..."
-]
+        "🤖 Optrex Checking {pair}...",
+        "🤖 Optrex Reviewing {pair}...",
+        "🤖 Optrex Assessing {pair}...",
+        "🤖 Optrex Scanning {pair}...",
+        "🤖 Optrex Calculating {pair}..."
+    ]
     analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
     step_variations = [
-    ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Checking {pair}..."],
-    ["🤖 Optrex Scanning {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
-    ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
-]
+        ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Checking {pair}..."],
+        ["🤖 Optrex Scanning {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
+        ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
+    ]
 
     # steps = [random.choice(variation) for variation in step_variations]
     steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
