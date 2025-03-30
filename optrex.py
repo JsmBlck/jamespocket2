@@ -1,3 +1,4 @@
+
 import os
 import random
 import asyncio
@@ -8,7 +9,7 @@ import json
 import gspread
 import re
 from oauth2client.service_account import ServiceAccountCredentials
-from flask import Flask
+from flask import Flask, request
 from threading import Thread
 from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
@@ -28,6 +29,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet3")  # Us
+
+WEBHOOK_URL = "https://jamespocket2-k9lz.onrender.com"  # Replace with your actual webhook URL
+
+app = Flask(__name__)
+application = Application.builder().token(TOKEN).concurrent_updates(True).build()
 
 
 def load_users():
@@ -55,17 +61,13 @@ otc_pairs = [
     "🇧🇭/🇨🇳 BHD/CNY OTC"
 ]
 
-
 # AI-like responses
 responses_json = os.getenv("RESPONSES", "[]")
 responses = json.loads(responses_json)["RESPONSES"]  
 
-# Flask app
-app = Flask(__name__)
-
-@app.route('/')
 def home():
     return "Bot is running!"
+
 
 def keep_alive():
     render_url = "https://jamespocket2-k9lz.onrender.com"
@@ -319,22 +321,21 @@ def escape_markdown_v2(text):
     """Escape special characters for MarkdownV2"""
     return re.sub(r"([_*[\]()~`>#+\-=|{}.!])", r"\\\1", text)
 
-def run_flask():
-    app.run(host="0.0.0.0", port=8080)
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("AccessID", get_id))
+application.add_handler(CommandHandler("addmember", add_member))  
+application.add_handler(CommandHandler("removemember", remove_member))  
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-def main() -> None:
-    application = Application.builder().token(TOKEN).concurrent_updates(True).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("AccessID", get_id))
-    application.add_handler(CommandHandler("addmember", add_member))  
-    application.add_handler(CommandHandler("removemember", remove_member))  
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    flask_thread = Thread(target=run_flask)
-    flask_thread.start()
-    threading.Thread(target=keep_alive).start()
-    print("Bot is running...")
-    application.run_polling()
+# Flask route for webhook
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(), application.bot)
+    application.update_queue.put(update)
+    return "OK", 200
 
 if __name__ == "__main__":
-    main()
+    # Start Flask server
+    application.bot.setWebhook(WEBHOOK_URL)
+    print("Bot is running with Webhook...")
+    app.run(host="0.0.0.0", port=5000)  # Flask will handle the webhook
