@@ -59,18 +59,9 @@ otc_pairs = [
 responses_json = os.getenv("RESPONSES", "[]")
 responses = json.loads(responses_json)["RESPONSES"]  
 
-app = Flask(__name__)  
-
-# Flask app
-@app.route('/webhook', methods=['POST'])
-
 def home():
     return "Bot is running!"
 
-def webhook():
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    # Process the update (commands, messages, etc.)
-    return "OK", 200
 
 def keep_alive():
     render_url = "https://jamespocket2-k9lz.onrender.com"
@@ -327,22 +318,34 @@ def escape_markdown_v2(text):
 def run_flask():
     app.run(host="0.0.0.0", port=8080)
 
-def main() -> None:
-    application = Application.builder().token(TOKEN).concurrent_updates(True).build()
-    
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("AccessID", get_id))
-    application.add_handler(CommandHandler("addmember", add_member))  
-    application.add_handler(CommandHandler("removemember", remove_member))  
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    flask_thread = Thread(target=run_flask)
-    flask_thread.start()
-    threading.Thread(target=keep_alive).start()
-    
-    print("Bot is running...")
-    application.run_polling(drop_pending_updates=True)  # ✅ Move drop_pending_updates here
+application = Application.builder().token(TOKEN).concurrent_updates(True).build()
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("AccessID", get_id))
+application.add_handler(CommandHandler("addmember", add_member))  
+application.add_handler(CommandHandler("removemember", remove_member))  
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+# Flask route for webhook
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(), application.bot)
+    application.update_queue.put(update)
+    return "OK", 200
+
+def run_flask():
+    app.run(host="0.0.0.0", port=5000)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # ✅ Get Render's port
-    app.run(host="0.0.0.0", port=port)
+    # Start Flask in a separate thread
+    threading.Thread(target=run_flask, daemon=True).start()
+    
+    # Set the webhook
+    application.bot.setWebhook(WEBHOOK_URL)
+
+    print("Bot is running with Webhook...")
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=5000,
+        url_path="/webhook",
+        webhook_url=WEBHOOK_URL
+    )
