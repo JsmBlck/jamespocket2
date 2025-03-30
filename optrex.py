@@ -59,6 +59,8 @@ otc_pairs = [
 responses_json = os.getenv("RESPONSES", "[]")
 responses = json.loads(responses_json)["RESPONSES"]  
 
+app = Flask(__name__)  
+
 # Flask app
 @app.route('/webhook', methods=['POST'])
 
