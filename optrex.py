@@ -87,10 +87,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
     [
-        InlineKeyboardButton("🔹 Join Channel 🔹", url="https://t.me/+zPRC_d9dHMM0NDBl")
+        InlineKeyboardButton("🔹 Join Channel 🔹", url="https://t.me/+Tc-vVOdHJiAxOGM1")
     ],
     [
-        InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+zPRC_d9dHMM0NDBl")
+        InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+Tc-vVOdHJiAxOGM1")
     ]
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -136,20 +136,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_messages = [
-        "⚡ Scanning {pair}...",
-        "🤖 AI analyzing {pair}...",
-        "📡 Data crunching {pair}...",
-        "🔍 Processing {pair}...",
-        "📊 Evaluating {pair}..."
-    ]
-
+    "🤖 Optrex Checking {pair}...",
+    "🤖 Optrex Reviewing {pair}...",
+    "🤖 Optrex Assessing {pair}...",
+    "🤖 Optrex Scanning {pair}...",
+    "🤖 Optrex Calculating {pair}..."
+]
     analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
     step_variations = [
-        ["🛰️ Processing data for {pair}...", "📡 Gathering insights for {pair}...", "🔍 Extracting indicators for {pair}..."],
-        ["🤖 Running AI model for {pair}...", "🧠 Predicting trends for {pair}...", "🔬 Simulating movement for {pair}..."],
-        ["✅ Generating signal for {pair}...", "📊 Finalizing analysis for {pair}...", "📌 Confirming trade for {pair}..."]
-    ]
+    ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Checking {pair}..."],
+    ["🤖 Optrex Scanning {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
+    ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
+]
 
     # steps = [random.choice(variation) for variation in step_variations]
     steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
@@ -159,24 +158,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         await analyzing_message.edit_text(step, parse_mode="Markdown")
 
     BUY_IMAGES = [
-        "AgACAgUAAxkBAAK_Z2fnJgcirpQMyCQSqJy21s87I3y7AAKpyjEbNTg5VwXQT6lCyekyAQADAgADbQADNgQ",
-        "AgACAgUAAxkBAAK_aWfnJhwxFQSeRAEKK7raXD6MFqvoAAKqyjEbNTg5V8amj2NdCMQaAQADAgADdwADNgQ",
-        "AgACAgUAAxkBAAK_a2fnJiYX1vBmzpnd2c5wQKHDMRfOAAKryjEbNTg5V74iEW5fn9nsAQADAgADbQADNgQ",
-        "AgACAgUAAxkBAAK_bWfnJi8ID30rDCmyZAcoCBNQ15RfAAKsyjEbNTg5V_SbLw9MSi9cAQADAgADeAADNgQ",
-        "AgACAgUAAxkBAAK_b2fnJsJg2D4k1PwvctbR7IRjpLKyAAKtyjEbNTg5V2CMwEJUmPQiAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAAK_cWfnJsjYB3hzyGmYzG2KlcQ1gicvAAKuyjEbNTg5V6SqlEKEA7wDAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAAK_c2fnJtCj3N-IEJqV33V_SY8suCrGAAKvyjEbNTg5V9dt2bx4Bw1oAQADAgADeQADNgQ",
-        "AgACAgUAAxkBAAK_dWfnJttgZ7R7ovxBs4Dbsmb2upmKAAKwyjEbNTg5V6RA25hyoS6HAQADAgADeAADNgQ"
+        "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
+        "AgACAgUAAxkBAALBg2fpeFNOWA4rtP-yX2h-Wyo6HrYPAALTwzEbWvFJV01htbdAqFaQAQADAgADcwADNgQ"
     ]
     SELL_IMAGES = [
-        "AgACAgUAAxkBAAK_k2fnX8CWVMhf9acST3JcttYkJy32AALSyjEbNTg5V-usN4GH9uPXAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAAK_lWfnX8kah3XKf7rP0ynR33s7ES7TAALTyjEbNTg5Vz-dSgXpwqCCAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAAK_l2fnX9B1EgmwSYHdoCb892tjkGNaAALVyjEbNTg5V7DbDLPlVtWaAQADAgADbQADNgQ",
-        "AgACAgUAAxkBAAK_mWfnX9fEG2t3jnEiRK1eYWY_4dbvAALWyjEbNTg5V3QKed9zCSr2AQADAgADeQADNgQ",
-        "AgACAgUAAxkBAAK_e2fnLsp-9L0qHIf5HcBcOUI-n-pTAAKxyjEbNTg5V40GKdsSGYmAAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAAK_fWfnLs9JhCXAYuMYiEpZeDdlK2FRAAKyyjEbNTg5V2aow0dyeq0sAQADAgADbQADNgQ",
-        "AgACAgUAAxkBAAK_f2fnLtYe4LFCbEYWQqbF4QggAwFwAAKzyjEbNTg5V_naxTJWbRKqAQADAgADeAADNgQ",
-        "AgACAgUAAxkBAAK_gWfnLt9EOLKlSj9z31Y-SefdjEi3AAK0yjEbNTg5VwEUY5mmQ42sAQADAgADcwADNgQ"
+        "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADcwADNgQ",
+        "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADbQADNgQ"
     ]
     buy_image_id = random.choice(BUY_IMAGES)
     sell_image_id = random.choice(SELL_IMAGES)
@@ -192,12 +179,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
     follow_up_messages = [
-        "🔄 Ready for the next trade? Choose another OTC pair.",
-        "📈 Let's keep it going! Select another pair.",
-        "🧐 What's next? Drop another OTC pair below.",
-        "⚡ Keep the momentum! Enter another OTC pair.",
-        "🚀 Ready for more signals? Send your next OTC pair."
-    ]
+    "Next trade? Pick a pair.",
+    "Ready? Choose a pair.",
+    "What's next? Drop a pair.",
+    "Keep going! Enter a pair.",
+    "More signals? Send a pair."
+]
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
     
