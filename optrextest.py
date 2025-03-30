@@ -198,27 +198,31 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     # Ensure an argument (user_id) is provided
     if not context.args:
-        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
+        await update.message.reply_text("⚠️ Usage: /addmember <user_id> <pocket_option_id>")
         return
 
     try:
         new_user_id = int(context.args[0])
+        pocket_option_id = context.args[1] if len(context.args) > 1 else "N/A"  # Default if not provided
         AUTHORIZED_USERS.add(new_user_id)
         
         # Ensure save_users() function exists
         if "save_users" in globals():
             save_users()  
-        
+
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
-
+        # Fetch Telegram user info
         try:
             chat = await context.bot.get_chat(new_user_id)
-            first_name = chat.first_name if chat.first_name else "Trader"  # Default name if unavailable
+            first_name = chat.first_name if chat.first_name else "Trader"  # Default if unavailable
+            username = f"@{chat.username}" if chat.username else "N/A"
         except Exception as e:
             print(f"⚠️ Failed to retrieve user info for {new_user_id}: {e}")
-            first_name = "Trader"  # Use a fallback name
+            first_name, username = "Trader", "N/A"
 
+        # Store user data in Google Sheets
+        store_user_info(new_user_id, username, first_name, pocket_option_id)
 
         # Send verification message with a photo and keyboard to the user
         try:
@@ -275,6 +279,20 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     except (IndexError, ValueError):
         await update.message.reply_text("⚠️ Usage: /removemember <user_id>")
 
+
+def store_user_info(user_id, username, first_name, pocket_option_id):
+    # Check if user already exists
+    user_ids = sheet.col_values(1)  # Get all Telegram IDs from column 1
+    if str(user_id) in user_ids:
+        row = user_ids.index(str(user_id)) + 1
+        sheet.update(f"B{row}", username)  # Update Username
+        sheet.update(f"C{row}", first_name)  # Update First Name
+        sheet.update(f"D{row}", pocket_option_id)  # Update Pocket Option ID
+    else:
+        # Append new data
+        sheet.append_row([user_id, username, first_name, pocket_option_id])
+
+    print(f"User {user_id} saved successfully!")
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
