@@ -228,7 +228,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             first_name, username = "Trader", "N/A"
 
         # Store user data in Google Sheets
-        store_user_info(new_user_id, username, first_name, pocket_option_id)
+        save_users(new_user_id, username, first_name, pocket_option_id)
 
         # Send verification message with a photo and keyboard to the user
         try:
