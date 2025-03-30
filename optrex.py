@@ -29,10 +29,10 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet3")  # Us
 
-app = Flask(__name__)
-
 WEBHOOK_URL = "https://jamespocket2-k9lz.onrender.com"  # Replace with your actual webhook URL
 
+app = Flask(__name__)
+application = Application.builder().token(TOKEN).concurrent_updates(True).build()
 
 
 def load_users():
@@ -320,7 +320,6 @@ def escape_markdown_v2(text):
     """Escape special characters for MarkdownV2"""
     return re.sub(r"([_*[\]()~`>#+\-=|{}.!])", r"\\\1", text)
 
-application = Application.builder().token(TOKEN).concurrent_updates(True).build()
 application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("AccessID", get_id))
 application.add_handler(CommandHandler("addmember", add_member))  
