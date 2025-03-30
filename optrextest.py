@@ -281,24 +281,10 @@ async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 
 def store_user_info(user_id, username, first_name, pocket_option_id):
-    # Fetch all Telegram IDs (Column A)
-    user_ids = sheet.col_values(1)  
-    
-    if str(user_id) in user_ids:
-        row = user_ids.index(str(user_id)) + 1  # Find the row index of the existing user
-        
-        # Update existing user details
-        sheet.batch_update([
-            {"range": f"B{row}", "values": [[username]]},
-            {"range": f"C{row}", "values": [[first_name]]},
-            {"range": f"D{row}", "values": [[pocket_option_id]]}
-        ])
-    else:
-        # Append new user if not found
-        sheet.append_row([user_id, username, first_name, pocket_option_id])
+    # Just append the new user data (allows duplicates)
+    sheet.append_row([user_id, username, first_name, pocket_option_id])
 
-    print(f"User {user_id} saved successfully!")  # Log action
-
+    print(f"User {user_id} saved successfully!")  # L
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
