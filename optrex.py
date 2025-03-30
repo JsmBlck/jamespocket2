@@ -26,7 +26,8 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
-sheet = client.open("TelegramBotMembers").sheet3
+spreadsheet = client.open("TelegramBotMembers")
+sheet = spreadsheet.worksheet("Sheet3")  # Us
 
 
 def load_users():
