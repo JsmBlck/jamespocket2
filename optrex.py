@@ -115,7 +115,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     photo_id = "AgACAgUAAxkBAAK-5GfmzGVZc5gQEmPD0v0Q-e5VaRBpAAIVyjEbNTgxV8zN_n29nXRLAQADAgADeAADNgQ"  # Replace with your actual Telegram file ID
 
-   welcome_message = """
+    welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
 
 🚀 Our bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
