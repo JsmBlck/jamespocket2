@@ -121,15 +121,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     welcome_message = """
 📊 *Welcome to the Binary Trading Assistant!*
 
-🚀 Our bot provides real-time trading signals for OTC Forex pairs.
+🚀 LunaX bot provides real-time trading signals for 10-second trades on OTC Forex pairs.
 
 🔹 *How It Works:*
-✅ Select an OTC Forex pair from the options below.
-✅ Receive a trading signal with market analysis.
-✅ Execute the trade quickly for optimal results.
+✅ Select an OTC Forex pair from the options below.  
+✅ Receive a trading signal with market analysis.  
+✅ Execute the trade quickly for the best results.  
 
 ⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
-    """
+"""
 
     # Define the keyboard layout (pairs in 2 columns)
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
@@ -245,12 +245,12 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
 
-Our bot provides real-time trading signals for OTC Forex pairs.
+🚀 Optrex bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
 
 🔹 *How It Works:*
-✅ Select an OTC Forex pair from the options below.
-✅ Receive a trading signal with market analysis.
-✅ Execute the trade quickly for optimal results.
+✅ Select an OTC Forex pair from the options below.  
+✅ Receive a trading signal with market analysis.  
+✅ Execute the trade quickly for the best results.  
 
 ⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
 """
