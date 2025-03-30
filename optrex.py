@@ -326,7 +326,7 @@ def run_flask():
     app.run(host="0.0.0.0", port=8080)
 
 def main() -> None:
-    application = Application.builder().token(TOKEN).concurrent_updates(True).build()
+    application = Application.builder().token(TOKEN).concurrent_updates(True).drop_pending_updates(True).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("AccessID", get_id))
     application.add_handler(CommandHandler("addmember", add_member))  
