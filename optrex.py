@@ -60,11 +60,16 @@ responses_json = os.getenv("RESPONSES", "[]")
 responses = json.loads(responses_json)["RESPONSES"]  
 
 # Flask app
-app = Flask(__name__)
+@app.route('/webhook', methods=['POST'])
 
 @app.route('/')
 def home():
     return "Bot is running!"
+
+def webhook():
+    update = telegram.Update.de_json(request.get_json(force=True), bot)
+    # Process the update (commands, messages, etc.)
+    return "OK", 200
 
 def keep_alive():
     render_url = "https://jamespocket2-k9lz.onrender.com"
@@ -338,4 +343,4 @@ def main() -> None:
     application.run_polling(drop_pending_updates=True)  # ✅ Move drop_pending_updates here
 
 if __name__ == "__main__":
-    main()
+    app.run(host="0.0.0.0", port=10000)
