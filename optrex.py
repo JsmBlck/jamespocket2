@@ -1,4 +1,3 @@
-
 import os
 import random
 import asyncio
@@ -327,12 +326,12 @@ application.add_handler(CommandHandler("addmember", add_member))
 application.add_handler(CommandHandler("removemember", remove_member))  
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-# Flask route for webhook
-@app.route('/webhook', methods=['POST'])
+@app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
-    update = Update.de_json(request.get_json(), application.bot)
-    application.update_queue.put(update)
+    update = telegram.Update.de_json(request.get_json(), BOT)
+    # Process update here (e.g., pass to your bot handlers)
     return "OK", 200
+
 
 if __name__ == "__main__":
     # Start Flask server
