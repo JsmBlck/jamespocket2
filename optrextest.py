@@ -285,9 +285,10 @@ def store_user_info(user_id, username, first_name, pocket_option_id):
     user_ids = sheet.col_values(1)  # Get all Telegram IDs from column 1
     if str(user_id) in user_ids:
         row = user_ids.index(str(user_id)) + 1
-        sheet.update(f"B{row}", username)  # Update Username
-        sheet.update(f"C{row}", first_name)  # Update First Name
-        sheet.update(f"D{row}", pocket_option_id)  # Update Pocket Option ID
+        sheet.update(f"B{row}", [[username]])  # Correct format
+        sheet.update(f"C{row}", [[first_name]])  
+        sheet.update(f"D{row}", [[pocket_option_id]])  
+  # Update Pocket Option ID
     else:
         # Append new data
         sheet.append_row([user_id, username, first_name, pocket_option_id])
