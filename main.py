@@ -129,7 +129,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 ✅ Execute the trade quickly for the best results.  
 
 ⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
-"""
+    """
 
     # Define the keyboard layout (pairs in 2 columns)
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
@@ -253,7 +253,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 ✅ Execute the trade quickly for the best results.  
 
 ⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
-"""
+    """
 
             # Define the keyboard layout (pairs in 2 columns)
             keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
