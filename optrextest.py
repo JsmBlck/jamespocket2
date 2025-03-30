@@ -39,15 +39,22 @@ def load_users():
         print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
-def save_users():
+def save_users(user_id, username, first_name, pocket_option_id):
     existing_data = sheet.get_all_values()  # Get all existing data
-    user_ids = [row[0] for row in existing_data]  # Extract Telegram IDs (first column)
+    user_ids = [row[0] for existing_data in existing_data]  # Extract Telegram IDs
 
-    for user_id in AUTHORIZED_USERS:
-        if str(user_id) not in user_ids:
-            sheet.append_row([user_id])  # Append new user if not in the sheet
+    if str(user_id) in user_ids:
+        row = user_ids.index(str(user_id)) + 1  # Find the existing row
+        sheet.batch_update([
+            {"range": f"B{row}", "values": [[username]]},
+            {"range": f"C{row}", "values": [[first_name]]},
+            {"range": f"D{row}", "values": [[pocket_option_id]]}
+        ])
+    else:
+        # Append new user if not found
+        sheet.append_row([user_id, username, first_name, pocket_option_id])
 
-    print("✅ Users saved successfully!")
+    print(f"✅ User {user_id} saved successfully!")
 
 
 
