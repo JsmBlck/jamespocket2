@@ -39,11 +39,6 @@ def load_users():
         print(f"Error loading users: {e}")
         return set(ADMIN_IDS)
 
-# Save authorized users to Google Sheets
-def save_users():
-    sheet.clear()
-    for idx, user_id in enumerate(AUTHORIZED_USERS):
-        sheet.update_cell(idx + 1, 1, user_id)
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
