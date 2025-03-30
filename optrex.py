@@ -144,8 +144,8 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
     step_variations = [
-        ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Checking {pair}..."],
-        ["🤖 Optrex Scanning {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
+        ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Scrapping {pair}..."],
+        ["🤖 Optrex Scanning the {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
         ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
     ]
 
