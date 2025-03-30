@@ -26,7 +26,8 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
-sheet = client.open("TelegramBotMembers").sheet1
+spreadsheet = client.open("TelegramBotMembers")
+sheet = spreadsheet.worksheet("Sheet3")  # Us
 
 
 def load_users():
@@ -48,15 +49,12 @@ AUTHORIZED_USERS = load_users()
 
 # List of OTC pairs
 otc_pairs = [
-    "🇦🇪/🇨🇳 AED/CNY OTC", 
-    "🇦🇺/🇨🇭 AUD/CHF OTC", 
-    "🇧🇭/🇨🇳 BHD/CNY OTC", 
+    "🇦🇪/🇨🇳 AED/CNY OTC",  
+    "🇦🇺/🇨🇦 AUD/CAD OTC", 
     "🇪🇺/🇺🇸 EUR/USD OTC", 
-    "🇨🇦/🇨🇭 CAD/CHF OTC", 
-    "🇳🇿/🇯🇵 NZD/JPY OTC", 
-    "🇪🇺/🇨🇭 EUR/CHF OTC", 
-    "🇬🇧/🇯🇵 GBP/JPY OTC"
+    "🇧🇭/🇨🇳 BHD/CNY OTC"
 ]
+
 
 # AI-like responses
 responses_json = os.getenv("RESPONSES", "[]")
@@ -70,7 +68,7 @@ def home():
     return "Bot is running!"
 
 def keep_alive():
-    render_url = "https://jamespocket2.onrender.com"
+    render_url = "https://jamespocket2-k9lz.onrender.com"
     while True:
         try:
             requests.get(render_url)
