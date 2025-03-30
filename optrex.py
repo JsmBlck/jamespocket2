@@ -344,4 +344,5 @@ def main() -> None:
     application.run_polling(drop_pending_updates=True)  # ✅ Move drop_pending_updates here
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))  # ✅ Get Render's port
+    app.run(host="0.0.0.0", port=port)
