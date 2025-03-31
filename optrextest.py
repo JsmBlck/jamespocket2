@@ -255,6 +255,32 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         await update.message.reply_text(f"✅ User {new_user_id} has been added successfully with Pocket Option ID: {pocket_option_id}")
 
+    try:
+            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
+            
+            welcome_message = f"""
+🚀 Hey *{first_name}*! You are now Verified!✅
+
+🚀 Optrex bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
+
+🔹 *How It Works:*
+✅ Select an OTC Forex pair from the options below.  
+✅ Receive a trading signal with market analysis.  
+✅ Execute the trade quickly for the best results.  
+
+⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
+    """
+            # Define the keyboard layout (pairs in 2 columns)
+            keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+
+            # Send photo with caption and buttons
+            await context.bot.send_photo(chat_id=new_user_id, photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
+
+        except Exception as e:
+            print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
+
+
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
 
