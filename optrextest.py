@@ -222,13 +222,15 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         await update.message.reply_text("❌ You are not authorized to use this command.")
         return
 
-    # Ensure an argument (user_id) is provided
-    if not context.args:
-        await update.message.reply_text("⚠️ Usage: /addmember <user_id>")
+    # Ensure arguments (user_id and pocket_option_id) are provided
+    if len(context.args) < 2:
+        await update.message.reply_text("⚠️ Usage: /addmember <user_id> <pocket_option_id>")
         return
 
     try:
         new_user_id = int(context.args[0])
+        pocket_option_id = context.args[1]  # Get the second argument
+
         AUTHORIZED_USERS.add(new_user_id)
 
         # Retrieve user details
@@ -241,8 +243,6 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             username = "Unknown"
             first_name = "Trader"
 
-        pocket_option_id = "N/A"  # Default value (modify as needed)
-
         # Store user data
         user_data[new_user_id] = {
             "username": username,
@@ -253,7 +253,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         # Save users in Google Sheets
         save_users()
 
-        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
+        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully with Pocket Option ID: {pocket_option_id}")
 
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
