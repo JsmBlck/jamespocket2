@@ -261,26 +261,38 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
 async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+
+    # Check if user is an admin
     if user.id not in ADMIN_IDS:
         await update.message.reply_text("❌ You are not authorized to use this command.")
         return
 
-    try:
-        remove_user_id = int(context.args[0])
-        if remove_user_id in AUTHORIZED_USERS:
-            AUTHORIZED_USERS.remove(remove_user_id)
-            save_users()  # Now removes ID from Google Sheets
-            await update.message.reply_text(f"✅ User {remove_user_id} has been removed successfully.")
-
-            # Log user removal
-            await log_activity(context, f"❌ **User Removed:** {remove_user_id} by @{user.username}")
-
-        else:
-            await update.message.reply_text("⚠️ User ID not found in the authorized list.")
-
-    except (IndexError, ValueError):
+    # Ensure an argument (user_id) is provided
+    if not context.args:
         await update.message.reply_text("⚠️ Usage: /removemember <user_id>")
+        return
 
+    try:
+        remove_user_id = str(context.args[0])  # Convert to string for easier comparison
+
+        # Get all user IDs from the sheet (Column A)
+        user_ids = sheet.col_values(1)
+
+        if remove_user_id in user_ids:
+            row = user_ids.index(remove_user_id) + 1  # Find row number
+
+            # Remove the row from Google Sheets
+            sheet.delete_rows(row)
+
+            # Remove from AUTHORIZED_USERS if needed
+            AUTHORIZED_USERS.discard(int(remove_user_id))
+
+            await update.message.reply_text(f"✅ User {remove_user_id} has been removed successfully.")
+        else:
+            await update.message.reply_text("⚠️ User ID not found in the list.")
+
+    except ValueError:
+        await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
 
 async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
