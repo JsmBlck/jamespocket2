@@ -243,6 +243,11 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             username = "Unknown"
             first_name = "Trader"
 
+        # Ensure user_data exists
+        global user_data
+        if "user_data" not in globals():
+            user_data = {}
+
         # Store user data
         user_data[new_user_id] = {
             "username": username,
@@ -251,11 +256,14 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         }
 
         # Save users in Google Sheets
-        save_users()
+        save_users()  # If async, change to `await save_users()`
 
-        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully with Pocket Option ID: {pocket_option_id}")
+        await update.message.reply_text(
+            f"✅ User {new_user_id} has been added successfully with Pocket Option ID: {pocket_option_id}"
+        )
 
-    try:
+        # Send welcome message
+        try:
             photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
             
             welcome_message = f"""
@@ -275,15 +283,19 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
             # Send photo with caption and buttons
-            await context.bot.send_photo(chat_id=new_user_id, photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
+            await context.bot.send_photo(
+                chat_id=new_user_id, 
+                photo=photo_id, 
+                caption=welcome_message, 
+                parse_mode="Markdown", 
+                reply_markup=reply_markup
+            )
 
-    except Exception as e:
+        except Exception as e:
             print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
-
 
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
-
 
 async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
