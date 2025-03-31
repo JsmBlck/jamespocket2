@@ -277,7 +277,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             # Send photo with caption and buttons
             await context.bot.send_photo(chat_id=new_user_id, photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
-        except Exception as e:
+    except Exception as e:
             print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
 
 
