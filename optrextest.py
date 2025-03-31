@@ -338,9 +338,17 @@ async def get_id(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"`{user.id}`", parse_mode="Markdown")
     await update.message.reply_text("☝️ Copy this and send it to @JoinLunaX to verify your access.")
 
+def get_pocket_option_id(user_id):
+    user_ids = sheet.col_values(1)  # Get all Telegram user IDs from column 1
+    if str(user_id) in user_ids:
+        row = user_ids.index(str(user_id)) + 1  # Get the row number
+        return sheet.cell(row, 4).value  # Pocket Option ID is in column 4
+    return "N/A"  # If not found, return "N/A"
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     user_message = update.message.text
+    pocket_option_id = get_pocket_option_id(user.id)
     
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
@@ -348,7 +356,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
-        await log_activity(context, f"Trade Selection📊: \n{user.full_name} | @{user.username} | {user.id}\nSelected: {user_message}")
+        await log_activity(context, f"Trade Selection📊: \n{user.full_name} | @{user.username} | {user.id} | Pocket Option ID: {pocket_option_id}\nSelected: {user_message}")
         await simulate_analysis(update, user_message)
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
