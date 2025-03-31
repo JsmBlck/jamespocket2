@@ -41,9 +41,32 @@ def load_users():
 
 # Save authorized users to Google Sheets
 def save_users():
-    sheet.clear()
-    for idx, user_id in enumerate(AUTHORIZED_USERS):
-        sheet.update_cell(idx + 1, 1, user_id)
+    # Get existing Telegram IDs from Google Sheets
+    user_ids = sheet.col_values(1)  # Column A (TG ID)
+
+    # Add headers if sheet is empty
+    if not user_ids:
+        sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
+
+    for user_id in AUTHORIZED_USERS:
+        user_info = user_data.get(user_id, {})
+        tg_username = user_info.get("username", "Unknown")
+        tg_name = user_info.get("first_name", "Trader")
+        pocket_option_id = user_info.get("pocket_option_id", "N/A")
+
+        if str(user_id) in user_ids:
+            # Update existing user row
+            row = user_ids.index(str(user_id)) + 1  # Find row number
+            sheet.batch_update([
+                {"range": f"B{row}", "values": [[tg_username]]},
+                {"range": f"C{row}", "values": [[tg_name]]},
+                {"range": f"D{row}", "values": [[pocket_option_id]]}
+            ])
+        else:
+            # Append new user
+            sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
+
+    print("✅ Users saved successfully!")
 
 # Authorized users list
 AUTHORIZED_USERS = load_users()
