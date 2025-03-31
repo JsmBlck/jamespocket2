@@ -211,9 +211,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await update.message.reply_text(random.choice(follow_up_messages))
     
 
+# Dictionary to store user details
+user_data = {}  
+
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
-    
+
     # Check if user is an admin
     if user.id not in ADMIN_IDS:
         await update.message.reply_text("❌ You are not authorized to use this command.")
@@ -227,54 +230,34 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
         new_user_id = int(context.args[0])
         AUTHORIZED_USERS.add(new_user_id)
-        
-        # Ensure save_users() function exists
-        if "save_users" in globals():
-            save_users()  
-        
-        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
-
+        # Retrieve user details
         try:
             chat = await context.bot.get_chat(new_user_id)
-            first_name = chat.first_name if chat.first_name else "Trader"  # Default name if unavailable
+            username = chat.username if chat.username else "Unknown"
+            first_name = chat.first_name if chat.first_name else "Trader"
         except Exception as e:
             print(f"⚠️ Failed to retrieve user info for {new_user_id}: {e}")
-            first_name = "Trader"  # Use a fallback name
+            username = "Unknown"
+            first_name = "Trader"
 
+        pocket_option_id = "N/A"  # Default value (modify as needed)
 
-        # Send verification message with a photo and keyboard to the user
-        try:
-            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
-            
-            welcome_message = f"""
-🚀 Hey *{first_name}*! You are now Verified!✅
+        # Store user data
+        user_data[new_user_id] = {
+            "username": username,
+            "first_name": first_name,
+            "pocket_option_id": pocket_option_id
+        }
 
-🚀 Optrex bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
+        # Save users in Google Sheets
+        save_users()
 
-🔹 *How It Works:*
-✅ Select an OTC Forex pair from the options below.  
-✅ Receive a trading signal with market analysis.  
-✅ Execute the trade quickly for the best results.  
-
-⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
-    """
-            # Define the keyboard layout (pairs in 2 columns)
-            keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-
-            # Send photo with caption and buttons
-            await context.bot.send_photo(chat_id=new_user_id, photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
-
-        except Exception as e:
-            print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
-        
-        # Log new user addition (check if function exists)
-        if "log_activity" in globals():
-            await log_activity(context, f"✅ **User Added:** {new_user_id} by @{user.username}")
+        await update.message.reply_text(f"✅ User {new_user_id} has been added successfully.")
 
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
+
 
 async def remove_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
