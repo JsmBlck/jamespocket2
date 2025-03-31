@@ -44,6 +44,7 @@ def load_authorized_users():
     print(f"✅ Loaded {len(AUTHORIZED_USERS)} authorized users from Google Sheets.")
     
 load_authorized_users()
+print(f"Loaded users: {AUTHORIZED_USERS}")  # Debugging
 
 # Save authorized users to Google Sheets
 def save_users():
