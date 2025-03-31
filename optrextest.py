@@ -29,7 +29,7 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet3")  # Us
 
-load_authorized_users()
+
 
 def load_authorized_users():
     global AUTHORIZED_USERS
@@ -42,6 +42,8 @@ def load_authorized_users():
             AUTHORIZED_USERS.add(int(user_id))  # Convert to integer
 
     print(f"✅ Loaded {len(AUTHORIZED_USERS)} authorized users from Google Sheets.")
+    
+load_authorized_users()
 
 # Save authorized users to Google Sheets
 def save_users():
