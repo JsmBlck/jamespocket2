@@ -29,15 +29,19 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet3")  # Us
 
+load_authorized_users()
 
+def load_authorized_users():
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = set()  # Reset the set
 
-def load_users():
-    try:
-        users = sheet.col_values(1)
-        return set(map(int, users)) | set(ADMIN_IDS)
-    except Exception as e:
-        print(f"Error loading users: {e}")
-        return set(ADMIN_IDS)
+    user_ids = sheet.col_values(1)  # Get all user IDs from column 1
+
+    for user_id in user_ids:
+        if user_id.strip():  # Avoid empty cells
+            AUTHORIZED_USERS.add(int(user_id))  # Convert to integer
+
+    print(f"✅ Loaded {len(AUTHORIZED_USERS)} authorized users from Google Sheets.")
 
 # Save authorized users to Google Sheets
 def save_users():
@@ -68,8 +72,6 @@ def save_users():
 
     print("✅ Users saved successfully!")
 
-# Authorized users list
-AUTHORIZED_USERS = load_users()
 
 # List of OTC pairs
 otc_pairs = [
