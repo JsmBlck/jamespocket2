@@ -387,10 +387,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         except Exception as e:
             print(f"Error deleting 'Please Wait' message: {e}")
         return 
-        
-    # Define keyboard_markup
-    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-    keyboard_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
