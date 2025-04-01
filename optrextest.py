@@ -166,8 +166,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial message with an invisible character
-    analyzing_message = await update.message.reply_text("​‎ ", parse_mode="Markdown", reply_markup=ReplyKeyboardMarkup(
+    # Send an initial message with a placeholder text
+    analyzing_message = await update.message.reply_text("Scanning... 0%", parse_mode="Markdown", reply_markup=ReplyKeyboardMarkup(
         [["⏳ Please Wait..."]], resize_keyboard=True
     ))
 
@@ -184,6 +184,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
+        # Edit the message with progress
         await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", parse_mode="Markdown")
 
     await asyncio.sleep(0.5)  # Brief pause before signal
