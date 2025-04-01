@@ -168,10 +168,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # -----------------------------------------------------# 
 
-async def simulate_analysis(update: Update, pair: str, reply_markup) -> None:
+async def simulate_analysis(update: Update, pair: str) -> None:
     # Ensure `otc_pairs` is defined somewhere or passed as an argument
-    otc_pairs = [["EUR/USD", "GBP/USD"], ["AUD/USD", "USD/JPY"], ["BTC/USD", "ETH/USD"]]
-
+    
     keyboard = [otc_pairs[i] for i in range(len(otc_pairs))]  # Corrected keyboard formatting
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
