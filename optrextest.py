@@ -169,12 +169,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial message with a placeholder text and Please Wait button
+    # Send an initial message with a placeholder text and "Please Wait" button
     analyzing_message = await update.message.reply_text(
         "Scanning... 0%", 
         parse_mode="Markdown", 
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
+
+    # Remove the "Scanning... 0%" text but KEEP the "Please Wait" button
+    await analyzing_message.edit_text("⏳ Please Wait...")
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
@@ -182,7 +185,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     while current_percent < 100:
         await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
         current_percent += random.randint(3, 17)  # Random increments
-        current_percent = min(current_percent, 100)  # Ensure current_percent does not exceed 100
+        current_percent = min(current_percent, 100)  # Ensure it doesn't exceed 100
 
         # Update progress bar based on percentage
         filled_blocks = int(current_percent / 10)
@@ -196,11 +199,6 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
             )
         except Exception as e:
             print(f"Error editing message: {e}")
-            # If editing fails, send a new message with the current progress
-            analyzing_message = await update.message.reply_text(
-                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
-                parse_mode="Markdown"
-            )
 
     # Brief pause before sending the final analysis message
     await asyncio.sleep(0.5)
@@ -230,12 +228,15 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     response_template = random.choice(response_templates)
     caption = response_template.format(signal_type=signal_type, pair=pair, confidence=confidence)
 
+    # Delete the analysis progress message before sending the trade signal
+    await analyzing_message.delete()
+
     # Send the signal image with the generated caption
-    await analyzing_message.delete()  # Delete the "Scanning..." message
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Restore the OTC pair selection keyboard without the "Please Wait" button
+    # Update the keyboard back to the OTC pair selection WITHOUT deleting the message
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+
 # -----------------------------------------------------#
 
 # Dictionary to store user details
