@@ -232,21 +232,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
     
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
-
-   #  await pleasemsg.delete()
-
-    follow_up_messages = [
-    "Next trade? Pick a pair.",
-    "Ready? Choose a pair.",
-    "What's next? Drop a pair.",
-    "Keep going! Enter a pair.",
-    "More signals? Send a pair."
-]
-    await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
-    await update.message.reply_text(random.choice(follow_up_messages))
-    
-
-
+    await update.message.reply_text("Select an OTC pair:"
 
 # -----------------------------------------------------#
 
