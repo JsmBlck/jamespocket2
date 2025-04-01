@@ -169,12 +169,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial AI-like response with "Please Wait" button
-    analyzing_message = await update.message.reply_text(
-        "🤖 Processing request... Stand by.", 
-        parse_mode="Markdown",
-        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
-    )
+    # Send "Scanning..." message WITHOUT a keyboard
+    analyzing_message = await update.message.reply_text("🤖 Processing request... Stand by.", parse_mode="Markdown")
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"
@@ -188,21 +184,18 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
-        # Try editing the scanning message
+        # Edit the scanning message
         try:
             await analyzing_message.edit_text(
-                f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
+                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
-        except telegram.error.BadRequest as e:
-            print(f"Skipping edit: {e}")
-            break  # Stop editing if it fails
+        except Exception as e:
+            print(f"Error editing message: {e}")
 
-    # **NEW:** Try updating the final analysis message safely
-    try:
-        await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
-    except telegram.error.BadRequest as e:
-        print(f"Final message edit failed: {e}")
+    # Brief pause before showing the final message
+    await asyncio.sleep(0.5)
+    await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
 
     # Prepare the BUY or SELL signal
     BUY_IMAGES = [
@@ -231,7 +224,6 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
     # Now send a new message with the updated keyboard (OTC selection)
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
-
 
 
 # -----------------------------------------------------#
