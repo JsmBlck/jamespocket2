@@ -170,7 +170,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def simulate_analysis(update: Update, pair: str) -> None:
     
-    await update.message.reply_text(
+    pleasemsg = await update.message.reply_text(
         "🤖 Processing request... Stand by.", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
@@ -222,6 +222,8 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
     
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
+
+    pleasemsg.delete()
 
     follow_up_messages = [
     "Next trade? Pick a pair.",
