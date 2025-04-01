@@ -165,13 +165,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
+
+# -----------------------------------------------------# 
+
+
+
+
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Initial message with "Please Wait..." button
+    # Send an initial message with a placeholder text
     analyzing_message = await update.message.reply_text(
         "Scanning... 0%", 
         parse_mode="Markdown", 
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
+
+    # Remove the initial "Scanning... 0%" message as soon as the bot starts loading
+    await analyzing_message.delete()
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
@@ -233,6 +242,9 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
     # Restore the original OTC pair selection keyboard
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+
+
+# -----------------------------------------------------#
 
 # Dictionary to store user details
 user_data = {}  
