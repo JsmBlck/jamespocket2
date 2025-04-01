@@ -42,7 +42,8 @@ def load_authorized_users():
             AUTHORIZED_USERS.add(int(user_id))  # Convert to integer
 
     print(f"✅ Loaded {len(AUTHORIZED_USERS)} authorized users from Google Sheets.")
-    
+
+AUTHORIZED_USERS = load_authorized_users()
 
 # Save authorized users to Google Sheets
 def save_users():
@@ -388,6 +389,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    load_authorized_users()
-    print(f"Loaded users: {AUTHORIZED_USERS}")
-    
