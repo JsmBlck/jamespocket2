@@ -43,8 +43,6 @@ def load_authorized_users():
 
     print(f"✅ Loaded {len(AUTHORIZED_USERS)} authorized users from Google Sheets.")
 
-AUTHORIZED_USERS = load_authorized_users()
-
 # Save authorized users to Google Sheets
 def save_users():
     # Get existing Telegram IDs from Google Sheets
@@ -74,6 +72,8 @@ def save_users():
 
     print("✅ Users saved successfully!")
 
+
+AUTHORIZED_USERS = load_authorized_users()
 
 # List of OTC pairs
 otc_pairs = [
