@@ -169,8 +169,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send "Scanning..." message WITHOUT a keyboard
-    analyzing_message = await update.message.reply_text("⏳ Scanning... 0%", parse_mode="Markdown")
+    # Send an initial AI-like response with "Please Wait" button
+    analyzing_message = await update.message.reply_text(
+        "🤖 Processing request... Stand by.", 
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
+    )
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"
@@ -187,7 +191,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         # Edit the scanning message
         try:
             await analyzing_message.edit_text(
-                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
+                f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
         except Exception as e:
@@ -195,7 +199,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
     # Brief pause before showing the final message
     await asyncio.sleep(0.5)
-    await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
+    await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
 
     # Prepare the BUY or SELL signal
     BUY_IMAGES = [
