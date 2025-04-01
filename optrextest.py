@@ -169,9 +169,13 @@ import random
 import asyncio
 from telegram import Update, ReplyKeyboardRemove
 
-async def simulate_analysis(update: Update, pair: str) -> None:
-    # Hide the command keyboard
-    await update.message.reply_text("Processing... Please wait.", reply_markup=ReplyKeyboardRemove())
+import random
+import asyncio
+from telegram import Update, ReplyKeyboardRemove
+
+async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+    # Hide the command keyboard at the start of the simulation
+    await update.message.reply_text("", reply_markup=ReplyKeyboardRemove())
 
     analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
 
@@ -218,12 +222,9 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     ]
     
     await asyncio.sleep(random.uniform(0.5, 1.0))  
-    # Show the keyboard back after the analysis
-    await update.message.reply_text(random.choice(follow_up_messages), reply_markup=ReplyKeyboardRemove())
 
-    # Optionally, if you want to show a custom keyboard, replace the line above with:
-    # await update.message.reply_text("Pick a new pair:", reply_markup=your_keyboard_here)
-
+    # After the simulation and sending the signal, show the keyboard
+    await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
 
 # Dictionary to store user details
 user_data = {}  
