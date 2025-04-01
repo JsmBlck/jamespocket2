@@ -166,24 +166,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_messages = [
-        "🤖 Optrex Checking {pair}...",
-        "🤖 Optrex Reviewing {pair}...",
-        "🤖 Optrex Assessing {pair}...",
-        "🤖 Optrex Scanning {pair}...",
-        "🤖 Optrex Calculating {pair}..."
-    ]
-    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
-
+    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair} 1%...", parse_mode="Markdown")
+    
+    # Simulate progressive scanning from 1% to 100%
+    for progress in range(10, 101, 10):  # Increments of 10%
+        await asyncio.sleep(random.uniform(0.5, 1.5))  # Randomized delay for natural effect
+        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair} {progress}%...", parse_mode="Markdown")
+    
     step_variations = [
         ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Scrapping {pair}..."],
         ["🤖 Optrex Scanning the {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
-        ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
+        ["✅ Optrex Signal ready for {pair}!", "✅ Optrex Analysis done for {pair}!", "✅ Optrex Trade confirmed for {pair}!"]
     ]
-
-    # steps = [random.choice(variation) for variation in step_variations]
+    
     steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
-
     for step in steps:
         await asyncio.sleep(random.uniform(1.5, 2.0)) 
         await analyzing_message.edit_text(step, parse_mode="Markdown")
@@ -210,12 +206,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
     follow_up_messages = [
-    "Next trade? Pick a pair.",
-    "Ready? Choose a pair.",
-    "What's next? Drop a pair.",
-    "Keep going! Enter a pair.",
-    "More signals? Send a pair."
-]
+        "Next trade? Pick a pair.",
+        "Ready? Choose a pair.",
+        "What's next? Drop a pair.",
+        "Keep going! Enter a pair.",
+        "More signals? Send a pair."
+    ]
     await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
     await update.message.reply_text(random.choice(follow_up_messages))
     
