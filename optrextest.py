@@ -165,8 +165,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
+import random
+import asyncio
+from telegram import Update, ReplyKeyboardRemove
+
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🤖 Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
+    # Hide the command keyboard
+    await update.message.reply_text("Processing... Please wait.", reply_markup=ReplyKeyboardRemove())
+
+    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
 
     current_percent = 1
     while current_percent < 100:
@@ -179,7 +186,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         progress_blocks = int(current_percent / 10)  # Each 10% adds a block
         loading_bar = "█" * progress_blocks + "░" * (10 - progress_blocks)
 
-        await analyzing_message.edit_text(f"🤖 Scanning {pair}... [{loading_bar}] {current_percent}%", parse_mode="Markdown")
+        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... [{loading_bar}] {current_percent}%", parse_mode="Markdown")
 
     await asyncio.sleep(0.5)  # Brief pause before signal
     await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
@@ -209,9 +216,13 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         "More signals? Choose a pair.",
         "Next trade? Send a pair."
     ]
+    
     await asyncio.sleep(random.uniform(0.5, 1.0))  
-    await update.message.reply_text(random.choice(follow_up_messages))
+    # Show the keyboard back after the analysis
+    await update.message.reply_text(random.choice(follow_up_messages), reply_markup=ReplyKeyboardRemove())
 
+    # Optionally, if you want to show a custom keyboard, replace the line above with:
+    # await update.message.reply_text("Pick a new pair:", reply_markup=your_keyboard_here)
 
 
 # Dictionary to store user details
