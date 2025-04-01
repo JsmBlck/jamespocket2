@@ -166,7 +166,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... 1%", parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
 
     current_percent = 1
     while current_percent < 100:
@@ -174,7 +174,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         current_percent += random.randint(3, 17)  # Random increments
         if current_percent > 100:
             current_percent = 100
-        await analyzing_message.edit_text(f"Scanning {pair}... {current_percent}%", parse_mode="Markdown")
+        
+        # Generate the loading bar (10 blocks)
+        progress_blocks = int(current_percent / 10)  # Each 10% adds a block
+        loading_bar = "█" * progress_blocks + "░" * (10 - progress_blocks)
+
+        await analyzing_message.edit_text(f"🤖 Scanning {pair}... [{loading_bar}] {current_percent}%", parse_mode="Markdown")
 
     await asyncio.sleep(0.5)  # Brief pause before signal
     await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
@@ -206,7 +211,9 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     ]
     await asyncio.sleep(random.uniform(0.5, 1.0))  
     await update.message.reply_text(random.choice(follow_up_messages))
-    
+
+
+
 # Dictionary to store user details
 user_data = {}  
 
