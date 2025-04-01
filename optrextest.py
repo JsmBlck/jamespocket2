@@ -10,7 +10,7 @@ import re
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater, CallbackContext
 from oauth2client.service_account import ServiceAccountCredentials
