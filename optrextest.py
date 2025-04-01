@@ -169,6 +169,10 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 import asyncio
 import random
 
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+import asyncio
+import random
+
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     # Remove the keyboard when scanning starts
     analyzing_message = await update.message.reply_text(
@@ -178,18 +182,27 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     )
 
     current_percent = 1
+    progress_bar = "░░░░░░░░░░"  # Initial empty bar
+
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
-        current_percent += random.randint(3, 17)  # Random increments
-        if current_percent > 100:
-            current_percent = 100
+        await asyncio.sleep(random.uniform(0.5, 1.0))  # Ensure updates aren't too fast
+        increment = random.randint(5, 15)  # Random progress
+        current_percent = min(current_percent + increment, 100)
+
+        # Update the progress bar based on completion
+        filled_blocks = round(current_percent / 10)
+        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+
         try:
-            await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... [{current_percent}%]", parse_mode="Markdown")
+            await analyzing_message.edit_text(
+                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%",
+                parse_mode="Markdown"
+            )
         except Exception as e:
-            print(f"Error editing message: {e}")  # Debugging log
+            print(f"Error editing message: {e}")
             break  # Stop updating if there's an error
 
-    await asyncio.sleep(0.5)  # Brief pause before signal
+    await asyncio.sleep(0.5)  # Brief pause before sending result
     try:
         await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
     except Exception as e:
@@ -211,7 +224,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     caption = f"{signal_type} Signal for {pair} - Confidence {confidence}%"
 
     try:
-        await analyzing_message.delete()  # Delete only if no errors
+        await analyzing_message.delete()
     except Exception as e:
         print(f"Error deleting message: {e}")
 
