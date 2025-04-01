@@ -166,14 +166,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair} 1%...", parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... 1%", parse_mode="Markdown")
 
-    for percent in range(2, 101, random.randint(5, 15)):  # Increment in random steps
-        await asyncio.sleep(random.uniform(0.2, 0.5))  # Short delay
-        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair} {percent}%", parse_mode="Markdown")
+    current_percent = 1
+    while current_percent < 100:
+        await asyncio.sleep(random.uniform(0.3, 0.8))  # Dynamic delay
+        current_percent += random.randint(3, 17)  # Random increments
+        if current_percent > 100:
+            current_percent = 100
+        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... {current_percent}%", parse_mode="Markdown")
 
-    # Final message before sending the signal
-    await asyncio.sleep(1)  # Brief pause before signal
+    await asyncio.sleep(0.5)  # Brief pause before signal
     await analyzing_message.edit_text(f"✅ Optrex Analysis done for {pair}!", parse_mode="Markdown")
 
     BUY_IMAGES = [
@@ -195,15 +198,15 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
     follow_up_messages = [
-    "Next signal? Enter a pair.",
-    "Ready for the next? Pick a pair.",
-    "What's next? Drop a pair.",
-    "More signals? Choose a pair.",
-    "Next trade? Send a pair."
-]
+        "Next signal? Enter a pair.",
+        "Ready for the next? Pick a pair.",
+        "What's next? Drop a pair.",
+        "More signals? Choose a pair.",
+        "Next trade? Send a pair."
+    ]
     await asyncio.sleep(random.uniform(0.5, 1.0))  
     await update.message.reply_text(random.choice(follow_up_messages))
-
+    
 # Dictionary to store user details
 user_data = {}  
 
