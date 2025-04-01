@@ -170,11 +170,11 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     current_percent = 1
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.3, 0.8))  # Dynamic delay
+        await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
         current_percent += random.randint(3, 17)  # Random increments
         if current_percent > 100:
             current_percent = 100
-        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... {current_percent}%", parse_mode="Markdown")
+        await analyzing_message.edit_text(f"Scanning {pair}... {current_percent}%", parse_mode="Markdown")
 
     await asyncio.sleep(0.5)  # Brief pause before signal
     await analyzing_message.edit_text(f"✅ Optrex Analysis done for {pair}!", parse_mode="Markdown")
