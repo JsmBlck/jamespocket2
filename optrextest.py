@@ -166,6 +166,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+
     # Hide the keyboard at the start of the simulation
     await update.message.reply_text("", reply_markup=ReplyKeyboardRemove())
 
