@@ -48,7 +48,7 @@ def load_authorized_users():
 
     print(f"Loaded authorized users: {AUTHORIZED_USERS}")  # Debugging
 
-# Save authorized users to Google Sheets
+# Save authorized users to Google Sheets		
 def save_users():
     # Get existing Telegram IDs from Google Sheets
     user_ids = sheet.col_values(1)  # Column A (TG ID)
@@ -169,40 +169,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+    # Ensure `otc_pairs` is defined somewhere or passed as an argument
+    otc_pairs = [["EUR/USD", "GBP/USD"], ["AUD/USD", "USD/JPY"], ["BTC/USD", "ETH/USD"]]
 
-    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+    keyboard = [otc_pairs[i] for i in range(len(otc_pairs))]  # Corrected keyboard formatting
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
     # Send initial processing message
     await update.message.reply_text(
         "🤖 Processing request... Stand by.", 
-        parse_mode="Markdown",
-        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
+        parse_mode="Markdown"
     )
 
     # Send progress tracking message
     analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
 
     current_percent = 1
-    progress_bar = "░░░░░░░░░░"
 
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.1, 0.5))
+        await asyncio.sleep(random.uniform(0.1, 0.5))  # Simulate progress timing
         current_percent += random.randint(3, 17)
         current_percent = min(current_percent, 100)
 
-        # Update progress bar based on percentage
+        # Update progress bar dynamically
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
-        # Edit the scanning message
+        # Edit the scanning message safely
         try:
             await analyzing_message.edit_text(
                 f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
         except Exception as e:
-            print(f"Error editing message: {e}")
+            print(f"Error updating progress: {e}")
             break  # Stop updating if there's an error
 
     # Final completion message
@@ -210,7 +210,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     try:
         await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
     except Exception as e:
-        print(f"Error editing final message: {e}")
+        print(f"Error finalizing message: {e}")
 
     # Generate BUY or SELL signal
     BUY_IMAGES = [
@@ -226,19 +226,13 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     confidence = random.randint(75, 80)
     image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
 
-    response_templates = [
-        f"{signal_type} signal for {pair} with {confidence}% confidence. 📈",
-        f"✅ {signal_type} signal: {pair} at {confidence}% confidence.",
-        f"Signal for {pair}: {signal_type} with {confidence}% confidence. 🚀"
-    ]
-    caption = random.choice(response_templates)
+    caption = f"{signal_type} signal for {pair} with {confidence}% confidence. 📈"
 
     # Send signal image
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
     # Ask for the next OTC pair with the correct keyboard
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
-
 
 # -----------------------------------------------------#
 
