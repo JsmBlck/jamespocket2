@@ -217,7 +217,11 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     # Delete the last message before sending final response with image
     await analyzing_message.delete()
-    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
+
+    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+    
+    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
 
     follow_up_messages = [
     "Next trade? Pick a pair.",
