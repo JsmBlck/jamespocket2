@@ -177,7 +177,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         await analyzing_message.edit_text(f"Scanning {pair}... {current_percent}%", parse_mode="Markdown")
 
     await asyncio.sleep(0.5)  # Brief pause before signal
-    await analyzing_message.edit_text(f"✅ Optrex Analysis done for {pair}!", parse_mode="Markdown")
+    await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
 
     BUY_IMAGES = [
         "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
