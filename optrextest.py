@@ -352,7 +352,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
         await log_activity(context, f"Trade Selection📊: \n@{user.username} | {user.full_name} | {user.id} \nPocket Option ID: {pocket_option_id}\nSelected: {user_message}")
-        await simulate_analysis(update, user_message, keyboard_markup: ReplyKeyboardMarkup)  # ✅ Pass keyboard_markup here
+        await simulate_analysis(update, user_message, keyboard_markup)  # ✅ Pass keyboard_markup here
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
