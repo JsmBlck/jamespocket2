@@ -73,7 +73,7 @@ def save_users():
     print("✅ Users saved successfully!")
 
 
-AUTHORIZED_USERS = load_authorized_users()
+load_authorized_users()
 
 # List of OTC pairs
 otc_pairs = [
