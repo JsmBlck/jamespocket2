@@ -167,22 +167,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
 async def simulate_analysis(update: Update, pair: str) -> None:
     analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair} 1%...", parse_mode="Markdown")
-    
-    # Simulate progressive scanning from 1% to 100%
-    for progress in range(10, 101, 10):  # Increments of 10%
-        await asyncio.sleep(random.uniform(0.5, 1.5))  # Randomized delay for natural effect
-        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair} {progress}%...", parse_mode="Markdown")
-    
-    step_variations = [
-        ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Scrapping {pair}..."],
-        ["🤖 Optrex Scanning the {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
-        ["✅ Optrex Signal ready for {pair}!", "✅ Optrex Analysis done for {pair}!", "✅ Optrex Trade confirmed for {pair}!"]
-    ]
-    
-    steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
-    for step in steps:
-        await asyncio.sleep(random.uniform(1.5, 2.0)) 
-        await analyzing_message.edit_text(step, parse_mode="Markdown")
+
+    for percent in range(2, 101, random.randint(5, 15)):  # Increment in random steps
+        await asyncio.sleep(random.uniform(0.2, 0.5))  # Short delay
+        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair} {percent}%", parse_mode="Markdown")
+
+    # Final message before sending the signal
+    await asyncio.sleep(1)  # Brief pause before signal
+    await analyzing_message.edit_text(f"✅ Optrex Analysis done for {pair}!", parse_mode="Markdown")
 
     BUY_IMAGES = [
         "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
@@ -192,29 +184,25 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADcwADNgQ",
         "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADbQADNgQ"
     ]
-    buy_image_id = random.choice(BUY_IMAGES)
-    sell_image_id = random.choice(SELL_IMAGES)
     
     confidence = random.randint(75, 80)
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
-    image_id = buy_image_id if signal_type == "BUY" else sell_image_id
+    image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
     response_template = random.choice([r for r in responses if signal_type in r])
     caption = response_template.format(pair=pair, confidence=confidence)
 
-    # Delete the last message before sending final response with image
     await analyzing_message.delete()
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
     follow_up_messages = [
-        "Next trade? Pick a pair.",
-        "Ready? Choose a pair.",
-        "What's next? Drop a pair.",
-        "Keep going! Enter a pair.",
-        "More signals? Send a pair."
-    ]
-    await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
+    "Next signal? Enter a pair.",
+    "Ready for the next? Pick a pair.",
+    "What's next? Drop a pair.",
+    "More signals? Choose a pair.",
+    "Next trade? Send a pair."
+]
+    await asyncio.sleep(random.uniform(0.5, 1.0))  
     await update.message.reply_text(random.choice(follow_up_messages))
-    
 
 # Dictionary to store user details
 user_data = {}  
