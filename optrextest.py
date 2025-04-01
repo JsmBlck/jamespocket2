@@ -170,10 +170,11 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
     # Hide the keyboard at the start of the simulation
-    await update.message.reply_text("", reply_markup=ReplyKeyboardRemove())
-
-    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
-
+    analyzing_message = await update.message.reply_text(
+        f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardRemove()  # Removes the keyboard
+    )
     current_percent = 1
     while current_percent < 100:
         await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
