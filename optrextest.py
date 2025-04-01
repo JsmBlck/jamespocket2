@@ -169,6 +169,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str) -> None:
+    
+    await update.message.reply_text(
+        "🤖 Processing request... Stand by.", 
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
+    )
+    
     analyzing_messages = [
         "🤖 Optrex Checking {pair}...",
         "🤖 Optrex Reviewing {pair}...",
