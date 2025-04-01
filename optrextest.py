@@ -177,7 +177,9 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     )
     
     analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
-
+    
+    await pleasemsg.delete()
+    
     current_percent = 1
 
     while current_percent < 100:
@@ -205,8 +207,6 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
     except Exception as e:
         print(f"Error finalizing message: {e}")
-
-    await pleasemsg.delete()
 
     BUY_IMAGES = [
         "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
