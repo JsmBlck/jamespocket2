@@ -231,7 +231,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
     await pleasemsg.delete()
-    await update.message.reply_text("Select an OTC pair:"
+    await update.message.reply_text("Select an OTC pair:")
 
 # -----------------------------------------------------#
 
