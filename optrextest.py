@@ -177,7 +177,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     # New "Please Wait" Keyboard
     wait_keyboard = ReplyKeyboardMarkup([[KeyboardButton("⏳ Please Wait...")]], resize_keyboard=True)
 
-    # Send initial analyzing message with the "Please Wait" keyboard
+    # Send initial analyzing message with "Please Wait" keyboard
     analyzing_message = await update.message.reply_text(
         f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%",
         parse_mode="Markdown",
@@ -185,8 +185,6 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     )
 
     current_percent = 1
-    progress_bar = "░░░░░░░░░░"
-
     while current_percent < 100:
         await asyncio.sleep(random.uniform(0.5, 1.0))
         increment = random.randint(5, 15)
@@ -201,7 +199,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
                 parse_mode="Markdown"
             )
         except Exception as e:
-            print(f"Error editing message: {e}")
+            print(f"Error updating message: {e}")
             break
 
     await asyncio.sleep(0.5)
@@ -219,7 +217,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADcwADNgQ",
         "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADbQADNgQ"
     ]
-    
+
     confidence = random.randint(75, 80)
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
     image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
@@ -228,7 +226,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     try:
         await analyzing_message.delete()
     except Exception as e:
-        print(f"Error deleting message: {e}")
+        print(f"Error deleting analyzing message: {e}")
 
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
@@ -240,16 +238,8 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         "More signals? Choose a pair.",
         "Next trade? Send a pair."
     ]
-    await asyncio.sleep(random.uniform(0.5, 1.0))  
+    await asyncio.sleep(random.uniform(0.5, 1.0))
     await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
-
-
-async def handle_wait_button(update: Update, context) -> None:
-    """Handle when user clicks '⏳ Please Wait...' button"""
-    try:
-        await update.message.delete()
-    except Exception as e:
-        print(f"Error deleting 'Please Wait' button: {e}")
 
 
 # Dictionary to store user details
@@ -395,8 +385,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
 
+    if user_message == "⏳ Please Wait...":
+        try:
+            await update.message.delete()
+        except Exception as e:
+            print(f"Error deleting 'Please Wait' message: {e}")
+        return 
+        
     # Define keyboard_markup
-    keyboard = [[pair] for pair in otc_pairs]  # Single-column keyboard
+    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
     keyboard_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
     if user_message in otc_pairs:
