@@ -211,11 +211,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         "What's next? Drop a pair.",
         "More signals? Choose a pair.",
         "Next trade? Send a pair."
-    ]
-    
-    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-                                       
+    ]                                  
     # After the simulation and sending the signal, show the keyboard again
     await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
 
@@ -362,11 +358,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text("❌ Access Denied. You are not authorized to use this bot.")
         return
-    
+
+    # Define keyboard_markup
+    keyboard = [[pair] for pair in otc_pairs]  # Single-column keyboard
+    keyboard_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
         await log_activity(context, f"Trade Selection📊: \n@{user.username} | {user.full_name} | {user.id} \nPocket Option ID: {pocket_option_id}\nSelected: {user_message}")
-        await simulate_analysis(update, user_message)
+        await simulate_analysis(update, user_message, keyboard_markup)  # ✅ Pass keyboard_markup here
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
