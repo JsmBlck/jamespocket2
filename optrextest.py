@@ -172,22 +172,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial message with a placeholder text
+    # Send an initial message with the "Please Wait" button
     analyzing_message = await update.message.reply_text(
         "Scanning... 0%", 
         parse_mode="Markdown", 
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
 
-    # Remove the initial "Scanning... 0%" message as soon as the bot starts loading
-    await analyzing_message.delete()
-
     current_percent = 1
     progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
 
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.1, 0.5))  # Random dynamic delay
-        current_percent += random.randint(3, 17)  # Random progress increments
+        await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
+        current_percent += random.randint(3, 17)  # Random increments
         current_percent = min(current_percent, 100)  # Ensure current_percent does not exceed 100
 
         # Update progress bar based on percentage
@@ -207,6 +204,10 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
                 f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
+
+    # Update the keyboard when scanning is complete
+    new_keyboard = ReplyKeyboardMarkup([["✅ Scan Complete!"]], resize_keyboard=True)
+    await analyzing_message.edit_reply_markup(reply_markup=new_keyboard)
 
     # Brief pause before sending the final analysis message
     await asyncio.sleep(0.5)
@@ -240,9 +241,8 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     await analyzing_message.delete()  # Delete the "Scanning..." message
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Restore the original OTC pair selection keyboard
+    # Restore the OTC pair selection keyboard without the "Please Wait" button
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
-
 
 # -----------------------------------------------------#
 
