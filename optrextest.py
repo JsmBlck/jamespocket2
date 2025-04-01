@@ -170,18 +170,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     # Send initial processing message
-    analyzing_message = await update.message.reply_text(
+    await update.message.reply_text(
         "🤖 Processing request... Stand by.", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
 
     # Send progress tracking message
-    analyzing_message2 = await update.message.reply_text(
-        f"🤖 Optrex analyzing {pair}... 0%", 
-        parse_mode="Markdown",
-        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
-    )
+    analyzing_message = await update.message.reply_text(f"🤖 Optrex analyzing {pair}... 0%")
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"
@@ -197,7 +193,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
         # Edit the scanning message
         try:
-            await analyzing_message2.edit_text(
+            await analyzing_message.edit_text(
                 f"🤖 Optrex analyzing {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
@@ -208,7 +204,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     # Final completion message
     await asyncio.sleep(0.5)
     try:
-        await analyzing_message2.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
+        await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
     except Exception as e:
         print(f"Error editing final message: {e}")
 
