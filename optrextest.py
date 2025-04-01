@@ -175,6 +175,8 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
+
+    await pleasemsg.delete()
     
     analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
 
@@ -231,7 +233,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
 
-    await pleasemsg.delete()
+   #  await pleasemsg.delete()
 
     follow_up_messages = [
     "Next trade? Pick a pair.",
