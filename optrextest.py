@@ -178,8 +178,6 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     
     analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
     
-    await pleasemsg.delete()
-    
     current_percent = 1
 
     while current_percent < 100:
@@ -232,6 +230,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
     
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
+    await pleasemsg.delete()
     await update.message.reply_text("Select an OTC pair:"
 
 # -----------------------------------------------------#
