@@ -169,26 +169,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial message with "Please Wait" button
-    analyzing_message = await update.message.reply_text(
-        "⏳ Scanning... 0%", 
-        parse_mode="Markdown", 
-        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
-    )
+    # Send "Scanning..." message WITHOUT a keyboard
+    analyzing_message = await update.message.reply_text("⏳ Scanning... 0%", parse_mode="Markdown")
 
     current_percent = 1
-    progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
+    progress_bar = "░░░░░░░░░░"
 
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
-        current_percent += random.randint(3, 17)  # Random increments
-        current_percent = min(current_percent, 100)  # Ensure it doesn't exceed 100
+        await asyncio.sleep(random.uniform(0.1, 0.5))
+        current_percent += random.randint(3, 17)
+        current_percent = min(current_percent, 100)
 
         # Update progress bar based on percentage
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
-        # Edit the message with progress
+        # Edit the scanning message
         try:
             await analyzing_message.edit_text(
                 f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
@@ -197,7 +193,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         except Exception as e:
             print(f"Error editing message: {e}")
 
-    # Brief pause before sending the final analysis message
+    # Brief pause before showing the final message
     await asyncio.sleep(0.5)
     await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
 
@@ -211,12 +207,10 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADbQADNgQ"
     ]
 
-    # Randomly select the signal type (BUY/SELL) and corresponding image
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
-    confidence = random.randint(75, 80)  # Random confidence between 75% and 80%
+    confidence = random.randint(75, 80)
     image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
 
-    # Select a random response template based on the signal type
     response_templates = [
         "{signal_type} signal for {pair} with {confidence}% confidence. 📈",
         "✅ {signal_type} signal: {pair} at {confidence}% confidence.",
@@ -225,20 +219,11 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     response_template = random.choice(response_templates)
     caption = response_template.format(signal_type=signal_type, pair=pair, confidence=confidence)
 
-    # Send the signal image with the generated caption
+    # Send the signal image
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Update the message with the final analysis and restore the OTC pair keyboard
-    try:
-        await analyzing_message.edit_text(
-            "Select an OTC pair:",
-            reply_markup=keyboard_markup  # Restore the OTC selection keyboard
-        )
-    except Exception as e:
-        print(f"Error updating keyboard: {e}")
-        # If editing fails, send a new message instead
-        await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
-
+    # Now send a new message with the updated keyboard (OTC selection)
+    await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
 
 # -----------------------------------------------------#
 
