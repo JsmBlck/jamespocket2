@@ -165,32 +165,37 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
-async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+import asyncio
+import random
 
-    # Hide the keyboard at the start of the simulation
+async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+    # Remove the keyboard when scanning starts
     analyzing_message = await update.message.reply_text(
         f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%",
         parse_mode="Markdown",
-        reply_markup=ReplyKeyboardRemove()  # Removes the keyboard
+        reply_markup=ReplyKeyboardRemove()
     )
+
     current_percent = 1
     while current_percent < 100:
         await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
         current_percent += random.randint(3, 17)  # Random increments
         if current_percent > 100:
             current_percent = 100
-        
-        # Generate the loading bar (10 blocks)
-        progress_blocks = int(current_percent / 10)  # Each 10% adds a block
-        loading_bar = "█" * progress_blocks + "░" * (10 - progress_blocks)
-
-        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... [{loading_bar}] {current_percent}%", parse_mode="Markdown")
+        try:
+            await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... [{current_percent}%]", parse_mode="Markdown")
+        except Exception as e:
+            print(f"Error editing message: {e}")  # Debugging log
+            break  # Stop updating if there's an error
 
     await asyncio.sleep(0.5)  # Brief pause before signal
-    await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
+    try:
+        await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
+    except Exception as e:
+        print(f"Error finalizing message: {e}")
 
+    # Send the signal image
     BUY_IMAGES = [
         "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
         "AgACAgUAAxkBAALBg2fpeFNOWA4rtP-yX2h-Wyo6HrYPAALTwzEbWvFJV01htbdAqFaQAQADAgADcwADNgQ"
@@ -203,22 +208,25 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     confidence = random.randint(75, 80)
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
     image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
-    response_template = random.choice([r for r in responses if signal_type in r])
-    caption = response_template.format(pair=pair, confidence=confidence)
+    caption = f"{signal_type} Signal for {pair} - Confidence {confidence}%"
 
-    await analyzing_message.delete()
+    try:
+        await analyzing_message.delete()  # Delete only if no errors
+    except Exception as e:
+        print(f"Error deleting message: {e}")
+
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
+    # Bring back the keyboard after the signal is sent
     follow_up_messages = [
         "Next signal? Enter a pair.",
         "Ready for the next? Pick a pair.",
         "What's next? Drop a pair.",
         "More signals? Choose a pair.",
         "Next trade? Send a pair."
-    ]                                  
-    # After the simulation and sending the signal, show the keyboard again
+    ]
+    await asyncio.sleep(random.uniform(0.5, 1.0))  
     await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
-
 
 # Dictionary to store user details
 user_data = {}  
