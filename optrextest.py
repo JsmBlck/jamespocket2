@@ -188,18 +188,21 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
-        # Edit the scanning message
+        # Try editing the scanning message
         try:
             await analyzing_message.edit_text(
                 f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
-        except Exception as e:
-            print(f"Error editing message: {e}")
+        except telegram.error.BadRequest as e:
+            print(f"Skipping edit: {e}")
+            break  # Stop editing if it fails
 
-    # Brief pause before showing the final message
-    await asyncio.sleep(0.5)
-    await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
+    # **NEW:** Try updating the final analysis message safely
+    try:
+        await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
+    except telegram.error.BadRequest as e:
+        print(f"Final message edit failed: {e}")
 
     # Prepare the BUY or SELL signal
     BUY_IMAGES = [
@@ -228,6 +231,8 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
     # Now send a new message with the updated keyboard (OTC selection)
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+
+
 
 # -----------------------------------------------------#
 
