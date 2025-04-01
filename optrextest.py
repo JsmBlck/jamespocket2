@@ -169,6 +169,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+
+    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+
     # Send initial processing message
     await update.message.reply_text(
         "🤖 Processing request... Stand by.", 
