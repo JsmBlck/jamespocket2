@@ -168,11 +168,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # -----------------------------------------------------# 
 
-
-
-
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial message with the "Please Wait" button
+    # Send an initial message with a placeholder text and Please Wait button
     analyzing_message = await update.message.reply_text(
         "Scanning... 0%", 
         parse_mode="Markdown", 
@@ -204,10 +201,6 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
                 f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
-
-    # Update the keyboard when scanning is complete
-    new_keyboard = ReplyKeyboardMarkup([["✅ Scan Complete!"]], resize_keyboard=True)
-    await analyzing_message.edit_reply_markup(reply_markup=new_keyboard)
 
     # Brief pause before sending the final analysis message
     await asyncio.sleep(0.5)
@@ -243,7 +236,6 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
     # Restore the OTC pair selection keyboard without the "Please Wait" button
     await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
-
 # -----------------------------------------------------#
 
 # Dictionary to store user details
