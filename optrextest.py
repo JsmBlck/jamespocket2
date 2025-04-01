@@ -166,7 +166,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
     
 async def simulate_analysis(update: Update, pair: str) -> None:
-    analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(f"🤖 Scanning {pair}... [░░░░░░░░░░] 1%", parse_mode="Markdown")
 
     current_percent = 1
     while current_percent < 100:
