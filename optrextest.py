@@ -177,7 +177,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     )
 
     # Send progress tracking message
-    analyzing_message = await update.message.reply_text(f"🤖 Optrex analyzing {pair}... 0%")
+    analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"
@@ -194,7 +194,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
         # Edit the scanning message
         try:
             await analyzing_message.edit_text(
-                f"🤖 Optrex analyzing {pair}... [{progress_bar}] {current_percent}%", 
+                f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
         except Exception as e:
