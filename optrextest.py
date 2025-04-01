@@ -171,7 +171,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def simulate_analysis(update: Update, pair: str) -> None:
     
     pleasemsg = await update.message.reply_text(
-        "🤖 Analyzing {pair}...", 
+        f"🤖 Analyzing {pair}...", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
