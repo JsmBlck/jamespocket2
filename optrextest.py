@@ -176,27 +176,35 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
     
-    analyzing_messages = [
-        "🤖 Optrex Checking {pair}...",
-        "🤖 Optrex Reviewing {pair}...",
-        "🤖 Optrex Assessing {pair}...",
-        "🤖 Optrex Scanning {pair}...",
-        "🤖 Optrex Calculating {pair}..."
-    ]
-    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
 
-    step_variations = [
-        ["🤖 Optrex Processing {pair}...", "🤖 Optrex Analyzing {pair}...", "🤖 Optrex Scrapping {pair}..."],
-        ["🤖 Optrex Scanning the {pair}...", "🤖 Optrex Predicting {pair}...", "🤖 Optrex Simulating {pair}..."],
-        ["🤖 Optrex Signal ready for {pair}!", "🤖 Optrex Analysis done for {pair}!", "🤖 Optrex Trade confirmed for {pair}!"]
-    ]
+    current_percent = 1
 
-    # steps = [random.choice(variation) for variation in step_variations]
-    steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
+    while current_percent < 100:
+        await asyncio.sleep(random.uniform(0.1, 0.5))  # Simulate progress timing
+        current_percent += random.randint(3, 17)
+        current_percent = min(current_percent, 100)
 
-    for step in steps:
-        await asyncio.sleep(random.uniform(1.5, 2.0)) 
-        await analyzing_message.edit_text(step, parse_mode="Markdown")
+        # Update progress bar dynamically
+        filled_blocks = int(current_percent / 10)
+        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+
+        # Edit the scanning message safely
+        try:
+            await analyzing_message.edit_text(
+                f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"Error updating progress: {e}")
+            break  # Stop updating if there's an error
+
+    # Final completion message
+    await asyncio.sleep(0.5)
+    try:
+        await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
+    except Exception as e:
+        print(f"Error finalizing message: {e}")
 
     BUY_IMAGES = [
         "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
@@ -223,7 +231,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
 
-    pleasemsg.delete()
+    await pleasemsg.delete()
 
     follow_up_messages = [
     "Next trade? Pick a pair.",
