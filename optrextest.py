@@ -169,15 +169,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Send an initial message with a placeholder text and "Please Wait" button
+    # Send an initial message with "Please Wait" button
     analyzing_message = await update.message.reply_text(
-        "Scanning... 0%", 
+        "⏳ Scanning... 0%", 
         parse_mode="Markdown", 
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
-
-    # Remove the "Scanning... 0%" text but KEEP the "Please Wait" button
-    await analyzing_message.edit_text("⏳ Please Wait...")
 
     current_percent = 1
     progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
@@ -228,14 +225,20 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     response_template = random.choice(response_templates)
     caption = response_template.format(signal_type=signal_type, pair=pair, confidence=confidence)
 
-    # Delete the analysis progress message before sending the trade signal
-    await analyzing_message.delete()
-
     # Send the signal image with the generated caption
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Update the keyboard back to the OTC pair selection WITHOUT deleting the message
-    await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+    # Update the message with the final analysis and restore the OTC pair keyboard
+    try:
+        await analyzing_message.edit_text(
+            "Select an OTC pair:",
+            reply_markup=keyboard_markup  # Restore the OTC selection keyboard
+        )
+    except Exception as e:
+        print(f"Error updating keyboard: {e}")
+        # If editing fails, send a new message instead
+        await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+
 
 # -----------------------------------------------------#
 
