@@ -165,7 +165,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
-async def simulate_analysis(update: Update, pair: str) -> None:
+async def simulate_analysis(update: Update, pair: str, keyboard_markup: ReplyKeyboardMarkup) -> None:
     analyzing_message = await update.message.reply_text(f"🤖 Optrex Scanning {pair}​", parse_mode="Markdown")
     # Invisible text used to allow editing
     current_percent = 1
