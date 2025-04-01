@@ -37,11 +37,16 @@ def load_authorized_users():
 
     user_ids = sheet.col_values(1)  # Get all user IDs from column 1
 
-    for user_id in user_ids:
-        if user_id.strip():  # Avoid empty cells
-            AUTHORIZED_USERS.add(int(user_id))  # Convert to integer
+    print(f"Fetched user IDs from GSheet: {user_ids}")  # Debugging
 
-    print(f"✅ Loaded {len(AUTHORIZED_USERS)} authorized users from Google Sheets.")
+    for user_id in user_ids[1:]:  # Skip the first row (header)
+        if user_id.strip():  # Avoid empty cells
+            try:
+                AUTHORIZED_USERS.add(int(user_id))  # Convert to integer
+            except ValueError:
+                print(f"Skipping invalid ID: {user_id}")  # Debugging for non-numeric values
+
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")  # Debugging
 
 # Save authorized users to Google Sheets
 def save_users():
