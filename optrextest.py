@@ -168,7 +168,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # -----------------------------------------------------# 
 
-async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+async def simulate_analysis(update: Update, pair: str, reply_markup) -> None:
     # Ensure `otc_pairs` is defined somewhere or passed as an argument
     otc_pairs = [["EUR/USD", "GBP/USD"], ["AUD/USD", "USD/JPY"], ["BTC/USD", "ETH/USD"]]
 
@@ -232,7 +232,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
     # Ask for the next OTC pair with the correct keyboard
-    await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+    await update.message.reply_text("Select an OTC pair:", reply_markup=reply_markup)
 
 # -----------------------------------------------------#
 
@@ -385,11 +385,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         except Exception as e:
             print(f"Error deleting 'Please Wait' message: {e}")
         return 
+    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+
 
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
         await log_activity(context, f"Trade Selection📊: \n@{user.username} | {user.full_name} | {user.id} \nPocket Option ID: {pocket_option_id}\nSelected: {user_message}")
-        await simulate_analysis(update, user_message, keyboard_markup)  # ✅ Pass keyboard_markup here
+        await simulate_analysis(update, user_message, reply_markup)  # ✅ Pass keyboard_markup here
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
