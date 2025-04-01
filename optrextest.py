@@ -165,50 +165,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-import asyncio
-import random
-
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-import asyncio
-import random
-
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # New "Please Wait" Keyboard
-    wait_keyboard = ReplyKeyboardMarkup([[KeyboardButton("⏳ Please Wait...")]], resize_keyboard=True)
-
-    # Send initial analyzing message with "Please Wait" keyboard
-    analyzing_message = await update.message.reply_text(
-        f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%",
-        parse_mode="Markdown",
-        reply_markup=wait_keyboard
-    )
+    # Send an initial message with an invisible character
+    analyzing_message = await update.message.reply_text("​‎ ", parse_mode="Markdown", reply_markup=ReplyKeyboardMarkup(
+        [["⏳ Please Wait..."]], resize_keyboard=True
+    ))
 
     current_percent = 1
-    while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.5, 1.0))
-        increment = random.randint(5, 15)
-        current_percent = min(current_percent + increment, 100)
+    progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
 
-        filled_blocks = round(current_percent / 10)
+    while current_percent < 100:
+        await asyncio.sleep(random.uniform(0.1, 0.5))  # Dynamic delay
+        current_percent += random.randint(3, 17)  # Random increments
+        if current_percent > 100:
+            current_percent = 100
+
+        # Update progress bar based on percentage
+        filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
-        try:
-            await analyzing_message.edit_text(
-                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%",
-                parse_mode="Markdown"
-            )
-        except Exception as e:
-            print(f"Error updating message: {e}")
-            break
+        await analyzing_message.edit_text(f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", parse_mode="Markdown")
 
-    await asyncio.sleep(0.5)
-    try:
-        await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
-    except Exception as e:
-        print(f"Error finalizing message: {e}")
+    await asyncio.sleep(0.5)  # Brief pause before signal
+    await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
 
-    # Send the signal image
+    # Send trade signal
     BUY_IMAGES = [
         "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
         "AgACAgUAAxkBAALBg2fpeFNOWA4rtP-yX2h-Wyo6HrYPAALTwzEbWvFJV01htbdAqFaQAQADAgADcwADNgQ"
@@ -221,26 +202,14 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     confidence = random.randint(75, 80)
     signal_type = "BUY" if random.random() > 0.5 else "SELL"
     image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
-    caption = f"{signal_type} Signal for {pair} - Confidence {confidence}%"
+    response_template = random.choice([r for r in responses if signal_type in r])
+    caption = response_template.format(pair=pair, confidence=confidence)
 
-    try:
-        await analyzing_message.delete()
-    except Exception as e:
-        print(f"Error deleting analyzing message: {e}")
-
+    await analyzing_message.delete()
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Restore the original OTC keyboard
-    follow_up_messages = [
-        "Next signal? Enter a pair.",
-        "Ready for the next? Pick a pair.",
-        "What's next? Drop a pair.",
-        "More signals? Choose a pair.",
-        "Next trade? Send a pair."
-    ]
-    await asyncio.sleep(random.uniform(0.5, 1.0))
-    await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
-
+    # Restore original keyboard
+    await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
 
 # Dictionary to store user details
 user_data = {}  
