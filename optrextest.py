@@ -176,9 +176,11 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     # Send initial processing message
     await update.message.reply_text(
-        "🤖 Processing request... Stand by.", 
-        parse_mode="Markdown"
+        f"🤖 Processing request... Stand by.", 
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
+
 
     # Send progress tracking message
     analyzing_message = await update.message.reply_text(f"🤖 Analyzing {pair}... 0%")
