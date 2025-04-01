@@ -165,36 +165,75 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Send photo with caption
     await update.message.reply_photo(photo=photo_id, caption=welcome_message, parse_mode="Markdown", reply_markup=reply_markup)
 
-async def simulate_analysis(update: Update, pair: str, keyboard_markup: ReplyKeyboardMarkup) -> None:
-    # Remove the old OTC pairs keyboard and show the "Please wait" button
-    wait_button = [[KeyboardButton("Please Wait")]]
-    wait_markup = ReplyKeyboardMarkup(wait_button, resize_keyboard=True)
-    await update.message.reply_text("Processing...", reply_markup=wait_markup)
-    
-    # Send the initial scanning message
-    analyzing_message = await update.message.reply_text(f"🤖 Scanning {pair}... 1%", parse_mode="Markdown")
+async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
+    # Initial message with "Please Wait..." button
+    analyzing_message = await update.message.reply_text(
+        "Scanning... 0%", 
+        parse_mode="Markdown", 
+        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
+    )
 
-    # Simulate the loading with percentages
     current_percent = 1
-    while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.1, 0.5))  # Simulate delay
-        current_percent += random.randint(3, 17)  # Random increment
-        if current_percent > 100:
-            current_percent = 100
-        await analyzing_message.edit_text(f"🤖 Scanning {pair}... {current_percent}%", parse_mode="Markdown")
+    progress_bar = "░░░░░░░░░░"  # Initial empty progress bar
 
-    # Send the analysis done message
+    while current_percent < 100:
+        await asyncio.sleep(random.uniform(0.1, 0.5))  # Random dynamic delay
+        current_percent += random.randint(3, 17)  # Random progress increments
+        current_percent = min(current_percent, 100)  # Ensure current_percent does not exceed 100
+
+        # Update progress bar based on percentage
+        filled_blocks = int(current_percent / 10)
+        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+
+        # Edit the message with progress
+        try:
+            await analyzing_message.edit_text(
+                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"Error editing message: {e}")
+            # If editing fails, send a new message with the current progress
+            analyzing_message = await update.message.reply_text(
+                f"🤖 Optrex Scanning {pair}... [{progress_bar}] {current_percent}%", 
+                parse_mode="Markdown"
+            )
+
+    # Brief pause before sending the final analysis message
+    await asyncio.sleep(0.5)
     await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
 
-    # Simulate sending the signal (BUY/SELL)
-    signal_type = "BUY" if random.random() > 0.5 else "SELL"
-    confidence = random.randint(75, 80)
-    signal_message = f"📈 {signal_type} signal for {pair} with {confidence}% confidence."
-    await update.message.reply_text(signal_message)
+    # Prepare the BUY or SELL signal
+    BUY_IMAGES = [
+        "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
+        "AgACAgUAAxkBAALBg2fpeFNOWA4rtP-yX2h-Wyo6HrYPAALTwzEbWvFJV01htbdAqFaQAQADAgADcwADNgQ"
+    ]
+    SELL_IMAGES = [
+        "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADcwADNgQ",
+        "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADbQADNgQ"
+    ]
 
-    # Restore the OTC pairs keyboard after the signal
-    await update.message.reply_text("Here are your OTC pairs:", reply_markup=create_otc_keyboard())
-  
+    # Randomly select the signal type (BUY/SELL) and corresponding image
+    signal_type = "BUY" if random.random() > 0.5 else "SELL"
+    confidence = random.randint(75, 80)  # Random confidence between 75% and 80%
+    image_id = random.choice(BUY_IMAGES) if signal_type == "BUY" else random.choice(SELL_IMAGES)
+
+    # Select a random response template based on the signal type
+    response_templates = [
+        "{signal_type} signal for {pair} with {confidence}% confidence. 📈",
+        "✅ {signal_type} signal: {pair} at {confidence}% confidence.",
+        "Signal for {pair}: {signal_type} with {confidence}% confidence. 🚀"
+    ]
+    response_template = random.choice(response_templates)
+    caption = response_template.format(signal_type=signal_type, pair=pair, confidence=confidence)
+
+    # Send the signal image with the generated caption
+    await analyzing_message.delete()  # Delete the "Scanning..." message
+    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
+
+    # Restore the original OTC pair selection keyboard
+    await update.message.reply_text("Select an OTC pair:", reply_markup=keyboard_markup)
+
 # Dictionary to store user details
 user_data = {}  
 
