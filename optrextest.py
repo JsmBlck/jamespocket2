@@ -171,7 +171,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def simulate_analysis(update: Update, pair: str) -> None:
     
     pleasemsg = await update.message.reply_text(
-        "🤖 Processing request... Stand by.", 
+        "🤖 Analyzing {pair}...", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
@@ -188,11 +188,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         # Update progress bar dynamically
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+        dots = "." * (filled_blocks % 4)  # Animated dots cycle
 
         # Edit the scanning message safely
         try:
             await analyzing_message.edit_text(
-                f"🤖 Analyzing {pair}... [{progress_bar}] {current_percent}%", 
+                f"[{progress_bar}] {current_percent}%", 
                 parse_mode="Markdown"
             )
         except Exception as e:
