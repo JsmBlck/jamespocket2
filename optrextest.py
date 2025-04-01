@@ -10,7 +10,7 @@ import re
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater, CallbackContext
 from oauth2client.service_account import ServiceAccountCredentials
@@ -174,22 +174,24 @@ import asyncio
 import random
 
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
-    # Remove the keyboard when scanning starts
+    # New "Please Wait" Keyboard
+    wait_keyboard = ReplyKeyboardMarkup([[KeyboardButton("⏳ Please Wait...")]], resize_keyboard=True)
+
+    # Send initial analyzing message with the "Please Wait" keyboard
     analyzing_message = await update.message.reply_text(
         f"🤖 Optrex Scanning {pair}... [░░░░░░░░░░] 1%",
         parse_mode="Markdown",
-        reply_markup=ReplyKeyboardRemove()
+        reply_markup=wait_keyboard
     )
 
     current_percent = 1
-    progress_bar = "░░░░░░░░░░"  # Initial empty bar
+    progress_bar = "░░░░░░░░░░"
 
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.5, 1.0))  # Ensure updates aren't too fast
-        increment = random.randint(5, 15)  # Random progress
+        await asyncio.sleep(random.uniform(0.5, 1.0))
+        increment = random.randint(5, 15)
         current_percent = min(current_percent + increment, 100)
 
-        # Update the progress bar based on completion
         filled_blocks = round(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
@@ -200,9 +202,9 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
             )
         except Exception as e:
             print(f"Error editing message: {e}")
-            break  # Stop updating if there's an error
+            break
 
-    await asyncio.sleep(0.5)  # Brief pause before sending result
+    await asyncio.sleep(0.5)
     try:
         await analyzing_message.edit_text(f"✅ Analysis done for {pair}!", parse_mode="Markdown")
     except Exception as e:
@@ -230,7 +232,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
 
     await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Bring back the keyboard after the signal is sent
+    # Restore the original OTC keyboard
     follow_up_messages = [
         "Next signal? Enter a pair.",
         "Ready for the next? Pick a pair.",
@@ -240,6 +242,15 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     ]
     await asyncio.sleep(random.uniform(0.5, 1.0))  
     await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
+
+
+async def handle_wait_button(update: Update, context) -> None:
+    """Handle when user clicks '⏳ Please Wait...' button"""
+    try:
+        await update.message.delete()
+    except Exception as e:
+        print(f"Error deleting 'Please Wait' button: {e}")
+
 
 # Dictionary to store user details
 user_data = {}  
