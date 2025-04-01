@@ -214,7 +214,7 @@ async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     ]
     
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
                                        
     # After the simulation and sending the signal, show the keyboard again
     await update.message.reply_text(random.choice(follow_up_messages), reply_markup=keyboard_markup)
