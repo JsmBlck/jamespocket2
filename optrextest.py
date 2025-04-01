@@ -168,11 +168,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # -----------------------------------------------------# 
 
- import asyncio
-import random
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import CallbackContext
-
 async def simulate_analysis(update: Update, pair: str, keyboard_markup) -> None:
     # Send initial processing message
     analyzing_message = await update.message.reply_text(
