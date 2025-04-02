@@ -50,11 +50,15 @@ def load_authorized_users():
 
 # Save authorized users to Google Sheets		
 def save_users():
-    """Save updated users to Google Sheets while keeping existing data."""
-    user_ids = sheet.col_values(1)  # Column A (TG ID)
+    """Save authorized users in Google Sheets without altering existing data."""
     
+    # Get all user IDs currently stored in the sheet
+    user_ids = sheet.col_values(1)  # Column A (TG ID)
+
+    # Add headers if the sheet is empty
     if not user_ids:
         sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
+        user_ids = sheet.col_values(1)  # Refresh after adding headers
 
     for user_id in AUTHORIZED_USERS:
         user_info = user_data.get(user_id, {})
@@ -62,16 +66,16 @@ def save_users():
         tg_name = user_info.get("first_name", "Trader")
         pocket_option_id = user_info.get("pocket_option_id", "N/A")
 
-        if str(user_id) in user_ids:
-            # Update existing user
-            row = user_ids.index(str(user_id)) + 1  
-            sheet.batch_update([
-                {"range": f"B{row}", "values": [[tg_username]]},
-                {"range": f"C{row}", "values": [[tg_name]]},
-                {"range": f"D{row}", "values": [[pocket_option_id]]}
-            ])
+        user_id_str = str(user_id)  # Ensure ID matches the format in Sheets
+
+        if user_id_str in user_ids:
+            # Update existing row for the user
+            row_number = user_ids.index(user_id_str) + 1  # Find row number
+            sheet.update(f"B{row_number}", [[tg_username]])  # Update Username
+            sheet.update(f"C{row_number}", [[tg_name]])  # Update Name
+            sheet.update(f"D{row_number}", [[pocket_option_id]])  # Update PocketOption ID
         else:
-            # Append new user
+            # Append new user as a new row
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
 
     print("✅ Users saved successfully!")
