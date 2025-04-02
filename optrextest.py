@@ -50,10 +50,9 @@ def load_authorized_users():
 
 # Save authorized users to Google Sheets		
 def save_users():
-    # Get existing Telegram IDs from Google Sheets
+    """Save updated users to Google Sheets while keeping existing data."""
     user_ids = sheet.col_values(1)  # Column A (TG ID)
-
-    # Add headers if sheet is empty
+    
     if not user_ids:
         sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
 
@@ -64,8 +63,8 @@ def save_users():
         pocket_option_id = user_info.get("pocket_option_id", "N/A")
 
         if str(user_id) in user_ids:
-            # Update existing user row
-            row = user_ids.index(str(user_id)) + 1  # Find row number
+            # Update existing user
+            row = user_ids.index(str(user_id)) + 1  
             sheet.batch_update([
                 {"range": f"B{row}", "values": [[tg_username]]},
                 {"range": f"C{row}", "values": [[tg_name]]},
@@ -76,8 +75,7 @@ def save_users():
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
 
     print("✅ Users saved successfully!")
-
-
+    
 load_authorized_users()
 
 # List of OTC pairs
