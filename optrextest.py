@@ -181,7 +181,10 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
     
-    analyzing_message = await update.message.reply_text(f"▱▱▱▱▱▱▱▱▱▱ _0%_",parse_mode="Markdown")
+    analyzing_message = await update.message.reply_text(
+    f"▱▱▱▱▱▱▱▱▱▱ ***_0%_***", 
+    parse_mode="Markdown"
+)
     
     current_percent = 1
 
@@ -198,9 +201,9 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         # Edit the scanning message safely
         try:
             await analyzing_message.edit_text(
-                f"[{progress_bar}] _{current_percent}%_", 
-                parse_mode="Markdown"
-            )
+    f"[{progress_bar}] ***_{current_percent}%_***", 
+    parse_mode="Markdown"
+)
         except Exception as e:
             print(f"Error updating progress: {e}")
             break  # Stop updating if there's an error
