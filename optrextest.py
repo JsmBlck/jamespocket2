@@ -84,10 +84,13 @@ load_authorized_users()
 
 # List of OTC pairs
 otc_pairs = [
-    "🇦🇪/🇨🇳 AED/CNY OTC",  
-    "🇦🇺/🇨🇦 AUD/CAD OTC", 
-    "🇪🇺/🇺🇸 EUR/USD OTC", 
-    "🇧🇭/🇨🇳 BHD/CNY OTC"
+    "🇦🇪🇨🇳 AED/CNY OTC",  # United Arab Emirates / China
+    "🇧🇭🇨🇳 BHD/CNY OTC",  # Bahrain / China
+    "🇦🇺🇨🇦 AUD/CAD OTC",  # Australia / Canada
+    "🇪🇺🇺🇸 EUR/USD OTC",  # Euro / US Dollar
+    "🇨🇦🇨🇭 CAD/CHF OTC",  # Canada / Switzerland
+    "🇳🇿🇯🇵 NZD/JPY OTC",  # New Zealand / Japan
+    "🇬🇧🇯🇵 GBP/JPY OTC"   # Great Britain / Japan
 ]
 # AI-like responses
 responses_json = os.getenv("RESPONSES", "[]")
