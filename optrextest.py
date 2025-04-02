@@ -378,7 +378,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text(
             "🚨 Demo Trading Detected!\nYou're currently trading in a demo account. Switch to a real account to gain access.\nIf this is a mistake, please contact support for assistance.", 
         parse_mode="Markdown",
-        reply_markup=ReplyKeyboardMarkup([["/START"]], resize_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup([["/START"]], resize_keyboard=True))
         return
 
     if user_message == "⏳ Please Wait...":
