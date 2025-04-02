@@ -192,7 +192,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
         # Update progress bar dynamically
         filled_blocks = int(current_percent / 10)
-        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+        progress_bar = "▰" * filled_blocks + "▱" * (10 - filled_blocks)
         dots = "." * (filled_blocks % 4)  # Animated dots cycle
 
         # Edit the scanning message safely
