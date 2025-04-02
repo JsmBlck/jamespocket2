@@ -203,7 +203,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     # Final completion message
     await asyncio.sleep(0.5)
     try:
-        await analyzing_message.edit_text(f"✅ Analysis complete for {pair}!", parse_mode="Markdown")
+        await analyzing_message.edit_text(f"Analysis complete for {pair} ✅ ", parse_mode="Markdown")
     except Exception as e:
         print(f"Error finalizing message: {e}")
 
