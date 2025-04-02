@@ -124,7 +124,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
     [
-        InlineKeyboardButton("🔹 Join Channel 🔹", url="https://t.me/+Tc-vVOdHJiAxOGM1")
+        InlineKeyboardButton(" Join Channel ", url="https://t.me/+Tc-vVOdHJiAxOGM1")
     ],
     [
         InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+Tc-vVOdHJiAxOGM1")
@@ -139,9 +139,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     caption=(
         "*You need to get verified to access this bot.*\n\n"
         "🔹 *How to Get Verified:*\n"
-        "👉 Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
-        "👉 Read the instructions posted in the channel.\n"
-        "👉 If you have questions, message @OptrexSupport.\n"
+        "✅ Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
+        "✅ Read the instructions posted in the channel.\n"
+        "✅ If you have questions, message @OptrexSupport.\n"
         "👇 Click the buttons below: 👇"
     ),
     parse_mode="Markdown",
