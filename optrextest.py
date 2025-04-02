@@ -374,8 +374,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     pocket_option_id = get_pocket_option_id(user.id)
     
     if user.id not in AUTHORIZED_USERS:
-        await update.message.reply_text("🚨 Demo Trading Detected!\nYou're currently trading in a demo account. Switch to a real account to gain access.\nIf this is a mistake, please contact support for assistance.")
-        return
+    await update.message.reply_text(
+        "🚨 Demo Trading Detected!\nYou're currently trading in a demo account. Switch to a real account to gain access.\nIf this is a mistake, please contact support for assistance.",
+        reply_markup=ReplyKeyboardRemove()  # This removes the custom keyboard
+    )
+    return
 
     if user_message == "⏳ Please Wait...":
         try:
