@@ -182,7 +182,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     )
     
     analyzing_message = await update.message.reply_text(
-    f"***▱▱▱▱▱▱▱▱▱▱ 0%***", 
+    f"░░░░░░░░░░ 0%", 
     parse_mode="Markdown"
 )
     
@@ -195,11 +195,11 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
         # Update progress bar dynamically
         filled_blocks = int(current_percent / 10)
-        progress_bar = "▰" * filled_blocks + "▱" * (10 - filled_blocks)
+        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
         # Edit the scanning message safely
         try:
-            await analyzing_message.edit_text(f"***{progress_bar} {current_percent}%***", parse_mode="Markdown")
+            await analyzing_message.edit_text(f"{progress_bar} {current_percent}%", parse_mode="Markdown")
         except Exception as e:
             print(f"Error updating progress: {e}")
             break  # Stop updating if there's an error
