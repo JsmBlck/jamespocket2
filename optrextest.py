@@ -404,6 +404,8 @@ def escape_markdown_v2(text):
     return re.sub(r"([_*[\]()~`>#+\-=|{}.!])", r"\\\1", text)
 
 def run_flask():
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)  # Only show errors, hide normal requests
     app.run(host="0.0.0.0", port=8080)
 
 def main() -> None:
