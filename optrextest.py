@@ -182,7 +182,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     )
     
     analyzing_message = await update.message.reply_text(
-    f"▱▱▱▱▱▱▱▱▱▱ ***_0%_***", 
+    f"***▱▱▱▱▱▱▱▱▱▱ 0%***", 
     parse_mode="Markdown"
 )
     
@@ -201,7 +201,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         # Edit the scanning message safely
         try:
             await analyzing_message.edit_text(
-    f"[{progress_bar}] ***_{current_percent}%_***", 
+    f"***[{progress_bar}] {current_percent}%***", 
     parse_mode="Markdown"
 )
         except Exception as e:
