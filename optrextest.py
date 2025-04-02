@@ -181,7 +181,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
     
-    analyzing_message = await update.message.reply_text(f"▱▱▱▱▱▱▱▱▱▱ _0%_")
+    analyzing_message = await update.message.reply_text(f"▱▱▱▱▱▱▱▱▱▱ _0%_",parse_mode="Markdown")
     
     current_percent = 1
 
