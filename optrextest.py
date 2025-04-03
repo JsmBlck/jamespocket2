@@ -124,10 +124,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
     [
-        InlineKeyboardButton(" Join Channel ", url="https://t.me/+Tc-vVOdHJiAxOGM1")
+        InlineKeyboardButton(" Join Channel ", url="https://t.me/+EY0U-0rmYU5kZmQ1")
     ],
     [
-        InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+Tc-vVOdHJiAxOGM1")
+        InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+EY0U-0rmYU5kZmQ1")
     ]
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
