@@ -150,7 +150,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return  # <-- This was incorrectly indented before
 
     
-    photo_id = "AgACAgUAAxkBAALBoWfpgi4TEsUT4q_-UZWERqDoz4KnAALlwzEbWvFJV4J8B6g5SSh3AQADAgADdwADNgQ"  # Replace with your actual Telegram file ID
+    photo_id = "AgACAgUAAxkBAALIRWfuOha5clQL_H_DpySpgJL_cz9AAAJEwjEbr-txVzSnDDtnFqAJAQADAgADbQADNgQ"  # Replace with your actual Telegram file ID
 
     welcome_message = """
 
