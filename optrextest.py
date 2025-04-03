@@ -174,19 +174,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str) -> None:
-    keyboard1 = [[InlineKeyboardButton("S5", callback_data="S5")],
-                 [InlineKeyboardButton("S10", callback_data="S10")],
-                 [InlineKeyboardButton("S15", callback_data="S15")]]  # Fixed missing quote and added callback_data
-
-    reply_markup1 = InlineKeyboardMarkup(keyboard1)
-
-    timeselect = await update.message.reply_text(
-        f"Please Select Time:", 
-        parse_mode="Markdown",
-        reply_markup=reply_markup1  # Fixed variable name (was 'replymarkup1')
-    )
-
-    await timeselect.delete()
 
     # Send initial analyzing message
     pleasemsg = await update.message.reply_text(
