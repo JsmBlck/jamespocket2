@@ -176,7 +176,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def simulate_analysis(update: Update, pair: str) -> None:
     # Send initial analyzing message
     pleasemsg = await update.message.reply_text(
-        f"🤖 Analyzing...", 
+        f"🤖 Analyzing {pair}...", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
@@ -205,12 +205,18 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     # Final completion message
     await asyncio.sleep(0.5)
     try:
-        await analyzing_message.edit_text(f"Analysis complete.✅ ", parse_mode="Markdown")
+        await analyzing_message.edit_text(f"Analysis complete for {pair} ✅ ", parse_mode="Markdown")
     except Exception as e:
         print(f"Error finalizing message: {e}")
 
     # Randomly choose between Uptrend (⬆️) and Downtrend (⬇️)
     signal_type = random.choice(["⬆️", "⬇️"])
+
+    # Define the photo file IDs based on the signal type
+    if signal_type == "⬆️":
+        photo_id = "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADeAADNgQ"  # Replace with your actual Uptrend photo file ID
+    else:
+        photo_id = "AgACAgUAAxkBAALH32fuCZ_4OZ4B_vzfmp0g32xiu3HvAAJkwTEbr-txV2ruY189j2yOAQADAgADcwADNgQ"  # Replace with your actual Downtrend photo file ID
 
     # Delete the analysis message
     await analyzing_message.delete()
@@ -219,14 +225,20 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
-    # Send the signal (just the emoji) to the user
-    await update.message.reply_text(f"{signal_type}", parse_mode="Markdown", reply_markup=reply_markup)
+    # Send the signal (with emoji) and appropriate photo based on the trend
+    await update.message.reply_photo(
+        photo=photo_id,
+        caption=f"{signal_type}",
+        parse_mode="Markdown",
+        reply_markup=reply_markup
+    )
 
     # Delete the initial "Analyzing..." message
     await pleasemsg.delete()
 
     # Prompt the user to select an OTC pair
     await update.message.reply_text("Select an OTC pair:")
+
 
 # -----------------------------------------------------#
 
