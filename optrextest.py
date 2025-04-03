@@ -228,7 +228,6 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     # Send the signal (with emoji) and appropriate photo based on the trend
     await update.message.reply_photo(
         photo=photo_id,
-        caption=f"{signal_type}",
         parse_mode="Markdown",
         reply_markup=reply_markup
     )
