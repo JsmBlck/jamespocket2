@@ -216,7 +216,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     if signal_type == "⬆️":
         photo_id = "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADeAADNgQ"  # Replace with your actual Uptrend photo file ID
     else:
-        photo_id = "AgACAgUAAxkBAALH32fuCZ_4OZ4B_vzfmp0g32xiu3HvAAJkwTEbr-txV2ruY189j2yOAQADAgADcwADNgQ"  # Replace with your actual Downtrend photo file ID
+        photo_id = "AgACAgUAAxkBAALIBWfuJ9gJ2aVPLqrOKyFE_K-bXROvAALbwTEbr-txV0zo98c-GXqjAQADAgADeQADNgQ"  # Replace with your actual Downtrend photo file ID
 
     # Delete the analysis message
     await analyzing_message.delete()
