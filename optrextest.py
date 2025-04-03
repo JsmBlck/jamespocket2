@@ -189,7 +189,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     current_percent = 1
 
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.05, 0.1))  # Simulate progress timing
+        await asyncio.sleep(random.uniform(0.05, 0.07))  # Simulate progress timing
         current_percent += random.randint(3, 17)
         current_percent = min(current_percent, 100)
 
