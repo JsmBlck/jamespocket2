@@ -174,20 +174,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # -----------------------------------------------------# 
 
 async def simulate_analysis(update: Update, pair: str) -> None:
-    
+    # Send initial analyzing message
     pleasemsg = await update.message.reply_text(
         f"🤖 Analyzing {pair}...", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
-    
-    analyzing_message = await update.message.reply_text(
-    f"░░░░░░░░░░ 0%", 
-    parse_mode="Markdown"
-)
-    
+
+    # Send progress bar message
+    analyzing_message = await update.message.reply_text(f"░░░░░░░░░░ 0%", parse_mode="Markdown")
     current_percent = 1
 
+    # Simulate analysis progress
     while current_percent < 100:
         await asyncio.sleep(random.uniform(0.05, 0.07))  # Simulate progress timing
         current_percent += random.randint(3, 17)
@@ -211,31 +209,23 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     except Exception as e:
         print(f"Error finalizing message: {e}")
 
-    BUY_IMAGES = [
-        "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADcwADNgQ"
-    ]
-    SELL_IMAGES = [
-        "AgACAgUAAxkBAALH32fuCZ_4OZ4B_vzfmp0g32xiu3HvAAJkwTEbr-txV2ruY189j2yOAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAALH32fuCZ_4OZ4B_vzfmp0g32xiu3HvAAJkwTEbr-txV2ruY189j2yOAQADAgADcwADNgQ"
-    ]
-    buy_image_id = random.choice(BUY_IMAGES)
-    sell_image_id = random.choice(SELL_IMAGES)
-    
-    confidence = random.randint(75, 80)
-    signal_type = "BUY" if random.random() > 0.5 else "SELL"
-    image_id = buy_image_id if signal_type == "BUY" else sell_image_id
-    response_template = random.choice([r for r in responses if signal_type in r])
-    caption = response_template.format(pair=pair, confidence=confidence)
+    # Randomly choose between Uptrend (⬆️) and Downtrend (⬇️)
+    signal_type = random.choice(["⬆️", "⬇️"])
 
-    # Delete the last message before sending final response with image
+    # Delete the analysis message
     await analyzing_message.delete()
 
+    # Prepare keyboard layout for OTC pairs
     keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-    
-    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown", reply_markup=reply_markup)
+
+    # Send the signal (just the emoji) to the user
+    await update.message.reply_text(f"{signal_type} {pair}", parse_mode="Markdown", reply_markup=reply_markup)
+
+    # Delete the initial "Analyzing..." message
     await pleasemsg.delete()
+
+    # Prompt the user to select an OTC pair
     await update.message.reply_text("Select an OTC pair:")
 
 # -----------------------------------------------------#
