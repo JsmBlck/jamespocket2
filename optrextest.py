@@ -212,12 +212,12 @@ async def simulate_analysis(update: Update, pair: str) -> None:
         print(f"Error finalizing message: {e}")
 
     BUY_IMAGES = [
-        "AgACAgUAAxkBAALBgWfpeC0NKuEUsLwgM2Emx5pI1YsbAALSwzEbWvFJV7mGr-1RXEDSAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAALBg2fpeFNOWA4rtP-yX2h-Wyo6HrYPAALTwzEbWvFJV01htbdAqFaQAQADAgADcwADNgQ"
+        "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADcwADNgQ",
+        "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADcwADNgQ"
     ]
     SELL_IMAGES = [
-        "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADcwADNgQ",
-        "AgACAgUAAxkBAALBhWfpeOaBlE2hR_Shi8urJFANu-nJAALWwzEbWvFJVxDdwx6jNxixAQADAgADbQADNgQ"
+        "AgACAgUAAxkBAALH32fuCZ_4OZ4B_vzfmp0g32xiu3HvAAJkwTEbr-txV2ruY189j2yOAQADAgADcwADNgQ",
+        "AgACAgUAAxkBAALH32fuCZ_4OZ4B_vzfmp0g32xiu3HvAAJkwTEbr-txV2ruY189j2yOAQADAgADcwADNgQ"
     ]
     buy_image_id = random.choice(BUY_IMAGES)
     sell_image_id = random.choice(SELL_IMAGES)
