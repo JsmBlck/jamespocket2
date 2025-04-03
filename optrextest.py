@@ -154,7 +154,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     welcome_message = """
 
-🚀 Our bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
+🚀 Our bot provides real-time trading signals for 10-second trades on OTC Forex pairs.
 
 🔹 *How It Works:*
 ✅ Select an OTC Forex pair from the options below.  
@@ -299,7 +299,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
 
-🚀 Optrex bot provides real-time trading signals for 15-second trades on OTC Forex pairs.
+🚀 Optrex bot provides real-time trading signals for 10-second trades on OTC Forex pairs.
 
 🔹 *How It Works:*
 ✅ Select an OTC Forex pair from the options below.  
