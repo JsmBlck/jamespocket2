@@ -176,7 +176,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def simulate_analysis(update: Update, pair: str) -> None:
     # Send initial analyzing message
     pleasemsg = await update.message.reply_text(
-        f"🤖 Analyzing {pair}...", 
+        f"🤖 Analyzing...", 
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
     )
@@ -205,7 +205,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     # Final completion message
     await asyncio.sleep(0.5)
     try:
-        await analyzing_message.edit_text(f"Analysis complete for {pair} ✅ ", parse_mode="Markdown")
+        await analyzing_message.edit_text(f"Analysis complete.✅ ", parse_mode="Markdown")
     except Exception as e:
         print(f"Error finalizing message: {e}")
 
@@ -220,7 +220,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
     # Send the signal (just the emoji) to the user
-    await update.message.reply_text(f"{signal_type} {pair}", parse_mode="Markdown", reply_markup=reply_markup)
+    await update.message.reply_text(f"{signal_type}", parse_mode="Markdown", reply_markup=reply_markup)
 
     # Delete the initial "Analyzing..." message
     await pleasemsg.delete()
