@@ -124,10 +124,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if user.id not in AUTHORIZED_USERS:
         keyboard = [
     [
-        InlineKeyboardButton(" Join Channel ", url="https://t.me/+EY0U-0rmYU5kZmQ1")
+        InlineKeyboardButton(" Join Channel ", url="https://t.me/+8zp8vEziM-VhYTY1")
     ],
     [
-        InlineKeyboardButton("☝️ Click Here To Get Access ☝️", url="https://t.me/+EY0U-0rmYU5kZmQ1")
+        InlineKeyboardButton("☝️Click Here To Get Access☝️", url="https://t.me/+8zp8vEziM-VhYTY1")
     ]
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -139,9 +139,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     caption=(
         "*You need to get verified to access this bot.*\n\n"
         "🔹 *How to Get Verified:*\n"
-        "✅ Join our channel: [Click Here](https://t.me/+zPRC_d9dHMM0NDBl)\n"
+        "✅ Join our channel: [Click Here](https://t.me/+8zp8vEziM-VhYTY1)\n"
         "✅ Read the instructions posted in the channel.\n"
-        "✅ If you have questions, message @OptrexSupport.\n"
+        "✅ If you have questions, message @Activate_Synth_Bot.\n"
         "👇 Click the buttons below: 👇"
     ),
     parse_mode="Markdown",
@@ -300,7 +300,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
 
-🚀 Optrex bot provides real-time trading signals for 10-second trades on OTC Forex pairs.
+🚀 Bot provides real-time trading signals for 10-second trades on OTC Forex pairs.
 
 🔹 *How It Works:*
 ✅ Select an OTC Forex pair from the options below.  
