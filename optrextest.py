@@ -115,7 +115,7 @@ def keep_alive():
 
 async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
     """Send logs to the log channel."""
-    asyncio.create_task(context.bot.send_message(chat_id=LOG_CHANNEL_ID, text=message))
+    asyncio.create_task(context.bot.send_message(chat_id=LOG_CHANNEL_ID, text=message), parse_mode="Markdown")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
