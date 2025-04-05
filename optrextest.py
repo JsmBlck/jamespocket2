@@ -280,7 +280,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         if user_id_str in user_ids:
             row_number = user_ids.index(user_id_str) + 1
-            sheet.update(f"B{row_number}", [[username]])
+            sheet.update(f"B{row_number}", [[f"@{username}"]])
             sheet.update(f"C{row_number}", [[first_name]])
             sheet.update(f"D{row_number}", [[pocket_option_id]])
         else:
