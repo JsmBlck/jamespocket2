@@ -113,10 +113,6 @@ def keep_alive():
             print(f"❌ Ping failed: {e}")
         time.sleep(300)
 
-async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
-    """Send logs to the log channel."""
-    asyncio.create_task(context.bot.send_message(chat_id=LOG_CHANNEL_ID, text=message), parse_mode="Markdown")
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     asyncio.create_task(log_activity(context, f"✅ User Started\n{user.full_name} | @{user.username} | {user.id}"))
@@ -374,6 +370,14 @@ def get_pocket_option_id(user_id):
         return sheet.cell(row, 4).value  # Pocket Option ID is in column 4
     return "N/A"  # If not found, return "N/A"
 
+async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
+    """Send logs to the log channel."""
+    asyncio.create_task(
+        context.bot.send_message(
+            chat_id=LOG_CHANNEL_ID,
+            text=message,
+            parse_mode="Markdown"))
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     user_message = update.message.text
@@ -402,9 +406,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
 
-def escape_markdown_v2(text):
-    """Escape special characters for MarkdownV2"""
-    return re.sub(r"([_*[\]()~`>#+\-=|{}.!])", r"\\\1", text)
 
 def run_flask():
     app.run(host="0.0.0.0", port=8080)
