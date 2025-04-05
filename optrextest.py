@@ -240,10 +240,9 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     await update.message.reply_text("Select an OTC pair:")
 
 
-# -----------------------------------------------------#
+# ----------------------------------------------------#
 
-# Dictionary to store user details
-user_data = {}  
+
 
 async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
@@ -260,43 +259,43 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     try:
         new_user_id = int(context.args[0])
-        pocket_option_id = context.args[1]  # Get the second argument
+        pocket_option_id = context.args[1]
 
+        # Add user to authorized list
         AUTHORIZED_USERS.add(new_user_id)
 
-        # Retrieve user details
+        # Fetch user info
         try:
             chat = await context.bot.get_chat(new_user_id)
             username = chat.username if chat.username else "Unknown"
             first_name = chat.first_name if chat.first_name else "Trader"
         except Exception as e:
-            print(f"⚠️ Failed to retrieve user info for {new_user_id}: {e}")
+            print(f"⚠️ Failed to retrieve user info: {e}")
             username = "Unknown"
             first_name = "Trader"
 
-        # Ensure user_data exists
-        global user_data
-        if "user_data" not in globals():
-            user_data = {}
+        # Update Google Sheet directly
+        user_ids = sheet.col_values(1)
+        user_id_str = str(new_user_id)
 
-        # Store user data
-        user_data[new_user_id] = {
-            "username": username,
-            "first_name": first_name,
-            "pocket_option_id": pocket_option_id
-        }
+        if user_id_str in user_ids:
+            row_number = user_ids.index(user_id_str) + 1
+            sheet.update(f"B{row_number}", [[username]])
+            sheet.update(f"C{row_number}", [[first_name]])
+            sheet.update(f"D{row_number}", [[pocket_option_id]])
+        else:
+            sheet.append_row([new_user_id, username, first_name, pocket_option_id])
 
-        # Save users in Google Sheets
-        save_users()  # If async, change to `await save_users()`
+        print("✅ User saved to Google Sheet")
 
         await update.message.reply_text(
-            f"✅ User {new_user_id} has been added successfully with Pocket Option ID: {pocket_option_id}"
+            f"✅ User {new_user_id} added successfully with Pocket Option ID: {pocket_option_id}"
         )
 
         # Send welcome message
         try:
-            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
-            
+            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"
+
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
 
@@ -308,22 +307,21 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 ✅ Execute the trade quickly for the best results.  
 
 ⚠️ *Disclaimer:* Trading involves risk. Always trade responsibly.
-    """
-            # Define the keyboard layout (pairs in 2 columns)
-            keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+            """
 
-            # Send photo with caption and buttons
+            keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
             await context.bot.send_photo(
-                chat_id=new_user_id, 
-                photo=photo_id, 
-                caption=welcome_message, 
-                parse_mode="Markdown", 
+                chat_id=new_user_id,
+                photo=photo_id,
+                caption=welcome_message,
+                parse_mode="Markdown",
                 reply_markup=reply_markup
             )
 
         except Exception as e:
-            print(f"⚠️ Failed to send message to {new_user_id}: {e}")  # Debugging/logging
+            print(f"⚠️ Failed to send welcome message: {e}")
 
     except ValueError:
         await update.message.reply_text("⚠️ Invalid user ID. Please enter a valid number.")
