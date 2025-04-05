@@ -375,8 +375,7 @@ async def log_activity(context: ContextTypes.DEFAULT_TYPE, message: str):
     asyncio.create_task(
         context.bot.send_message(
             chat_id=LOG_CHANNEL_ID,
-            text=message,
-            parse_mode="Markdown"))
+            text=message))
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
