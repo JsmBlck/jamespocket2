@@ -384,9 +384,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text(
-            "❌ Access Denied. You are not authorized to use this bot.", 
-        parse_mode="Markdown",
-        reply_markup=ReplyKeyboardMarkup([["/Start"]], resize_keyboard=True))
+    "🚨 *Demo Trading Detected!*\n\nIt looks like you're trading on a demo account, which isn’t allowed.\nIf you think this is a mistake, feel free to reach out to support.",
+    parse_mode="Markdown",
+    reply_markup=ReplyKeyboardRemove())
         return
 
     if user_message == "⏳ Please Wait...":
@@ -395,10 +395,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         except Exception as e:
             print(f"Error deleting 'Please Wait' message: {e}")
         return 
+        
     if user_message in otc_pairs:
         print(f"User {user.id} ({user.username}) selected: {user_message}")
         await log_activity(context, f"Trade Selection📊: \n@{user.username} | {user.full_name} | {user.id} \nPocket Option ID: {pocket_option_id}\nSelected: {user_message}")
-        await simulate_analysis(update, user_message)  # ✅ Pass keyboard_markup here
+        await simulate_analysis(update, user_message)
     elif not user_message.startswith("/"):
         await log_activity(context, f"Message Received: {user.id} @{user.username} \nMessage: {user_message}")
         await update.message.reply_text("Please select a valid OTC pair from the keyboard.")
