@@ -385,7 +385,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     if user.id not in AUTHORIZED_USERS:
         await update.message.reply_text(
-    "🚨 *Demo Trading Detected!*\n\nIt looks like you're trading on a demo account, which isn’t allowed.\nIf you think this is a mistake, feel free to reach out to support.",
+    "❌ Access Denied. You are not authorized to use this bot.",
     parse_mode="Markdown",
     reply_markup=ReplyKeyboardRemove())
         return
