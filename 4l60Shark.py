@@ -168,73 +168,59 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 # -----------------------------------------------------# 
-
 async def simulate_analysis(update: Update, pair: str) -> None:
+    analyzing_messages = [
+        "⚡ Scanning {pair}...",
+        "🤖 AI analyzing {pair}...",
+        "📡 Data crunching {pair}...",
+        "🔍 Processing {pair}...",
+        "📊 Evaluating {pair}..."
+    ]
 
-    # Send initial analyzing message
-    pleasemsg = await update.message.reply_text(
-        f"🤖 Analyzing {pair}...", 
-        parse_mode="Markdown",
-        reply_markup=ReplyKeyboardMarkup([["⏳ Please Wait..."]], resize_keyboard=True)
-    )
+    analyzing_message = await update.message.reply_text(random.choice(analyzing_messages).format(pair=pair), parse_mode="Markdown")
 
-    # Send progress bar message
-    analyzing_message = await update.message.reply_text(f"░░░░░░░░░░ 0%", parse_mode="Markdown")
-    current_percent = 1
+    step_variations = [
+        ["🛰️ Processing data for {pair}...", "📡 Gathering insights for {pair}...", "🔍 Extracting indicators for {pair}..."],
+        ["🤖 Running AI model for {pair}...", "🧠 Predicting trends for {pair}...", "🔬 Simulating movement for {pair}..."],
+        ["✅ Generating signal for {pair}...", "📊 Finalizing analysis for {pair}...", "📌 Confirming trade for {pair}..."]
+    ]
 
-    # Simulate analysis progress
-    while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.05, 0.07))  # Simulate progress timing
-        current_percent += random.randint(3, 17)
-        current_percent = min(current_percent, 100)
+    # steps = [random.choice(variation) for variation in step_variations]
+    steps = [random.choice(variation).format(pair=pair) for variation in step_variations]
 
-        # Update progress bar dynamically
-        filled_blocks = int(current_percent / 10)
-        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+    for step in steps:
+        await asyncio.sleep(random.uniform(1.5, 2.0)) 
+        await analyzing_message.edit_text(step, parse_mode="Markdown")
 
-        # Edit the scanning message safely
-        try:
-            await analyzing_message.edit_text(f"{progress_bar} {current_percent}%", parse_mode="Markdown")
-        except Exception as e:
-            print(f"Error updating progress: {e}")
-            break  # Stop updating if there's an error
+    BUY_IMAGES = [
+        "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADeAADNgQ"
+    ]
+    SELL_IMAGES = [
+        "AgACAgUAAxkBAALIBWfuJ9gJ2aVPLqrOKyFE_K-bXROvAALbwTEbr-txV0zo98c-GXqjAQADAgADeQADNgQ"
+    ]
+    buy_image_id = random.choice(BUY_IMAGES)
+    sell_image_id = random.choice(SELL_IMAGES)
+    
+    confidence = random.randint(75, 80)
+    signal_type = "BUY" if random.random() > 0.5 else "SELL"
+    image_id = buy_image_id if signal_type == "BUY" else sell_image_id
+    response_template = random.choice([r for r in responses if signal_type in r])
+    caption = response_template.format(pair=pair, confidence=confidence)
 
-    # Final completion message
-    await asyncio.sleep(0.5)
-    try:
-        await analyzing_message.edit_text(f"Analysis complete for {pair} ✅ ", parse_mode="Markdown")
-    except Exception as e:
-        print(f"Error finalizing message: {e}")
-
-    # Randomly choose between Uptrend (⬆️) and Downtrend (⬇️)
-    signal_type = random.choice(["⬆️", "⬇️"])
-
-    # Define the photo file IDs based on the signal type
-    if signal_type == "⬇️":
-        photo_id = "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADeAADNgQ"  # Replace with your actual Uptrend photo file ID
-    else:
-        photo_id = "AgACAgUAAxkBAALIBWfuJ9gJ2aVPLqrOKyFE_K-bXROvAALbwTEbr-txV0zo98c-GXqjAQADAgADeQADNgQ"  # Replace with your actual Downtrend photo file ID
-
-    # Delete the analysis message
+    # Delete the last message before sending final response with image
     await analyzing_message.delete()
+    await update.message.reply_photo(photo=image_id, caption=caption, parse_mode="Markdown")
 
-    # Prepare keyboard layout for OTC pairs
-    keyboard = [otc_pairs[i:i + 2] for i in range(0, len(otc_pairs), 2)]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-
-    # Send the signal (with emoji) and appropriate photo based on the trend
-    await update.message.reply_photo(
-        photo=photo_id,
-        parse_mode="Markdown",
-        reply_markup=reply_markup
-    )
-
-    # Delete the initial "Analyzing..." message
-    await pleasemsg.delete()
-
-    # Prompt the user to select an OTC pair
-    await update.message.reply_text("Select an OTC pair:")
-
+    follow_up_messages = [
+        "🔄 Ready for the next trade? Choose another OTC pair.",
+        "📈 Let's keep it going! Select another pair.",
+        "🧐 What's next? Drop another OTC pair below.",
+        "⚡ Keep the momentum! Enter another OTC pair.",
+        "🚀 Ready for more signals? Send your next OTC pair."
+    ]
+    await asyncio.sleep(random.uniform(0.5, 1.0))    # Small delay before follow-up
+    await update.message.reply_text(random.choice(follow_up_messages))
+    
 
 # ----------------------------------------------------#
 
