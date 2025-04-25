@@ -27,7 +27,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet3")  # Us
+sheet = spreadsheet.worksheet("Sheet5")  # Us
 
 
 
@@ -84,13 +84,12 @@ load_authorized_users()
 
 # List of OTC pairs
 otc_pairs = [
-    "🇦🇪🇨🇳 AED/CNY OTC",  # United Arab Emirates / China
-    "🇧🇭🇨🇳 BHD/CNY OTC",  # Bahrain / China
-    "🇦🇺🇨🇦 AUD/CAD OTC",  # Australia / Canada
-    "🇪🇺🇺🇸 EUR/USD OTC",  # Euro / US Dollar
-    "🇨🇦🇨🇭 CAD/CHF OTC",  # Canada / Switzerland
-    "🇳🇿🇯🇵 NZD/JPY OTC",  # New Zealand / Japan
-    "🇬🇧🇯🇵 GBP/JPY OTC"   # Great Britain / Japan
+    "AED/CNY OTC", 
+    "AUD/CAD OTC",   
+    "BHD/CNY OTC",  
+    "EUR/USD OTC",
+    "GBP/USD OTC",
+    "NZD/USD OTC"
 ]
 # AI-like responses
 responses_json = os.getenv("RESPONSES", "[]")
