@@ -219,7 +219,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     sell_image_id = random.choice(SELL_IMAGES)
     
     confidence = random.randint(75, 80)
-    signal_type = "BUY" if random.random() > 0.5 else "SELL"
+    signal_type = "UP" if random.random() > 0.5 else "DOWN"
     image_id = buy_image_id if signal_type == "BUY" else sell_image_id
     response_template = random.choice([r for r in responses if signal_type in r])
     caption = response_template.format(pair=pair, confidence=confidence)
