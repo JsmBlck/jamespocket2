@@ -137,7 +137,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🔹 *How to Get Verified:*\n"
         "✅ Join our channel: [Click Here](https://t.me/+8zp8vEziM-VhYTY1)\n"
         "✅ Read the instructions posted in the channel.\n"
-        "✅ If you have questions, message @Synth_Support .\n"
+        "✅ If you have questions, message @Synth_Support.\n"
         "👇 Click the buttons below: 👇"
     ), 
     parse_mode="Markdown",
