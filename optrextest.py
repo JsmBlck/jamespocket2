@@ -128,7 +128,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        photo_file_id = "AgACAgUAAxkBAALuzWgNO5FmGCHWejT88XF_HVUpDXU7AAIExDEbEgJxVOlYGNhf27RSAQADAgADbQADNgQ"  # Replace with your actual file ID
+        photo_file_id = "AgACAgUAAxkBAALuzWgNO5FmGCHWejT88XF_HVUpDXU7AAIExDEbEgJxVOlYGNhf27RSAQADAgADcwADNgQ"  # Replace with your actual file ID
 
         await update.message.reply_photo(
     photo=photo_file_id,
