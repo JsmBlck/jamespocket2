@@ -127,7 +127,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        photo_file_id = "AgACAgUAAxkBAALIRWfuOha5clQL_H_DpySpgJL_cz9AAAJEwjEbr-txVzSnDDtnFqAJAQADAgADeAADNgQ"  # Replace with your actual file ID
+        photo_file_id = "AgACAgUAAxkBAALu32gNS2iFsbn4lfbGL5fsSHXj86lYAAJWxDEbEgJxVJZfLVs7dViwAQADAgADeAADNgQ"  # Replace with your actual file ID
 
         await update.message.reply_photo(
     photo=photo_file_id,
@@ -145,7 +145,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return  # <-- This was incorrectly indented before
 
     
-    photo_id = "AgACAgUAAxkBAALIRWfuOha5clQL_H_DpySpgJL_cz9AAAJEwjEbr-txVzSnDDtnFqAJAQADAgADbQADNgQ"  # Replace with your actual Telegram file ID
+    photo_id = "AgACAgUAAxkBAALu32gNS2iFsbn4lfbGL5fsSHXj86lYAAJWxDEbEgJxVJZfLVs7dViwAQADAgADeAADNgQ"  # Replace with your actual Telegram file ID
 
     welcome_message = """
 
@@ -293,7 +293,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         # Send welcome message
         try:
-            photo_id = "AgACAgUAAxkBAALBo2fpgrISHi0pO7mFVkHuQzkDb9ZdAAIFxDEbWvFJVzsDt8g53s1yAQADAgADcwADNgQ"
+            photo_id = "AgACAgUAAxkBAALu42gNS903A4DrGPMKh8H-1EO9ri0kAAJdxDEbEgJxVLwGg4Y-R0vfAQADAgADeQADNgQ"
 
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
