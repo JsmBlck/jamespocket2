@@ -7,6 +7,7 @@ import time
 import json
 import gspread
 import re
+from telegram.constants import ParseMode
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask
 from threading import Thread
@@ -133,14 +134,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_photo(
     photo=photo_file_id,
     caption=(
-        "*You need to get verified to access this bot.*\n\n"
-        "🔹 *How to Get Verified:*\n"
-        "✅ Join our channel: [Click Here](https://t.me/+8zp8vEziM-VhYTY1)\n"
+        "<b>You need to get verified to access this bot.</b>\n\n"
+        "🔹 <b>How to Get Verified:</b>\n"
+        "✅ Join our channel: <a href=\"https://t.me/+8zp8vEziM-VhYTY1\">Click Here</a>\n"
         "✅ Read the instructions posted in the channel.\n"
         "✅ If you have questions, message @Synth_Support.\n"
         "👇 Click the buttons below: 👇"
     ), 
-    parse_mode="Markdown",
+    parse_mode=ParseMode.HTML,
     reply_markup=reply_markup
 )
         return  
