@@ -103,7 +103,7 @@ def home():
     return "Bot is running!"
 
 def keep_alive():
-    render_url = "https://jamespocket2-k9lz.onrender.com"
+    render_url = "https://jamespocket2.onrender.com"
     while True:
         try:
             requests.get(render_url)
