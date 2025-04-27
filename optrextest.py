@@ -138,7 +138,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🔹 <b>How to Get Verified:</b>\n"
         "✅ Join our channel: <a href=\"https://t.me/+8zp8vEziM-VhYTY1\">Click Here</a>\n"
         "✅ Read the instructions posted in the channel.\n"
-        "✅ If you have questions, message @Synth_Support.\n"
+        "✅ If you have questions, message @SynthBotSupport.\n"
         "👇 Click the buttons below: 👇"
     ), 
     parse_mode=ParseMode.HTML,
@@ -362,7 +362,7 @@ async def get_id(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
     await update.message.reply_text("🔹 Your Exclusive Access ID:")
     await update.message.reply_text(f"`{user.id}`", parse_mode="Markdown")
-    await update.message.reply_text("☝️ Copy this and send it to @Synth_Support to verify your access.")
+    await update.message.reply_text("☝️ Copy this and send it to @SynthBotSupport to verify your access.")
 
 def get_pocket_option_id(user_id):
     user_ids = sheet.col_values(1)  # Get all Telegram user IDs from column 1
