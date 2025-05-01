@@ -225,7 +225,7 @@ else:
         "AgACAgUAAxkBAAL21GgTqWzMTMwMkicm2phLpCkipRrTAAKjyDEbMDOhVLR1OB1iM3wQAQADAgADdwADNgQ",
         "AgACAgUAAxkBAAL20mgTqWRBUQ0zFg0D9e1xBquzS0TOAAKiyDEbMDOhVGFQfrqs58yJAQADAgADcwADNgQ"
     ])
-
+    
     # Delete the analysis message
     await analyzing_message.delete()
 
