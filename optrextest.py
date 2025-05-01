@@ -209,9 +209,7 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     # Randomly choose between Uptrend (⬆️) and Downtrend (⬇️)
     signal_type = random.choice(["⬆️", "⬇️"])
-
-    # Define the photo file IDs based on the signal type
-    if signal_type == "⬇️":
+        if signal_type == "⬇️":
     photo_id = random.choice([
         "AgACAgUAAxkBAAL25GgTqj-ponXm_HMsHnkbHjJVrNM2AAKqyDEbMDOhVKgKmfJUCMc9AQADAgADeQADNgQ",
         "AgACAgUAAxkBAAL24mgTqje4R75dXWBasXYh4qgF68BzAAKpyDEbMDOhVF4IqwxsS_CmAQADAgADbQADNgQ",
