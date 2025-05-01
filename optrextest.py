@@ -210,19 +210,19 @@ async def simulate_analysis(update: Update, pair: str) -> None:
     # Randomly choose between Uptrend (⬆️) and Downtrend (⬇️)
     signal_type = random.choice(["⬆️", "⬇️"])
         if signal_type == "⬇️":
-    photo_id = random.choice([
-        "AgACAgUAAxkBAAL25GgTqj-ponXm_HMsHnkbHjJVrNM2AAKqyDEbMDOhVKgKmfJUCMc9AQADAgADeQADNgQ",
-        "AgACAgUAAxkBAAL24mgTqje4R75dXWBasXYh4qgF68BzAAKpyDEbMDOhVF4IqwxsS_CmAQADAgADbQADNgQ",
-        "AgACAgUAAxkBAAL24GgTqjG17G0RNtMlO1VgY82RO1jTAAKoyDEbMDOhVO2zvHF0xBUCAQADAgADeAADNgQ",
-        "AgACAgUAAxkBAAL23mgTqil7jt3NaQjeF_BCOoO8Fm_TAAKnyDEbMDOhVN5IO_8VdClqAQADAgADbQADNgQ"
-    ])
-else:
-    photo_id = random.choice([
-        "AgACAgUAAxkBAAL22GgTqXps-sGh1Xuifz1vvqJkWJRQAAKlyDEbMDOhVFzd9SVMSA4nAQADAgADdwADNgQ",
-        "AgACAgUAAxkBAAL21mgTqXSOWg91iP_51LhI-hxkUHqRAAKkyDEbMDOhVAztDE547MilAQADAgADdwADNgQ",
-        "AgACAgUAAxkBAAL21GgTqWzMTMwMkicm2phLpCkipRrTAAKjyDEbMDOhVLR1OB1iM3wQAQADAgADdwADNgQ",
-        "AgACAgUAAxkBAAL20mgTqWRBUQ0zFg0D9e1xBquzS0TOAAKiyDEbMDOhVGFQfrqs58yJAQADAgADcwADNgQ"
-    ])
+            photo_id = random.choice([
+            "AgACAgUAAxkBAAL25GgTqj-ponXm_HMsHnkbHjJVrNM2AAKqyDEbMDOhVKgKmfJUCMc9AQADAgADeQADNgQ",
+            "AgACAgUAAxkBAAL24mgTqje4R75dXWBasXYh4qgF68BzAAKpyDEbMDOhVF4IqwxsS_CmAQADAgADbQADNgQ",
+            "AgACAgUAAxkBAAL24GgTqjG17G0RNtMlO1VgY82RO1jTAAKoyDEbMDOhVO2zvHF0xBUCAQADAgADeAADNgQ",
+            "AgACAgUAAxkBAAL23mgTqil7jt3NaQjeF_BCOoO8Fm_TAAKnyDEbMDOhVN5IO_8VdClqAQADAgADbQADNgQ"
+            ])
+        else:
+            photo_id = random.choice([
+            "AgACAgUAAxkBAAL22GgTqXps-sGh1Xuifz1vvqJkWJRQAAKlyDEbMDOhVFzd9SVMSA4nAQADAgADdwADNgQ",
+            "AgACAgUAAxkBAAL21mgTqXSOWg91iP_51LhI-hxkUHqRAAKkyDEbMDOhVAztDE547MilAQADAgADdwADNgQ",
+            "AgACAgUAAxkBAAL21GgTqWzMTMwMkicm2phLpCkipRrTAAKjyDEbMDOhVLR1OB1iM3wQAQADAgADdwADNgQ",
+            "AgACAgUAAxkBAAL20mgTqWRBUQ0zFg0D9e1xBquzS0TOAAKiyDEbMDOhVGFQfrqs58yJAQADAgADcwADNgQ"
+            ])
     
     # Delete the analysis message
     await analyzing_message.delete()
