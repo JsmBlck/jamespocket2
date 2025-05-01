@@ -129,7 +129,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        photo_file_id = "AgACAgUAAxkBAALuzWgNO5FmGCHWejT88XF_HVUpDXU7AAIExDEbEgJxVOlYGNhf27RSAQADAgADcwADNgQ"  # Replace with your actual file ID
+        photo_file_id = "AgACAgUAAxkBAAL2zGgTqGq8yndVpEOIIJR5ltEcbBDlAAKWyDEbMDOhVP-tNvKclpmnAQADAgADcwADNgQ"  # Replace with your actual file ID
 
         await update.message.reply_photo(
     photo=photo_file_id,
@@ -147,7 +147,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return  
 
     
-    photo_id = "AgACAgUAAxkBAALuzWgNO5FmGCHWejT88XF_HVUpDXU7AAIExDEbEgJxVOlYGNhf27RSAQADAgADbQADNgQ"  # Replace with your actual Telegram file ID
+    photo_id = "AgACAgUAAxkBAAL2zGgTqGq8yndVpEOIIJR5ltEcbBDlAAKWyDEbMDOhVP-tNvKclpmnAQADAgADcwADNgQ"  # Replace with your actual Telegram file ID
 
     welcome_message = """
 
@@ -212,9 +212,19 @@ async def simulate_analysis(update: Update, pair: str) -> None:
 
     # Define the photo file IDs based on the signal type
     if signal_type == "⬇️":
-        photo_id = "AgACAgUAAxkBAALH12fuBkMyuR4G6ZYpzg3xIE6GcSNvAAJcwTEbr-txV2TH309dOATqAQADAgADeAADNgQ"  # Replace with your actual Uptrend photo file ID
-    else:
-        photo_id = "AgACAgUAAxkBAALIBWfuJ9gJ2aVPLqrOKyFE_K-bXROvAALbwTEbr-txV0zo98c-GXqjAQADAgADeQADNgQ"  # Replace with your actual Downtrend photo file ID
+    photo_id = random.choice([
+        "AgACAgUAAxkBAAL25GgTqj-ponXm_HMsHnkbHjJVrNM2AAKqyDEbMDOhVKgKmfJUCMc9AQADAgADeQADNgQ",
+        "AgACAgUAAxkBAAL24mgTqje4R75dXWBasXYh4qgF68BzAAKpyDEbMDOhVF4IqwxsS_CmAQADAgADbQADNgQ",
+        "AgACAgUAAxkBAAL24GgTqjG17G0RNtMlO1VgY82RO1jTAAKoyDEbMDOhVO2zvHF0xBUCAQADAgADeAADNgQ",
+        "AgACAgUAAxkBAAL23mgTqil7jt3NaQjeF_BCOoO8Fm_TAAKnyDEbMDOhVN5IO_8VdClqAQADAgADbQADNgQ"
+    ])
+else:
+    photo_id = random.choice([
+        "AgACAgUAAxkBAAL22GgTqXps-sGh1Xuifz1vvqJkWJRQAAKlyDEbMDOhVFzd9SVMSA4nAQADAgADdwADNgQ",
+        "AgACAgUAAxkBAAL21mgTqXSOWg91iP_51LhI-hxkUHqRAAKkyDEbMDOhVAztDE547MilAQADAgADdwADNgQ",
+        "AgACAgUAAxkBAAL21GgTqWzMTMwMkicm2phLpCkipRrTAAKjyDEbMDOhVLR1OB1iM3wQAQADAgADdwADNgQ",
+        "AgACAgUAAxkBAAL20mgTqWRBUQ0zFg0D9e1xBquzS0TOAAKiyDEbMDOhVGFQfrqs58yJAQADAgADcwADNgQ"
+    ])
 
     # Delete the analysis message
     await analyzing_message.delete()
@@ -291,7 +301,7 @@ async def add_member(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         # Send welcome message
         try:
-            photo_id = "AgACAgUAAxkBAALuz2gNO-R1rxL1QjFmruJ0eVMJL_yCAAIKxDEbEgJxVOEz2dMTpLAPAQADAgADbQADNgQ"
+            photo_id = "AgACAgUAAxkBAAL2ymgTqF_WEcYxx3MomwwVOPK017iFAAKVyDEbMDOhVJNQC6UwJvzTAQADAgADcwADNgQ"
 
             welcome_message = f"""
 🚀 Hey *{first_name}*! You are now Verified!✅
