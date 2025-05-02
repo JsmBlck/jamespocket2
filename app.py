@@ -104,7 +104,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "text": final_text
         })
         
-typing_task.cancel()
+    typing_task.cancel()
 
 
 @app.post("/webhook")
