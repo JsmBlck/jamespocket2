@@ -60,11 +60,14 @@ async def handle_webhook(req: Request):
     
     # Process the update using the application
     await application.process_update(update)
+    
     return {"ok": True}
 
+
+# This is optional, if you don't need the `/` endpoint
 @app.get("/")
 async def home():
-    return {"status": "Bot running!"}
+    return {"status": "Bot is ready and running!"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))  # Use environment variable PORT
