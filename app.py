@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 import httpx
 import os
+import uvicorn
 import random
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
