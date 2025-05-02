@@ -50,7 +50,12 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
+import random
+import asyncio
+import httpx
+
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
+    # Analysis steps (loading animation included)
     analysis_steps = [
         f"{pair} 🔎 Analyzing.",
         f"{pair} 🔎 Analyzing..",
@@ -59,15 +64,30 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"{pair} 📈 Calculating signal.",
         f"{pair} 📈 Calculating signal.."
     ]
+
+    # Responses for final signal
+    RESPONSES = [
+        "🟢 **Up {pair}** \n\n🤖 Possible uptrend forming.\n\n📈 Market showing strength.",
+        "🔴 **Down {pair}** \n\n🤖 Possible downtrend forming.\n\n📉 Market losing momentum.",
+        "🟢 **Up Signal {pair}** \n\n🤖 Upward movement detected.\n\n💰 Trend gaining strength.",
+        "🔴 **Down Signal {pair}** \n\n🤖 Downward movement detected.\n\n📉 Weakness in the market.",
+        "🟢 **Up {pair}** \n\n🤖 Price holding strong.\n\n🛑 Momentum shifting upwards.",
+        "🔴 **Down {pair}** \n\n🤖 Resistance spotted.\n\n📉 Market struggling to push higher.",
+        "🟢 **Up Setup {pair}** \n\n🤖 Favorable conditions detected.\n\n💹 Trend leaning upwards.",
+        "🔴 **Down Setup {pair}** \n\n🤖 Signs of weakness appearing.\n\n📉 Trend leaning downwards.",
+        "🟢 **Up Confirmed {pair}** \n\n🤖 Trend sustaining upwards.\n\n📈 Positive movement expected.",
+        "🔴 **Down Confirmed {pair}** \n\n🤖 Trend weakening further.\n\n📉 Market slowing down."
+    ]
+
+    # Send the initial analysis message
     message_id = None
     async with httpx.AsyncClient() as client:
-        # Send the first analysis message
         resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
         message_id = resp.json().get("result", {}).get("message_id")
 
     # Show each analysis step with a short delay
     for step in analysis_steps[1:]:
-        await asyncio.sleep(0.07)
+        await asyncio.sleep(0.07)  # Delay for animation effect
         async with httpx.AsyncClient() as client:
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
@@ -75,15 +95,34 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
                 "text": step
             })
 
-    # Simulate final signal
-    await asyncio.sleep(random.uniform(.5, 1.5))
-    signal = random.choice(["↗️", "↘️"])
-    final_text = f"{signal}"
+    # Simulate the final signal (separate signal step)
+    await asyncio.sleep(random.uniform(0.5, 1.5))  # Delay before showing final signal
+    signal = random.choice(["↗️", "↘️"])  # Choose up or down signal
+
+    # Send the signal first (without final message)
     async with httpx.AsyncClient() as client:
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": final_text
+            "text": f"{signal}"
+        })
+
+    # Filter appropriate responses based on the signal
+    if signal == "↗️":
+        possible_msgs = [msg for msg in RESPONSES if "🟢" in msg]
+    else:
+        possible_msgs = [msg for msg in RESPONSES if "🔴" in msg]
+
+    # Select the final message and format it with the pair
+    final_message = random.choice(possible_msgs).format(pair=pair)
+
+    # Send the final signal message with response
+    async with httpx.AsyncClient() as client:
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": f"{signal}\n\n{final_message}",
+            "parse_mode": "Markdown"
         })
 
 @app.post("/webhook")
