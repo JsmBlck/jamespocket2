@@ -54,6 +54,10 @@ import random
 import asyncio
 import httpx
 
+import random
+import asyncio
+import httpx
+
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     # Analysis steps (loading animation included)
     analysis_steps = [
@@ -113,15 +117,14 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     else:
         possible_msgs = [msg for msg in RESPONSES if "🔴" in msg]
 
-    # Select the final message and format it with the pair
+    # Select a random response
     final_message = random.choice(possible_msgs).format(pair=pair)
 
-    # Send the final signal message with response
+    # Send the final signal response separately
     async with httpx.AsyncClient() as client:
-        await client.post(EDIT_MESSAGE, json={
+        await client.post(SEND_MESSAGE, json={
             "chat_id": chat_id,
-            "message_id": message_id,
-            "text": f"{signal}\n\n{final_message}",
+            "text": final_message,
             "parse_mode": "Markdown"
         })
 
