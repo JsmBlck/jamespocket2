@@ -56,15 +56,22 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Send placeholder
+    # Define the analysis steps
+    analysis_steps = [
+        f"🔎 Analyzing {pair} in {expiry} time...",
+        f"📊 Gathering market data for {pair}...",
+        f"📈 Calculating signal for {pair}..."
+    ]
+
+    # Send initial message (this will be the placeholder message)
     async with httpx.AsyncClient() as client:
         resp = await client.post(SEND_MESSAGE, json={
             "chat_id": chat_id,
-            "text": f"🔎 Analyzing {pair} for expiry {expiry}..."
+            "text": analysis_steps[0]
         })
         msg_id = resp.json().get("result", {}).get("message_id")
 
-    # Show typing action during analysis
+    # Show typing action during each step
     async def show_typing():
         try:
             while True:
@@ -75,18 +82,20 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             pass
 
     typing_task = asyncio.create_task(show_typing())
-    await asyncio.sleep(random.uniform(3, 5))  # Simulate analysis time
+
+    # Simulate each analysis step
+    for step in analysis_steps:
+        async with httpx.AsyncClient() as client:
+            await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": step})
+        await asyncio.sleep(random.uniform(2, 3))  # Simulate the time it takes to move to the next step
+
+    # Cancel typing once all steps are done
     typing_task.cancel()
-    
-    # Force typing to stop by sending a dummy "read" action to the bot
-    async with httpx.AsyncClient() as client:
-        await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "cancel"})
 
-    await asyncio.sleep(0.5)  # Let Telegram process the action
-
-    # Final signal
+    # Final signal message after analysis
     signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
     final_text = f"{signal} {pair} expiring in {expiry}"
+
     async with httpx.AsyncClient() as client:
         if msg_id:
             await client.post(EDIT_MESSAGE, json={
