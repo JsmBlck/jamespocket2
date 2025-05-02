@@ -98,7 +98,7 @@ async def webhook(request: Request):
 
         # /start: show reply keyboard with pairs
         if text == "/start":
-            keyboard = [[pair] for pair in otc_pairs]
+            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
             payload = {
                 "chat_id": chat_id,
                 "text": "Select an OTC pair:",
