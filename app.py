@@ -57,9 +57,9 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🔎 Analyzing {pair} in {expiry} time...",
-        f"📊 Gathering market data for {pair}...",
-        f"📈 Calculating signal for {pair}..."
+        f"🔎 Analyzing {pair} in {expiry}...",
+        f"📊 Gathering market data for {pair} in {expiry}...",
+        f"📈 Calculating signal for {pair} in {expiry}..."
     ]
 
     message_id = None
@@ -91,6 +91,10 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 
     typing_task.cancel()
 
+    # Stop the typing action immediately after analysis
+    async with httpx.AsyncClient() as client:
+        await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "cancel"})
+
     # Simulate final signal
     await asyncio.sleep(random.uniform(.5, 1.5))
     signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
@@ -101,7 +105,6 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "message_id": message_id,
             "text": final_text
         })
-
 
 
 @app.post("/webhook")
