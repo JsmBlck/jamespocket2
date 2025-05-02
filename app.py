@@ -1,19 +1,18 @@
 import os
 import httpx
 import asyncio
-import random
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 
-load_dotenv()
+load_dotenv()  # Load environment variables from .env if present
 
-BOT_TOKEN    = os.getenv("TELEGRAM_TOKEN")
-API_BASE     = f"https://api.telegram.org/bot{BOT_TOKEN}"
+BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+API_BASE = f"https://api.telegram.org/bot{BOT_TOKEN}"
 SEND_MESSAGE = f"{API_BASE}/sendMessage"
-ANSWER_CB    = f"{API_BASE}/answerCallbackQuery"
-RENDER_URL   = "https://jamespocket2-k9lz.onrender.com"
+RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
+# List of OTC pairs for reply keyboard
 otc_pairs = [
     "AED/CNY OTC", 
     "AUD/CAD OTC",   
@@ -23,11 +22,11 @@ otc_pairs = [
     "NZD/USD OTC"
 ]
 
-# --- Self-ping lifespan (unchanged) ---
+# Lifespan manager to start self-ping loop
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async def self_ping_loop():
-        await asyncio.sleep(5)
+        await asyncio.sleep(5)  # wait for server startup
         while True:
             try:
                 async with httpx.AsyncClient(timeout=10) as client:
@@ -35,61 +34,60 @@ async def lifespan(app: FastAPI):
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)
+            await asyncio.sleep(300)  # wait 5 minutes
+
+    # Schedule self-ping in background
     asyncio.create_task(self_ping_loop())
     yield
+    # (optional) shutdown cleanup here
 
 app = FastAPI(lifespan=lifespan)
 
 @app.api_route("/", methods=["GET", "HEAD"])
-async def healthcheck():
+async def healthcheck(request: Request):
     return {"status": "ok"}
 
 @app.post("/webhook")
 async def webhook(request: Request):
     data = await request.json()
 
-    # 1) Handle /start: send inline keyboard
+    # 1) Handle /start: send reply keyboard
     if data.get("message") and data["message"].get("text") == "/start":
         chat_id = data["message"]["chat"]["id"]
-        # build inline keyboard
-        keyboard = [
-            [{"text": pair, "callback_data": pair}]
-            for pair in otc_pairs
-        ]
+        # build reply keyboard markup
+        keyboard = [[pair] for pair in otc_pairs]
         payload = {
             "chat_id": chat_id,
             "text": "Select an OTC pair:",
-            "reply_markup": {"inline_keyboard": keyboard}
+            "reply_markup": {
+                "keyboard": keyboard,
+                "one_time_keyboard": True,
+                "resize_keyboard": True
+            }
         }
         async with httpx.AsyncClient() as client:
             await client.post(SEND_MESSAGE, json=payload)
         return {"ok": True}
 
-    # 2) Handle button clicks (callback_query)
-    if data.get("callback_query"):
-        cq   = data["callback_query"]
-        pair = cq["data"]
-        cq_id = cq["id"]
-        chat_id = cq["message"]["chat"]["id"]
-
-        # 2a) Acknowledge the button press so the loading spinner goes away
-        async with httpx.AsyncClient() as client:
-            await client.post(ANSWER_CB, json={"callback_query_id": cq_id})
-
-        # 2b) Send random up/down emoji
+    # 2) Handle user selecting a pair via keyboard
+    if data.get("message") and data["message"].get("text") in otc_pairs:
+        chat_id = data["message"]["chat"]["id"]
+        selected = data["message"]["text"]
         signal = random.choice(["🔺", "🔻"])
-        await httpx.AsyncClient().post(SEND_MESSAGE, json={
-            "chat_id": chat_id,
-            "text": f"{signal} {pair}"
-        })
+        # send the signal
+        async def send_signal():
+            async with httpx.AsyncClient() as client:
+                await client.post(SEND_MESSAGE, json={
+                    "chat_id": chat_id,
+                    "text": f"{signal} {selected}"
+                })
+        asyncio.create_task(send_signal())
         return {"ok": True}
 
-    # 3) Fallback echo for other messages (optional)
+    # 3) Fallback echo for other messages
     if data.get("message") and data["message"].get("text"):
         chat_id = data["message"]["chat"]["id"]
         text    = data["message"]["text"]
-        # fire-and-forget reply
         async def send_reply():
             async with httpx.AsyncClient() as client:
                 await client.post(SEND_MESSAGE, json={
