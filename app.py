@@ -59,8 +59,7 @@ async def handle_webhook(req: Request):
     update = Update.de_json(data, application.bot)
     
     # Process the update using the application
-    application.process_update(update)
-    
+    await application.process_update(update)
     return {"ok": True}
 
 @app.get("/")
