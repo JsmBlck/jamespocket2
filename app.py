@@ -18,12 +18,12 @@ RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
 # List of OTC pairs
 otc_pairs = [
-    "AED/CNY OTC",
-    "AUD/CAD OTC",
-    "BHD/CNY OTC",
-    "EUR/USD OTC",
-    "GBP/USD OTC",
-    "NZD/USD OTC"
+    "🇦🇪🇨🇳 AED/CNY OTC",
+    "🇦🇺🇨🇦 AUD/CAD OTC",
+    "🇧🇭🇨🇳 BHD/CNY OTC",
+    "🇪🇺🇺🇸 EUR/USD OTC",
+    "🇬🇧🇺🇸 GBP/USD OTC",
+    "🇳🇿🇺🇸 NZD/USD OTC"
 ]
 
 # Expiry options
