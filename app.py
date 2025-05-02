@@ -35,6 +35,8 @@ async def send_otc_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     message = "Please select an OTC pair:"
     await update.message.reply_text(message, reply_markup=get_otc_keyboard())
+# Command handler for '/start'
+
 
 # Callback handler for the selected OTC pair
 async def handle_otc_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -71,7 +73,7 @@ async def home():
     return {"status": "Bot is ready and running!"}
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Use environment variable PORT
+    port = int(os.environ.get("PORT", 10000))  # Use environment variable PORT
     uvicorn.run(app, host="0.0.0.0", port=port)  # Bind to all addresses
 
 
