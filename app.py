@@ -1,13 +1,13 @@
 from flask import Flask, request
 import requests
-import os  # ← THIS was missing
+import os
 
 app = Flask(__name__)
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_API = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
 
 @app.route('/webhook', methods=['POST'])
-async def webhook():
+def webhook():
     data = request.json
     if 'message' in data:
         chat_id = data['message']['chat']['id']
