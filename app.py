@@ -55,14 +55,13 @@ async def webhook(request: Request):
     # 1) Handle /start: send reply keyboard
     if data.get("message") and data["message"].get("text") == "/start":
         chat_id = data["message"]["chat"]["id"]
-        # build reply keyboard markup
+        # build persistent reply keyboard markup
         keyboard = [[pair] for pair in otc_pairs]
         payload = {
             "chat_id": chat_id,
             "text": "Select an OTC pair:",
             "reply_markup": {
                 "keyboard": keyboard,
-                "one_time_keyboard": True,
                 "resize_keyboard": True
             }
         }
