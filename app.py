@@ -57,21 +57,32 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"📈 Calculating signal for {pair} in {expiry}..."
     ]
 
-    # Send the first message
-    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
-    message_id = resp.json().get("result", {}).get("message_id")
+    message_id = None
+    async with httpx.AsyncClient() as client:
+        # Send the first analysis message
+        resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+        message_id = resp.json().get("result", {}).get("message_id")
 
+    # Show each analysis step with a short delay
     for step in analysis_steps[1:]:
         await asyncio.sleep(random.uniform(.5, 1))
-        await client.post(EDIT_MESSAGE, json={
-            "chat_id": chat_id, "message_id": message_id, "text": step
-        })
+        async with httpx.AsyncClient() as client:
+            await client.post(EDIT_MESSAGE, json={
+                "chat_id": chat_id,
+                "message_id": message_id,
+                "text": step
+            })
 
+    # Simulate final signal
     await asyncio.sleep(random.uniform(.5, 1.5))
     signal = random.choice(["↗️", "↘️"])
-    await client.post(EDIT_MESSAGE, json={
-        "chat_id": chat_id, "message_id": message_id, "text": signal
-    })
+    final_text = f"{signal}"
+    async with httpx.AsyncClient() as client:
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": final_text
+        })
 
 @app.post("/webhook")
 async def webhook(request: Request):
