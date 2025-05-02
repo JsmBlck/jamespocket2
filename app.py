@@ -16,39 +16,33 @@ EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
-# List of OTC pairs
+client = None  # Global httpx client
+
 otc_pairs = [
-    "🇦🇪🇨🇳 AED/CNY OTC",
-    "🇦🇺🇨🇦 AUD/CAD OTC",
-    "🇧🇭🇨🇳 BHD/CNY OTC",
-    "🇪🇺🇺🇸 EUR/USD OTC",
-    "🇬🇧🇺🇸 GBP/USD OTC",
-    "🇳🇿🇺🇸 NZD/USD OTC"
+    "🇦🇪🇨🇳 AED/CNY OTC", "🇦🇺🇨🇦 AUD/CAD OTC", "🇧🇭🇨🇳 BHD/CNY OTC",
+    "🇪🇺🇺🇸 EUR/USD OTC", "🇬🇧🇺🇸 GBP/USD OTC", "🇳🇿🇺🇸 NZD/USD OTC"
 ]
 
-# Expiry options
-expiry_options = [
-    "5s",
-    "10s",
-    "15s",
-    "30s"
-]
+expiry_options = ["5s", "10s", "15s", "30s"]
 
-# Lifespan for self-ping
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global client
+    client = httpx.AsyncClient(timeout=10)
+
     async def self_ping_loop():
         await asyncio.sleep(5)
         while True:
             try:
-                async with httpx.AsyncClient(timeout=10) as client:
-                    await client.get(RENDER_URL)
+                await client.get(RENDER_URL)
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
             await asyncio.sleep(300)
+
     asyncio.create_task(self_ping_loop())
     yield
+    await client.aclose()  # Clean up
 
 app = FastAPI(lifespan=lifespan)
 
@@ -63,41 +57,30 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"📈 Calculating signal for {pair} in {expiry}..."
     ]
 
-    message_id = None
-    async with httpx.AsyncClient() as client:
-        # Send the first analysis message
-        resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
-        message_id = resp.json().get("result", {}).get("message_id")
+    # Send the first message
+    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+    message_id = resp.json().get("result", {}).get("message_id")
 
-    # Show each analysis step with a short delay
     for step in analysis_steps[1:]:
         await asyncio.sleep(random.uniform(.5, 1))
-        async with httpx.AsyncClient() as client:
-            await client.post(EDIT_MESSAGE, json={
-                "chat_id": chat_id,
-                "message_id": message_id,
-                "text": step
-            })
-    # Simulate final signal
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id, "message_id": message_id, "text": step
+        })
+
     await asyncio.sleep(random.uniform(.5, 1.5))
     signal = random.choice(["↗️", "↘️"])
-    final_text = f"{signal}"
-    async with httpx.AsyncClient() as client:
-        await client.post(EDIT_MESSAGE, json={
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "text": final_text
-        })
+    await client.post(EDIT_MESSAGE, json={
+        "chat_id": chat_id, "message_id": message_id, "text": signal
+    })
 
 @app.post("/webhook")
 async def webhook(request: Request):
     data = await request.json()
-    # handle regular messages
+
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
 
-        # /start: show reply keyboard with pairs
         if text == "/start":
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
             payload = {
@@ -105,50 +88,40 @@ async def webhook(request: Request):
                 "text": "Select an OTC pair:",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
-            async with httpx.AsyncClient() as client:
-                await client.post(SEND_MESSAGE, json=payload)
+            await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        # user selected a pair from keyboard
         if text in otc_pairs:
-            # send expiry options as inline buttons
             inline_kb = [
-    [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"},
-     {"text": expiry_options[i+1], "callback_data": f"expiry|{text}|{expiry_options[i+1]}"}]
-    for i in range(0, len(expiry_options), 2)
-]
-
+                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"},
+                 {"text": expiry_options[i+1], "callback_data": f"expiry|{text}|{expiry_options[i+1]}"}]
+                for i in range(0, len(expiry_options), 2)
+            ]
             payload = {
                 "chat_id": chat_id,
                 "text": f"{text} selected. Choose Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
-            async with httpx.AsyncClient() as client:
-                await client.post(SEND_MESSAGE, json=payload)
+            await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        # fallback echo
-        async def send_echo():
-            async with httpx.AsyncClient() as client:
-                await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": f"You said: {text}"})
-        asyncio.create_task(send_echo())
+        asyncio.create_task(client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": f"You said: {text}"}))
         return {"ok": True}
 
-    # handle expiry callback
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
         message_id = cq["message"]["message_id"]
         cq_id = cq.get("id")
-        # answer callback to remove spinner
-        async with httpx.AsyncClient() as client:
-            await client.post(f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
-            await client.post(DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
+
+        await client.post(f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
+        await client.post(DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
+
         _, pair, expiry = data_str.split("|", 2)
         asyncio.create_task(simulate_analysis(chat_id, pair, expiry))
         return {"ok": True}
 
-    return {"ok": True}
+    return {"ok": True"}
 
 if __name__ == "__main__":
     import uvicorn
