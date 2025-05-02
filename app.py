@@ -52,17 +52,13 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        "🔎 Analyzing.",
-        "🔎 Analyzing..",
-        "🔎 Analyzing...",
-        "📊 Gathering data.",
-        "📊 Gathering data..",
-        "📊 Gathering data...",
-        "📈 Calculating signal.",
-        "📈 Calculating signal..",
-        "📈 Calculating signal..."
+        f"{pair} 🔎 Analyzing.",
+        f"{pair} 🔎 Analyzing..",
+        f"{pair} 📊 Gathering data.",
+        f"{pair} 📊 Gathering data..",
+        f"{pair} 📈 Calculating signal.",
+        f"{pair} 📈 Calculating signal.."
     ]
-
     message_id = None
     async with httpx.AsyncClient() as client:
         # Send the first analysis message
