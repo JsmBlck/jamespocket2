@@ -80,7 +80,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 
     # Simulate final signal
     await asyncio.sleep(random.uniform(.5, 1.5))
-    signal = random.choice(["↗️ ", "↘️"])
+    signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
     final_text = f"{signal} {pair} expiring in {expiry}"
     async with httpx.AsyncClient() as client:
         await client.post(EDIT_MESSAGE, json={
