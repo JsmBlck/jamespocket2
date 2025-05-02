@@ -52,9 +52,15 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🔎 Analyzing {pair} in {expiry}...",
-        f"📊 Gathering market data for {pair} in {expiry}...",
-        f"📈 Calculating signal for {pair} in {expiry}..."
+        "🔎 Analyzing.",
+        "🔎 Analyzing..",
+        "🔎 Analyzing...",
+        "📊 Gathering data.",
+        "📊 Gathering data..",
+        "📊 Gathering data...",
+        "📈 Calculating signal.",
+        "📈 Calculating signal..",
+        "📈 Calculating signal..."
     ]
 
     message_id = None
