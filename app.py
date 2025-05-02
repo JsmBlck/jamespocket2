@@ -90,8 +90,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             })
 
     # Stop the typing action immediately after analysis
-    async with httpx.AsyncClient() as client:
-        await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "cancel"})
+    
 
     # Simulate final signal
     await asyncio.sleep(random.uniform(.5, 1.5))
@@ -103,8 +102,11 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "message_id": message_id,
             "text": final_text
         })
+
+    async with httpx.AsyncClient() as client:
+        await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "cancel"})
         
-    typing_task.cancel()
+    #typing_task.cancel()
 
 
 @app.post("/webhook")
