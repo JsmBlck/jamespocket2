@@ -56,7 +56,7 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # send placeholder
+    # Send placeholder
     async with httpx.AsyncClient() as client:
         resp = await client.post(SEND_MESSAGE, json={
             "chat_id": chat_id,
@@ -64,7 +64,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         })
         msg_id = resp.json().get("result", {}).get("message_id")
 
-    # show typing action during wait
+    # Show typing action during analysis
     async def show_typing():
         try:
             while True:
@@ -75,23 +75,22 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             pass
 
     typing_task = asyncio.create_task(show_typing())
-    await asyncio.sleep(random.uniform(3, 5))  # simulate "analysis time"
+    await asyncio.sleep(random.uniform(3, 5))  # Simulate analysis time
     typing_task.cancel()
+    await asyncio.sleep(0.5)  # Let Telegram process the typing cancel
 
-    # final message
+    # Final signal
     signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
     final_text = f"{signal} {pair} expiring in {expiry}"
-    if msg_id:
-        async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as client:
+        if msg_id:
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
                 "message_id": msg_id,
                 "text": final_text
             })
-    else:
-        async with httpx.AsyncClient() as client:
+        else:
             await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": final_text})
-
 
 @app.post("/webhook")
 async def webhook(request: Request):
