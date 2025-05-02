@@ -24,7 +24,8 @@ otc_pairs = [
     "GBP/USD OTC",
     "NZD/USD OTC"
 ]
-# Expiry options\expiry_options = [
+
+expiry_options = [
     "5s", "10s", "15s"
 ]
 
