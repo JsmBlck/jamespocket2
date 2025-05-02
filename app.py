@@ -77,7 +77,12 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     typing_task = asyncio.create_task(show_typing())
     await asyncio.sleep(random.uniform(3, 5))  # Simulate analysis time
     typing_task.cancel()
-    await asyncio.sleep(0.5)  # Let Telegram process the typing cancel
+    
+    # Force typing to stop by sending a dummy "read" action to the bot
+    async with httpx.AsyncClient() as client:
+        await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "cancel"})
+
+    await asyncio.sleep(0.5)  # Let Telegram process the action
 
     # Final signal
     signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
