@@ -18,7 +18,7 @@ otc_pairs = [
     "NZD/USD OTC"
 ]
 
-BOT_TOKEN = "your_bot_token_here"
+BOT_TOKEN = "7825687335:AAEYhy1h9hujIGqBuS_fAmFYbywRRKoDlGE"
 TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
 # Inline Keyboard Button for OTC Pairs
