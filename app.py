@@ -73,7 +73,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             while True:
                 async with httpx.AsyncClient() as client:
                     await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "typing"})
-                await asyncio.sleep(2)
+                await asyncio.sleep(2.5)
         except asyncio.CancelledError:
             pass
 
