@@ -57,9 +57,9 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🔎 Analyzing {pair} for expiry {expiry}...",
-        "📊 Gathering market data...",
-        "📈 Calculating signal..."
+        f"🔎 Analyzing {pair} in {expiry} time...",
+        f"📊 Gathering market data for {pair}...",
+        f"📈 Calculating signal for {pair}..."
     ]
 
     message_id = None
@@ -79,8 +79,8 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             })
 
     # Simulate final signal
-    await asyncio.sleep(random.uniform(1.5, 2.5))
-    signal = random.choice(["🔺", "🔻"])
+    await asyncio.sleep(random.uniform(.5, 1.5))
+    signal = random.choice(["↗️ ", "↘️"])
     final_text = f"{signal} {pair} expiring in {expiry}"
     async with httpx.AsyncClient() as client:
         await client.post(EDIT_MESSAGE, json={
