@@ -3,35 +3,39 @@ import httpx
 import asyncio
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
 
 load_dotenv()  # Load environment variables from .env if present
-
-app = FastAPI()
 
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
-async def self_ping_loop():
-    await asyncio.sleep(5)  # give the server a moment to start up
-    while True:
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                await client.get(RENDER_URL)
-            print("✅ Self-ping successful!")
-        except Exception as e:
-            print(f"❌ Ping failed: {e}")
-        await asyncio.sleep(300)  # wait 5 minutes
+# Lifespan manager to start self-ping loop
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async def self_ping_loop():
+        await asyncio.sleep(5)  # wait for server startup
+        while True:
+            try:
+                async with httpx.AsyncClient(timeout=10) as client:
+                    await client.get(RENDER_URL)
+                print("✅ Self-ping successful!")
+            except Exception as e:
+                print(f"❌ Ping failed: {e}")
+            await asyncio.sleep(300)  # wait 5 minutes
 
-@app.on_event("startup")
-async def start_self_ping():
-    # schedule the self-ping loop in the background
+    # Schedule self-ping in background
     asyncio.create_task(self_ping_loop())
+    yield
+    # (optional) shutdown cleanup here
 
-@app.get("/")
-async def healthcheck():
+app = FastAPI(lifespan=lifespan)
+
+@app.api_route("/", methods=["GET", "HEAD"])
+async def healthcheck(request: Request):
     return {"status": "ok"}
-    
+
 @app.post("/webhook")
 async def webhook(request: Request):
     data = await request.json()
@@ -49,12 +53,7 @@ async def webhook(request: Request):
         # fire-and-forget reply
         asyncio.create_task(send_reply())
 
-    # immediately acknowledge to Telegram
     return {"ok": True}
-
-@app.api_route("/", methods=["GET", "HEAD"])
-async def healthcheck(request: Request):
-    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn
