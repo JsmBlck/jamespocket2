@@ -56,55 +56,39 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Define the analysis steps
     analysis_steps = [
         f"🔎 Analyzing {pair} in {expiry} time...",
         f"📊 Gathering market data for {pair}...",
         f"📈 Calculating signal for {pair}..."
     ]
 
-    # Send initial message (this will be the placeholder message)
+    message_id = None
     async with httpx.AsyncClient() as client:
-        resp = await client.post(SEND_MESSAGE, json={
-            "chat_id": chat_id,
-            "text": analysis_steps[0]
-        })
-        msg_id = resp.json().get("result", {}).get("message_id")
+        # Send the first analysis message
+        resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+        message_id = resp.json().get("result", {}).get("message_id")
 
-    # Show typing action during each step
-    async def show_typing():
-        try:
-            while True:
-                async with httpx.AsyncClient() as client:
-                    await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "typing"})
-                await asyncio.sleep(2)
-        except asyncio.CancelledError:
-            pass
-
-    typing_task = asyncio.create_task(show_typing())
-
-    # Simulate each analysis step
-    for step in analysis_steps:
+    # Show each analysis step with a short delay
+    for step in analysis_steps[1:]:
+        await asyncio.sleep(random.uniform(1.5, 2.5))
         async with httpx.AsyncClient() as client:
-            await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": step})
-        await asyncio.sleep(random.uniform(2, 3))  # Simulate the time it takes to move to the next step
-
-    # Cancel typing once all steps are done
-    typing_task.cancel()
-
-    # Final signal message after analysis
-    signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
-    final_text = f"{signal} {pair} expiring in {expiry}"
-
-    async with httpx.AsyncClient() as client:
-        if msg_id:
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
-                "message_id": msg_id,
-                "text": final_text
+                "message_id": message_id,
+                "text": step
             })
-        else:
-            await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": final_text})
+
+    # Simulate final signal
+    await asyncio.sleep(random.uniform(.5, 1.5))
+    signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
+    final_text = f"{signal} {pair} expiring in {expiry}"
+    async with httpx.AsyncClient() as client:
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": final_text
+        })
+
 
 @app.post("/webhook")
 async def webhook(request: Request):
