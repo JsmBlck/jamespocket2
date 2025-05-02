@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Request
 import os
 import httpx
+import asyncio
 from dotenv import load_dotenv
+from fastapi import FastAPI, Request
 
 load_dotenv()  # Load environment variables from .env if present
 
@@ -18,11 +19,15 @@ async def webhook(request: Request):
         chat_id = data['message']['chat']['id']
         text = data['message'].get('text', '')
 
-        async with httpx.AsyncClient() as client:
-            await client.post(TELEGRAM_API, json={
-                "chat_id": chat_id,
-                "text": f"You said: {text}"
-            })
+        async def send_reply():
+            async with httpx.AsyncClient() as client:
+                await client.post(TELEGRAM_API, json={
+                    "chat_id": chat_id,
+                    "text": f"You said: {text}"
+                })
+
+        # Fire-and-forget (don’t wait for the response)
+        asyncio.create_task(send_reply())
 
     return {"ok": True}
 
