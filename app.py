@@ -121,7 +121,7 @@ async def webhook(request: Request):
         asyncio.create_task(simulate_analysis(chat_id, pair, expiry))
         return {"ok": True}
 
-    return {"ok": True"}
+    return {"ok": True}
 
 if __name__ == "__main__":
     import uvicorn
