@@ -55,13 +55,14 @@ application.add_handler(CallbackQueryHandler(handle_otc_callback))
 
 @app.post("/webhook")
 async def handle_webhook(req: Request):
-    data = await req.json()
-    update = Update.de_json(data, application.bot)
+    data = await req.json()  # Get the data from Telegram
+    update = Update.de_json(data, application.bot)  # Convert the data to a Telegram update object
     
     # Process the update using the application
-    await application.process_update(update)
+    await application.process_update(update)  # Await the processing of the update
     
-    return {"ok": True}
+    return {"ok": True}  # Return success to Telegram
+
 
 
 # This is optional, if you don't need the `/` endpoint
