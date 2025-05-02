@@ -71,7 +71,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 
     # Show each analysis step with a short delay
     for step in analysis_steps[1:]:
-        await asyncio.sleep(random.uniform(.5, 1))
+        await asyncio.sleep(random.uniform(.1, 3))
         async with httpx.AsyncClient() as client:
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
