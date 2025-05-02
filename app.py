@@ -68,6 +68,17 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
         message_id = resp.json().get("result", {}).get("message_id")
 
+
+     async def show_typing():
+        try:
+            while True:
+                async with httpx.AsyncClient() as client:
+                    await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "typing"})
+                await asyncio.sleep(2)
+        except asyncio.CancelledError:
+            pass
+    typing_task = asyncio.create_task(show_typing())
+
     # Show each analysis step with a short delay
     for step in analysis_steps[1:]:
         await asyncio.sleep(random.uniform(1.5, 2.5))
@@ -77,11 +88,13 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
                 "message_id": message_id,
                 "text": step
             })
+            
+    typing_task.cancel()
 
     # Simulate final signal
     await asyncio.sleep(random.uniform(.5, 1.5))
     signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
-    final_text = f"{signal} {pair} expiring in {expiry}"
+    final_text = f"{signal} {pair} {expiry}"
     async with httpx.AsyncClient() as client:
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
