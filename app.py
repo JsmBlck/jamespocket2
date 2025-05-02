@@ -10,7 +10,28 @@ app = FastAPI()
 
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
+async def self_ping_loop():
+    await asyncio.sleep(5)  # give the server a moment to start up
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                await client.get(RENDER_URL)
+            print("✅ Self-ping successful!")
+        except Exception as e:
+            print(f"❌ Ping failed: {e}")
+        await asyncio.sleep(300)  # wait 5 minutes
+
+@app.on_event("startup")
+async def start_self_ping():
+    # schedule the self-ping loop in the background
+    asyncio.create_task(self_ping_loop())
+
+@app.get("/")
+async def healthcheck():
+    return {"status": "ok"}
+    
 @app.post("/webhook")
 async def webhook(request: Request):
     data = await request.json()
