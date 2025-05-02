@@ -56,30 +56,39 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # send placeholder
+    analysis_steps = [
+        f"🔎 Analyzing {pair} for expiry {expiry}...",
+        "📊 Gathering market data...",
+        "📈 Calculating signal..."
+    ]
+
+    message_id = None
     async with httpx.AsyncClient() as client:
-        resp = await client.post(SEND_MESSAGE, json={
-            "chat_id": chat_id,
-            "text": f"🔎 Analyzing {pair} for {expiry} time..."
-        })
-        msg_id = resp.json().get("result", {}).get("message_id")
-    # typing
-    async with httpx.AsyncClient() as client:
-        await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "typing"})
-    await asyncio.sleep(random.uniform(2, 4))
-    # final
-    signal = random.choice(["↗️", "↘️"])
-    final_text = f"{signal} {pair} for {expiry}"
-    if msg_id:
+        # Send the first analysis message
+        resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+        message_id = resp.json().get("result", {}).get("message_id")
+
+    # Show each analysis step with a short delay
+    for step in analysis_steps[1:]:
+        await asyncio.sleep(random.uniform(1.5, 2.5))
         async with httpx.AsyncClient() as client:
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
-                "message_id": msg_id,
-                "text": final_text
+                "message_id": message_id,
+                "text": step
             })
-    else:
-        async with httpx.AsyncClient() as client:
-            await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": final_text})
+
+    # Simulate final signal
+    await asyncio.sleep(random.uniform(1.5, 2.5))
+    signal = random.choice(["🔺", "🔻"])
+    final_text = f"{signal} {pair} expiring in {expiry}"
+    async with httpx.AsyncClient() as client:
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": final_text
+        })
+
 
 @app.post("/webhook")
 async def webhook(request: Request):
