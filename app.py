@@ -68,8 +68,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
         message_id = resp.json().get("result", {}).get("message_id")
 
-
-     async def show_typing():
+    async def show_typing():
         try:
             while True:
                 async with httpx.AsyncClient() as client:
@@ -77,6 +76,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
                 await asyncio.sleep(2)
         except asyncio.CancelledError:
             pass
+
     typing_task = asyncio.create_task(show_typing())
 
     # Show each analysis step with a short delay
@@ -88,19 +88,20 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
                 "message_id": message_id,
                 "text": step
             })
-            
+
     typing_task.cancel()
 
     # Simulate final signal
     await asyncio.sleep(random.uniform(.5, 1.5))
     signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
-    final_text = f"{signal} {pair} {expiry}"
+    final_text = f"Pair {pair} expiring in {expiry}: {signal}"
     async with httpx.AsyncClient() as client:
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
             "text": final_text
         })
+
 
 
 @app.post("/webhook")
