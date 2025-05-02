@@ -2,9 +2,8 @@ from fastapi import FastAPI, Request
 import httpx
 import os
 import random
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 app = FastAPI()
 
@@ -31,13 +30,13 @@ def get_random_signal():
     return random.choice(["UP", "DOWN"])
 
 # Command to send OTC pairs with inline buttons
-async def send_otc_buttons(update: Update, context):
+async def send_otc_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     message = "Please select an OTC pair:"
     await update.message.reply_text(message, reply_markup=get_otc_keyboard())
 
 # Callback handler for the selected OTC pair
-async def handle_otc_callback(update: Update, context):
+async def handle_otc_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     selected_pair = query.data  # Pair selected by the user
     random_signal = get_random_signal()
@@ -46,33 +45,24 @@ async def handle_otc_callback(update: Update, context):
     await query.answer()
     await query.edit_message_text(f"The signal for {selected_pair} is: {random_signal}")
 
-# Initialize the Updater and Dispatcher
-updater = Updater(BOT_TOKEN, use_context=True)
-dp = updater.dispatcher
+# Initialize the Application (Updated for v20+)
+application = Application.builder().token(BOT_TOKEN).build()
 
 # Add handlers for /start and callback queries
-dp.add_handler(CommandHandler("start", send_otc_buttons))
-dp.add_handler(CallbackQueryHandler(handle_otc_callback))
+application.add_handler(CommandHandler("start", send_otc_buttons))
+application.add_handler(CallbackQueryHandler(handle_otc_callback))
 
 @app.post("/webhook")
 async def handle_webhook(req: Request):
     data = await req.json()
-    if 'message' in data:
-        chat_id = data['message']['chat']['id']
-        text = data['message'].get('text', '')
-        # Send the message using the Telegram API (this is just a fallback)
-        async with httpx.AsyncClient() as client:
-            await client.post(TELEGRAM_API, json={
-                "chat_id": chat_id,
-                "text": f"You said: {text}"
-            })
+    update = Update.de_json(data, application.bot)
+    
+    # Process the update using the application
+    application.process_update(update)
+    
     return {"ok": True}
 
 @app.get("/")
 async def home():
     return {"status": "Bot running!"}
 
-if __name__ == "__main__":
-    # Start polling for updates (used for testing locally, will not be used on Render)
-    updater.start_polling()
-    updater.idle()
