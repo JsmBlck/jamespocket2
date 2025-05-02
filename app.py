@@ -1,24 +1,36 @@
-from flask import Flask, request
-import requests
+from fastapi import FastAPI, Request
 import os
+import httpx
+from dotenv import load_dotenv
 
-app = Flask(__name__)
+load_dotenv()  # Load environment variables from .env if present
+
+app = FastAPI()
+
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_API = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
+TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    data = request.json
+@app.post("/webhook")
+async def webhook(request: Request):
+    data = await request.json()
+
     if 'message' in data:
         chat_id = data['message']['chat']['id']
         text = data['message'].get('text', '')
-        requests.post(TELEGRAM_API, json={"chat_id": chat_id, "text": f"You said: {text}"})
-    return 'ok'
 
-@app.route('/')
+        async with httpx.AsyncClient() as client:
+            await client.post(TELEGRAM_API, json={
+                "chat_id": chat_id,
+                "text": f"You said: {text}"
+            })
+
+    return {"ok": True}
+
+@app.get("/")
 def home():
-    return 'Bot running!'
+    return {"message": "Bot is running"}
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import uvicorn
     port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
