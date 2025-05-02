@@ -28,9 +28,9 @@ otc_pairs = [
 
 # Expiry options
 expiry_options = [
-    "5s",
-    "10s",
-    "15s"
+    "⏱️ 5s",
+    "⏱️ 10s",
+    "⏱️ 15s"
 ]
 
 # Lifespan for self-ping
@@ -60,7 +60,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     async with httpx.AsyncClient() as client:
         resp = await client.post(SEND_MESSAGE, json={
             "chat_id": chat_id,
-            "text": f"🔎 Analyzing {pair} for expiry {expiry}..."
+            "text": f"🔎 Analyzing {pair} for {expiry} time..."
         })
         msg_id = resp.json().get("result", {}).get("message_id")
     # typing
@@ -68,8 +68,8 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         await client.post(SEND_CHAT_ACTION, json={"chat_id": chat_id, "action": "typing"})
     await asyncio.sleep(random.uniform(2, 4))
     # final
-    signal = random.choice(["🔺", "🔻"])
-    final_text = f"{signal} {pair} expiring in {expiry}"
+    signal = random.choice(["↗️", "↘️"])
+    final_text = f"{signal} {pair} for {expiry}"
     if msg_id:
         async with httpx.AsyncClient() as client:
             await client.post(EDIT_MESSAGE, json={
@@ -107,7 +107,7 @@ async def webhook(request: Request):
             inline_kb = [[{"text": exp, "callback_data": f"expiry|{text}|{exp}"}] for exp in expiry_options]
             payload = {
                 "chat_id": chat_id,
-                "text": f"Pair {text} selected. Choose expiry:",
+                "text": f"{text} selected. Choose Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             async with httpx.AsyncClient() as client:
