@@ -28,9 +28,9 @@ otc_pairs = [
 
 # Expiry options
 expiry_options = [
-    "⏱️ 5s",
-    "⏱️ 10s",
-    "⏱️ 15s"
+    "5s",
+    "10s",
+    "15s"
 ]
 
 # Lifespan for self-ping
