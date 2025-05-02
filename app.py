@@ -14,10 +14,9 @@ TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 @app.post("/webhook")
 async def webhook(request: Request):
     data = await request.json()
-
-    if 'message' in data:
+    if 'message' in data and 'text' in data['message']:
         chat_id = data['message']['chat']['id']
-        text = data['message'].get('text', '')
+        text = data['message']['text']
 
         async def send_reply():
             async with httpx.AsyncClient() as client:
@@ -26,14 +25,15 @@ async def webhook(request: Request):
                     "text": f"You said: {text}"
                 })
 
-        # Fire-and-forget (don’t wait for the response)
+        # fire-and-forget reply
         asyncio.create_task(send_reply())
 
+    # immediately acknowledge to Telegram
     return {"ok": True}
 
-@app.get("/")
-def home():
-    return {"message": "Bot is running"}
+@app.api_route("/", methods=["GET", "HEAD"])
+async def healthcheck(request: Request):
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn
