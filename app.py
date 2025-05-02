@@ -30,7 +30,8 @@ otc_pairs = [
 expiry_options = [
     "5s",
     "10s",
-    "15s"
+    "15s",
+    "30s"
 ]
 
 # Lifespan for self-ping
@@ -111,7 +112,12 @@ async def webhook(request: Request):
         # user selected a pair from keyboard
         if text in otc_pairs:
             # send expiry options as inline buttons
-            inline_kb = [[{"text": exp, "callback_data": f"expiry|{text}|{exp}"}] for exp in expiry_options]
+            inline_kb = [
+    [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"},
+     {"text": expiry_options[i+1], "callback_data": f"expiry|{text}|{expiry_options[i+1]}"}]
+    for i in range(0, len(expiry_options), 2)
+]
+
             payload = {
                 "chat_id": chat_id,
                 "text": f"{text} selected. Choose Time:",
