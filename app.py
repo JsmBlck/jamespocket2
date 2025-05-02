@@ -1,79 +1,24 @@
-from fastapi import FastAPI, Request
-import httpx
-import os
-import uvicorn
-import random
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from flask import Flask, request
+import requests
+import os  # ← THIS was missing
 
-app = FastAPI()
+app = Flask(__name__)
+BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_API = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
 
-# List of OTC pairs
-otc_pairs = [
-    "AED/CNY OTC", 
-    "AUD/CAD OTC",   
-    "BHD/CNY OTC",  
-    "EUR/USD OTC",
-    "GBP/USD OTC",
-    "NZD/USD OTC"
-]
+@app.route('/webhook', methods=['POST'])
+async def webhook():
+    data = request.json
+    if 'message' in data:
+        chat_id = data['message']['chat']['id']
+        text = data['message'].get('text', '')
+        requests.post(TELEGRAM_API, json={"chat_id": chat_id, "text": f"You said: {text}"})
+    return 'ok'
 
-BOT_TOKEN = "7825687335:AAEYhy1h9hujIGqBuS_fAmFYbywRRKoDlGE"
-TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+@app.route('/')
+def home():
+    return 'Bot running!'
 
-# Inline Keyboard Button for OTC Pairs
-def get_otc_keyboard():
-    keyboard = [[InlineKeyboardButton(pair, callback_data=pair)] for pair in otc_pairs]
-    return InlineKeyboardMarkup(keyboard)
-
-# Random signal generator (Up/Down)
-def get_random_signal():
-    return random.choice(["UP", "DOWN"])
-
-# Command to send OTC pairs with inline buttons
-async def send_otc_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat_id
-    message = "Please select an OTC pair:"
-    await update.message.reply_text(message, reply_markup=get_otc_keyboard())
-# Command handler for '/start'
-
-
-# Callback handler for the selected OTC pair
-async def handle_otc_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    selected_pair = query.data  # Pair selected by the user
-    random_signal = get_random_signal()
-    
-    # Send the random signal to the user
-    await query.answer()
-    await query.edit_message_text(f"The signal for {selected_pair} is: {random_signal}")
-
-# Initialize the Application (Updated for v20+)
-application = Application.builder().token(BOT_TOKEN).build()
-
-# Add handlers for /start and callback queries
-application.add_handler(CommandHandler("start", send_otc_buttons))
-application.add_handler(CallbackQueryHandler(handle_otc_callback))
-
-@app.post("/webhook")
-async def handle_webhook(req: Request):
-    data = await req.json()  # Get the data from Telegram
-    update = Update.de_json(data, application.bot)  # Convert the data to a Telegram update object
-    
-    # Process the update using the application
-    await application.process_update(update)  # Await the processing of the update
-    
-    return {"ok": True}  # Return success to Telegram
-
-
-
-# This is optional, if you don't need the `/` endpoint
-@app.get("/")
-async def home():
-    return {"status": "Bot is ready and running!"}
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Use environment variable PORT
-    uvicorn.run(app, host="0.0.0.0", port=port)  # Bind to all addresses
-
-
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
