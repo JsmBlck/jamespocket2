@@ -13,6 +13,7 @@ API_BASE = f"https://api.telegram.org/bot{BOT_TOKEN}"
 SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
+DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
 # List of OTC pairs
@@ -27,9 +28,10 @@ otc_pairs = [
 
 # Expiry options
 expiry_options = [
-    "5s",
-    "10s",
-    "15s"
+    "30s",
+    "1m",
+    "5m",
+    "15m"
 ]
 
 # Lifespan for self-ping
@@ -124,10 +126,12 @@ async def webhook(request: Request):
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
+        message_id = cq["message"]["message_id"]
         cq_id = cq.get("id")
         # answer callback to remove spinner
         async with httpx.AsyncClient() as client:
             await client.post(f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
+            await client.post(DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
         _, pair, expiry = data_str.split("|", 2)
         asyncio.create_task(simulate_analysis(chat_id, pair, expiry))
         return {"ok": True}
