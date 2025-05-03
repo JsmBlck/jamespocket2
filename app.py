@@ -246,7 +246,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /removemember
         if text.startswith("/removemember"):
             if user_id not in ADMIN_IDS:
-                await log_to_channel(user, "❌ Unauthorized /start access attempt")
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
@@ -314,10 +313,21 @@ async def log_to_channel(user: dict, action: str):
     last_name = user.get("last_name", "")
     full_name = f"{first_name} {last_name}".strip()
 
+    try:
+        all_ids = sheet.col_values(1)  # Assuming Telegram ID is in column A
+        if user_id in all_ids:
+            row_index = all_ids.index(user_id) + 1
+            pocket_option_id = sheet.cell(row_index, 4).value  # Column D = PO ID
+        else:
+            pocket_option_id = "Not Found"
+    except Exception as e:
+        pocket_option_id = "Error"
+    
     text = f"""📋 *User Log*
 👤 Name: {full_name}
 🔗 Username: @{username if username != "N/A" else "Not Available"}
-🆔 ID: `{user_id}`
+🆔 Telegram ID: `{user_id}`
+💳 Pocket Option ID: `{pocket_option_id}`
 📝 Action: {action}
 """
     payload = {
