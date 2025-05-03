@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 from oauth2client.service_account import ServiceAccountCredentials
+from typing import Dict
 load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
@@ -243,13 +244,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /removemember
         if text.startswith("/removemember"):
             if user_id not in ADMIN_IDS:
+                await log_to_channel(user, "❌ Unauthorized /start access attempt")
                 payload = {
                     "chat_id": chat_id,
-                    "text": "❌ You are not authorized to use this command."
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
                 }
-                await client.post(SEND_MESSAGE, json=payload)
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
             parts = text.strip().split()
             if len(parts) < 2:
                 payload = {
@@ -303,6 +304,28 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
     return {"ok": True}
 
+
+async def log_to_channel(user: dict, action: str):
+    user_id = user.get("id")
+    username = user.get("username", "N/A")
+    first_name = user.get("first_name", "")
+    last_name = user.get("last_name", "")
+    full_name = f"{first_name} {last_name}".strip()
+
+    text = f"""📋 *User Log*
+👤 Name: {full_name}
+🔗 Username: @{username if username != "N/A" else "Not Available"}
+🆔 ID: `{user_id}`
+📝 Action: {action}
+"""
+    payload = {
+        "chat_id": LOG_CHANNEL_ID,
+        "text": text,
+        "parse_mode": "Markdown"
+    }
+    await client.post(SEND_MESSAGE, json=payload)
+
+    
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
