@@ -42,16 +42,16 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n🔎 Analyzing.",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n🔎 Analyzing...",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📈 Calculating signal...",
-        f"📊 Calculated for {pair} in {expiry} 💯"
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing.",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing...",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal...",
+        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."
     ]
 
     # Send the first analysis message and get the message_id directly
@@ -96,7 +96,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 for row in range(0, len(expiry_options), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": f"🤖 {text} ✅\n\n⌛ Select Time:",
+                "text": f"🤖 {text} ☑️\n\n⌛ Select Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
