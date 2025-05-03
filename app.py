@@ -167,7 +167,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            await log_to_channel(user, f"📌 Selected OTC Pair: {text}")
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(row, row + 3)]
@@ -179,6 +178,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            await log_to_channel(user, f"📌 Selected OTC Pair: {text}")
             return {"ok": True}
 
         # Handle /addmember
