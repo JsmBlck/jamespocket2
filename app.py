@@ -141,13 +141,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /start
         if text == "/start":
             if user_id not in AUTHORIZED_USERS:
+                await log_to_channel(user, "❌ Unauthorized /start access attempt")
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
+            await log_to_channel(user, "✅ Started the bot")
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -160,14 +161,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle OTC Pair Selection
         if text in otc_pairs:
             if user_id not in AUTHORIZED_USERS:
-                await log_to_channel(user, "❌ Unauthorized /start access attempt")
+                await log_to_channel(user, f"❌ Tried to select pair: {text} without access")
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
+            await log_to_channel(user, f"📌 Selected OTC Pair: {text}")
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(row, row + 3)]
