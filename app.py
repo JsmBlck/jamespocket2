@@ -23,7 +23,7 @@ otc_pairs = [
     "🇪🇺🇺🇸 EUR/USD OTC", "🇬🇧🇺🇸 GBP/USD OTC", "🇳🇿🇺🇸 NZD/USD OTC"
 ]
 
-expiry_options = ["5s", "10s", "15s", "30s"]
+expiry_options = ["S5", "S15", "S30", "M1"]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
