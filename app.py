@@ -15,8 +15,8 @@ DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 client = None  # Global httpx client
 otc_pairs = [
-    "🇦🇪🇨🇳 AED/CNY OTC", "🇦🇺🇨🇦 AUD/CAD OTC", "🇧🇭🇨🇳 BHD/CNY OTC",
-    "🇪🇺🇺🇸 EUR/USD OTC", "🇬🇧🇺🇸 GBP/USD OTC", "🇳🇿🇺🇸 NZD/USD OTC"
+    "🇦🇪🇨🇳 AED/CNY OTC", "🇦🇺🇨🇦 AUD/CAD OTC", "🇧🇭🇨🇳 BHD/CNY OTC", "🇪🇺🇺🇸 EUR/USD OTC", "🇬🇧🇺🇸 GBP/USD OTC", "🇦🇺🇳🇿 AUD/NZD OTC",
+    "🇳🇿🇺🇸 NZD/USD OTC", "🇪🇺🇯🇵 EUR/JPY OTC", "🇨🇦🇯🇵 CAD/JPY OTC", "🇦🇺🇺🇸 AUD/USD OTC",  "🇦🇺🇨🇭 AUD/CHF OTC", "🇬🇧🇦🇺 GBP/AUD OTC"
 ]
 expiry_options = ["S5", "S15", "S30", "M1", "M2", "M5"]
 @asynccontextmanager
@@ -81,7 +81,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         if text == "/start":
-            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
                 "text": "Select an OTC pair:",
