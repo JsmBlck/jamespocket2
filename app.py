@@ -3,7 +3,7 @@ import httpx
 import asyncio
 import random
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 
 load_dotenv()
@@ -63,20 +63,19 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         "📈 Calculating signal..."
     ]
 
-    message_id = None
+    # Send the first analysis message and get the message_id directly
     resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
     message_id = resp.json().get("result", {}).get("message_id")
 
+    # Show each analysis step with a minimal delay
     for step in analysis_steps[1:]:
-        await asyncio.sleep(0.07)  # Fast delay for responsiveness
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
             "text": step
         })
-
     # Simulate final signal
-    await asyncio.sleep(0.3)  # Reduced delay to improve speed
+    await asyncio.sleep(0.3)  # Reduced delay
     signal = random.choice(["↗️", "↘️"])
     final_text = f"{signal}"
     await client.post(EDIT_MESSAGE, json={
@@ -86,7 +85,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     })
 
 @app.post("/webhook")
-async def webhook(request: Request):
+async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
 
     if msg := data.get("message"):
@@ -100,7 +99,8 @@ async def webhook(request: Request):
                 "text": "Select an OTC pair:",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
-            await client.post(SEND_MESSAGE, json=payload)
+            # Instant response
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
         if text in otc_pairs:
@@ -114,10 +114,10 @@ async def webhook(request: Request):
                 "text": f"{text} selected. Choose Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
-            await client.post(SEND_MESSAGE, json=payload)
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        asyncio.create_task(client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": f"You said: {text}"}))
+        background_tasks.add_task(client.post, SEND_MESSAGE, json={"chat_id": chat_id, "text": f"You said: {text}"})
         return {"ok": True}
 
     if cq := data.get("callback_query"):
@@ -126,11 +126,12 @@ async def webhook(request: Request):
         message_id = cq["message"]["message_id"]
         cq_id = cq.get("id")
 
-        await client.post(f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
-        await client.post(DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
+        background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
+        background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
 
         _, pair, expiry = data_str.split("|", 2)
-        asyncio.create_task(simulate_analysis(chat_id, pair, expiry))
+        # Start analysis in the background
+        background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
 
     return {"ok": True}
