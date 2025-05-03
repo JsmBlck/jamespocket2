@@ -2,6 +2,8 @@ import os
 import httpx
 import asyncio
 import random
+import json
+import gspread
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
