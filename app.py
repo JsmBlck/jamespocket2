@@ -18,7 +18,7 @@ otc_pairs = [
     "🇦🇪🇨🇳 AED/CNY OTC", "🇦🇺🇨🇦 AUD/CAD OTC", "🇧🇭🇨🇳 BHD/CNY OTC",
     "🇪🇺🇺🇸 EUR/USD OTC", "🇬🇧🇺🇸 GBP/USD OTC", "🇳🇿🇺🇸 NZD/USD OTC"
 ]
-expiry_options = ["S5", "S15", "S30", "M1"]
+expiry_options = ["S5", "S15", "S30", "M1", "M2", "M5"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
@@ -91,10 +91,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
         if text in otc_pairs:
             inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"},
-                 {"text": expiry_options[i+1], "callback_data": f"expiry|{text}|{expiry_options[i+1]}"}]
-                for i in range(0, len(expiry_options), 2)
-            ]
+    [{"text": expiry_options[i], "callback_data": f"expiry|{pair}|{expiry_options[i]}"} 
+     for i in range(row, row + 3)]
+    for row in range(0, len(expiry_options), 3)
+]
             payload = {
                 "chat_id": chat_id,
                 "text": f"{text} selected. \n\nChoose Time:",
