@@ -130,30 +130,43 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
+
     # --- HANDLE NORMAL TEXT MESSAGES ---
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
-        user_id = msg["from"]["id"]
+        user_id = user["id"]
+
         # Handle /start
         if text == "/start":
+            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            username = user.get("username") or "Not Available"
+
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                    "text": (
+                        f"👋 Hello *{full_name}*!\n\n"
+                        "🚫 You don't have access to use this bot yet.\n"
+                        "To get verified, please message my support 👉 @YourSupportUsername"
+                    ),
+                    "parse_mode": "Markdown"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                background_tasks.add_task(log_new_user, user)  # ✅ changed from asyncio.create_task
                 return {"ok": True}
-            
+
+            # Authorized user: show OTC pair keyboard
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "Select an OTC pair:",
+                "text": f"✅ Welcome back *{full_name}*!\n\nPlease select an OTC pair below:",
+                "parse_mode": "Markdown",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
+            return {"ok": True}  # ✅ fixed quote typo here
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
@@ -201,7 +214,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 pocket_option_id = parts[2]
                 AUTHORIZED_USERS.add(new_user_id)
 
-                # Try fetching username and first name
                 try:
                     resp = await client.get(f"{API_BASE}/getChat", params={"chat_id": new_user_id})
                     user_info = resp.json().get("result", {})
@@ -212,7 +224,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     username = "Unknown"
                     first_name = "Trader"
 
-                # Save to Google Sheet
                 user_ids = sheet.col_values(1)
                 user_id_str = str(new_user_id)
 
@@ -280,6 +291,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
             await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+    # --- HANDLE CALLBACKS ---
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -290,7 +303,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         _, pair, expiry = data_str.split("|", 2)
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
+
     return {"ok": True}
+
 
 
 
