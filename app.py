@@ -161,7 +161,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "chat_id": chat_id,
                     "text": "❌ Access Denied.\nYou are not authorized to use this bot."
                 }
-                client.post(SEND_MESSAGE, json=payload)
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
 
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
