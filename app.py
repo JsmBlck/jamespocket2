@@ -260,7 +260,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
             try:
                 remove_user_id = str(parts[1])
                 user_ids = sheet.col_values(1)
@@ -278,51 +277,40 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                         "chat_id": chat_id,
                         "text": "⚠️ User ID not found in the list."
                     }
-
             except ValueError:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ Invalid user ID. Please enter a valid number."
                 }
-
             await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
-
-    # --- HANDLE CALLBACK QUERIES ---
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
         message_id = cq["message"]["message_id"]
         cq_id = cq.get("id")
-
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-
         _, pair, expiry = data_str.split("|", 2)
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
-
         return {"ok": True}
-
     return {"ok": True}
 
 
 async def log_to_channel(user: dict, action: str):
-    user_id = user.get("id")
+    user_id = str(user.get("id"))
     username = user.get("username", "N/A")
     first_name = user.get("first_name", "")
     last_name = user.get("last_name", "")
     full_name = f"{first_name} {last_name}".strip()
-
+    pocket_option_id = "Not Found"
     try:
-        all_ids = sheet.col_values(1)  # Assuming Telegram ID is in column A
+        all_ids = sheet.col_values(1)  
         if user_id in all_ids:
             row_index = all_ids.index(user_id) + 1
-            pocket_option_id = sheet.cell(row_index, 4).value  # Column D = PO ID
-        else:
-            pocket_option_id = "Not Found"
+            pocket_option_id = sheet.cell(row_index, 4).value or "Missing"
     except Exception as e:
-        pocket_option_id = "Error"
-    
+        pocket_option_id = f"Error"
     text = f"""📋 *User Log*
 👤 Name: {full_name}
 🔗 Username: @{username if username != "N/A" else "Not Available"}
