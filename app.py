@@ -45,12 +45,15 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing.",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing...",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing....",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data....",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
         f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal...",
+        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal....",
         f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."
     ]
 
