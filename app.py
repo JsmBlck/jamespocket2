@@ -97,7 +97,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             ]
             payload = {
                 "chat_id": chat_id,
-                "text": f"{text} selected. Choose Time:",
+                "text": f"{text} selected. \n\nChoose Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
