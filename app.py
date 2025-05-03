@@ -147,9 +147,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        f"👋 Hello *{full_name}*!\n\n"
-                        "🚫 You don't have access to use this bot yet.\n"
-                        "To get verified, please message my support 👉 @YourSupportUsername"
+                        f"👋 Hello {full_name}! 👋 \n\n"
+                        "You don't have access to use this bot yet.\n"
+                        "To get verified, please message my support."
                     ),
                     "parse_mode": "Markdown"
                 }
