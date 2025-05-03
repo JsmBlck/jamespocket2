@@ -91,7 +91,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
         if text in otc_pairs:
             inline_kb = [
-    [{"text": expiry_options[i], "callback_data": f"expiry|{pair}|{expiry_options[i]}"} 
+    [{"text": expiry_options[i], "callback_data": f"expiry|{otc_pairs}|{expiry_options[i]}"} 
      for i in range(row, row + 3)]
     for row in range(0, len(expiry_options), 3)
 ]
