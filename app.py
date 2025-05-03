@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 from oauth2client.service_account import ServiceAccountCredentials
-from typing import Dict
 load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
@@ -59,11 +58,9 @@ def save_users():
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
     print("✅ Users saved successfully!")
 load_authorized_users()
-
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
-    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"
-]
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -127,17 +124,18 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         "text": final_text
     })
 
+
+
+
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-
     # --- HANDLE NORMAL TEXT MESSAGES ---
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = msg["from"]["id"]
-
         # Handle /start
         if text == "/start":
             if user_id not in AUTHORIZED_USERS:
@@ -155,7 +153,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            await log_to_channel(user, "✅ Started the bot")
             return {"ok": True}
 
         # Handle OTC Pair Selection
@@ -178,7 +175,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            await log_to_channel(user, f"📌 Selected OTC Pair: {text}")
             return {"ok": True}
 
         # Handle /addmember
@@ -297,35 +293,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     return {"ok": True}
 
 
-async def log_to_channel(user: dict, action: str):
-    user_id = str(user.get("id"))
-    username = user.get("username", "N/A")
-    first_name = user.get("first_name", "")
-    last_name = user.get("last_name", "")
-    full_name = f"{first_name} {last_name}".strip()
-    pocket_option_id = "Not Found"
-    try:
-        all_ids = sheet.col_values(1)  
-        if user_id in all_ids:
-            row_index = all_ids.index(user_id) + 1
-            pocket_option_id = sheet.cell(row_index, 4).value or "Missing"
-    except Exception as e:
-        pocket_option_id = f"Error"
-    text = f"""📋 *User Log*
-👤 Name: {full_name}
-🔗 Username: @{username if username != "N/A" else "Not Available"}
-🆔 Telegram ID: `{user_id}`
-💳 Pocket Option ID: `{pocket_option_id}`
-📝 Action: {action}
-"""
-    payload = {
-        "chat_id": LOG_CHANNEL_ID,
-        "text": text,
-        "parse_mode": "Markdown"
-    }
-    await client.post(SEND_MESSAGE, json=payload)
 
-    
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
