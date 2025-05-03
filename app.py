@@ -161,7 +161,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": f"✅ Welcome back *{full_name}*!\n\nPlease select an OTC pair below:",
+               "text": (
+    f"✅ Welcome *{full_name}*!\n\n"
+    "⚠️ Trading involves risk. Only trade with funds you can afford to lose.\n"
+    "Proceed wisely and select an OTC pair below:"),
                 "parse_mode": "Markdown",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
@@ -319,7 +322,7 @@ async def log_new_user(user):
     )
 
     payload = {
-        "chat_id": LOG_CHANNEL_ID,  # replace with your log channel ID (e.g. -100xxxxxxxxxx)
+        "chat_id": -1002540584976,  # replace with your log channel ID (e.g. -100xxxxxxxxxx)
         "text": log_text,
         "parse_mode": "Markdown"
     }
