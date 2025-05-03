@@ -140,7 +140,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         # Handle /start
         if text == "/start":
-            await log_to_channel(user, "✅ Started the bot")
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
@@ -156,6 +155,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            await log_to_channel(user, "✅ Started the bot")
             return {"ok": True}
 
         # Handle OTC Pair Selection
