@@ -42,15 +42,15 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🔎 {pair} selected\nTime: {expiry}\nAnalyzing.",
-        f"🔎 {pair} selected\nTime: {expiry}\nAnalyzing..",
-        f"🔎 {pair} selected\nTime: {expiry}\nAnalyzing...",
-        f"📊 {pair} selected\nTime: {expiry}\nGathering data.",
-        f"📊 {pair} selected\nTime: {expiry}\nGathering data..",
-        f"📊 {pair} selected\nTime: {expiry}\nGathering data...",
-        f"📈 {pair} selected\nTime: {expiry}\nCalculating signal.",
-        f"📈 {pair} selected\nTime: {expiry}\nCalculating signal..",
-        f"📈 {pair} selected\nTime: {expiry}\nCalculating signal..."
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n🔎  Analyzing.",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n🔎  Analyzing..",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n🔎  Analyzing...",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
+        f"🤖 {pair} selected ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..."
     ]
 
     # Send the first analysis message and get the message_id directly
