@@ -129,11 +129,14 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
+
+    # --- HANDLE NORMAL TEXT MESSAGES ---
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
-        user_id = msg["from"]["id"]  # Add this line
+        user_id = msg["from"]["id"]
 
+        # Handle /start
         if text == "/start":
             if user_id not in AUTHORIZED_USERS:
                 payload = {
@@ -152,6 +155,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        # Handle OTC Pair Selection
         if text in otc_pairs:
             if user_id not in AUTHORIZED_USERS:
                 payload = {
@@ -174,6 +178,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        # Handle /addmember
         if text.startswith("/addmember"):
             parts = text.strip().split()
             if len(parts) < 3:
@@ -184,7 +189,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
 
-            if chat_id not in ADMIN_IDS:
+            if user_id not in ADMIN_IDS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "❌ You are not authorized to use this command."
@@ -197,7 +202,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 pocket_option_id = parts[2]
                 AUTHORIZED_USERS.add(new_user_id)
 
-                # Fetch user info
+                # Try fetching username and first name
                 try:
                     resp = await client.get(f"{API_BASE}/getChat", params={"chat_id": new_user_id})
                     user_info = resp.json().get("result", {})
@@ -208,7 +213,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     username = "Unknown"
                     first_name = "Trader"
 
-                # Update Google Sheets
+                # Save to Google Sheet
                 user_ids = sheet.col_values(1)
                 user_id_str = str(new_user_id)
 
@@ -235,6 +240,53 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
             return {"ok": True}
 
+        # Handle /removemember
+        if text.startswith("/removemember"):
+            if user_id not in ADMIN_IDS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "❌ You are not authorized to use this command."
+                }
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+
+            parts = text.strip().split()
+            if len(parts) < 2:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ Usage: /removemember <user_id>"
+                }
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+
+            try:
+                remove_user_id = str(parts[1])
+                user_ids = sheet.col_values(1)
+
+                if remove_user_id in user_ids:
+                    row = user_ids.index(remove_user_id) + 1
+                    sheet.delete_rows(row)
+                    AUTHORIZED_USERS.discard(int(remove_user_id))
+                    payload = {
+                        "chat_id": chat_id,
+                        "text": f"✅ User {remove_user_id} has been removed successfully."
+                    }
+                else:
+                    payload = {
+                        "chat_id": chat_id,
+                        "text": "⚠️ User ID not found in the list."
+                    }
+
+            except ValueError:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ Invalid user ID. Please enter a valid number."
+                }
+
+            await client.post(SEND_MESSAGE, json=payload)
+            return {"ok": True}
+
+    # --- HANDLE CALLBACK QUERIES ---
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -243,24 +295,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
+
         _, pair, expiry = data_str.split("|", 2)
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
-        return {"ok": True}
 
-    return {"ok": True}
-
-    
-
-    if cq := data.get("callback_query"):
-        data_str = cq.get("data", "")
-        chat_id = cq["message"]["chat"]["id"]
-        message_id = cq["message"]["message_id"]
-        cq_id = cq.get("id")
-
-        background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
-        background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-        _, pair, expiry = data_str.split("|", 2)
-        background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
 
     return {"ok": True}
