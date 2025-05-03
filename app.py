@@ -42,15 +42,15 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        "🔎 Analyzing.",
-        "🔎 Analyzing..",
-        "🔎 Analyzing...",
-        "📊 Gathering data.",
-        "📊 Gathering data..",
-        "📊 Gathering data...",
-        "📈 Calculating signal.",
-        "📈 Calculating signal..",
-        "📈 Calculating signal..."
+        f"🔎 {pair} Selected\nAnalyzing.",
+        f"🔎 {pair} Selected\nAnalyzing..",
+        f"🔎 {pair} Selected\nAnalyzing...",
+        f"📊 {pair} Selected\nGathering data.",
+        f"📊 {pair} Selected\nGathering data..",
+        f"📊 {pair} Selected\nGathering data...",
+        f"📈 {pair} Selected\nCalculating signal.",
+        f"📈 {pair} Selected\nCalculating signal..",
+        f"📈 {pair} Selected\nCalculating signal..."
     ]
 
     # Send the first analysis message and get the message_id directly
@@ -95,7 +95,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 for row in range(0, len(expiry_options), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": f"{text} selected. \n\nChoose Time:",
+                "text": f"{text} selected. \n\nSelect Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
