@@ -306,7 +306,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
     return {"ok": True}
 
-async def log_new_user_to_channel(user):
+async def log_new_user(user):
     full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
     username = user.get("username", "Not Available")
     user_id = user.get("id")
