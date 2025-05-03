@@ -319,7 +319,7 @@ async def log_new_user_to_channel(user):
     )
 
     payload = {
-        "chat_id": YOUR_LOG_CHANNEL_ID,  # replace with your log channel ID (e.g. -100xxxxxxxxxx)
+        "chat_id": LOG_CHANNEL_ID,  # replace with your log channel ID (e.g. -100xxxxxxxxxx)
         "text": log_text,
         "parse_mode": "Markdown"
     }
