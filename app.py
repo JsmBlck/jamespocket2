@@ -42,15 +42,15 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🔎 {pair} Selected\nAnalyzing.",
-        f"🔎 {pair} Selected\nAnalyzing..",
-        f"🔎 {pair} Selected\nAnalyzing...",
-        f"📊 {pair} Selected\nGathering data.",
-        f"📊 {pair} Selected\nGathering data..",
-        f"📊 {pair} Selected\nGathering data...",
-        f"📈 {pair} Selected\nCalculating signal.",
-        f"📈 {pair} Selected\nCalculating signal..",
-        f"📈 {pair} Selected\nCalculating signal..."
+        f"🔎 {pair} selected\nTime: {expiry}\nAnalyzing.",
+        f"🔎 {pair} selected\nTime: {expiry}\nAnalyzing..",
+        f"🔎 {pair} selected\nTime: {expiry}\nAnalyzing...",
+        f"📊 {pair} selected\nTime: {expiry}\nGathering data.",
+        f"📊 {pair} selected\nTime: {expiry}\nGathering data..",
+        f"📊 {pair} selected\nTime: {expiry}\nGathering data...",
+        f"📈 {pair} selected\nTime: {expiry}\nCalculating signal.",
+        f"📈 {pair} selected\nTime: {expiry}\nCalculating signal..",
+        f"📈 {pair} selected\nTime: {expiry}\nCalculating signal..."
     ]
 
     # Send the first analysis message and get the message_id directly
