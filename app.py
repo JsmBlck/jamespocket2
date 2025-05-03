@@ -306,6 +306,25 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
     return {"ok": True}
 
+async def log_new_user_to_channel(user):
+    full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+    username = user.get("username", "Not Available")
+    user_id = user.get("id")
+
+    log_text = (
+        f"📥 New /start\n\n"
+        f"👤 Name: {full_name}\n"
+        f"🔗 Username: @{username if username != 'Not Available' else 'N/A'}\n"
+        f"🆔 ID: `{user_id}`"
+    )
+
+    payload = {
+        "chat_id": YOUR_LOG_CHANNEL_ID,  # replace with your log channel ID (e.g. -100xxxxxxxxxx)
+        "text": log_text,
+        "parse_mode": "Markdown"
+    }
+
+    await client.post(SEND_MESSAGE, json=payload)
 
 
 
