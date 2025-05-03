@@ -141,11 +141,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /start
         if text == "/start":
             if user_id not in AUTHORIZED_USERS:
-                await log_to_channel(user, "❌ Unauthorized /start access attempt")
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
                 }
+                await log_to_channel(user, "❌ Unauthorized /start access attempt")
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             await log_to_channel(user, "✅ Started the bot")
