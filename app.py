@@ -135,6 +135,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
+        user = msg["from"]
         user_id = msg["from"]["id"]
 
         # Handle /start
