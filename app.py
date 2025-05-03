@@ -18,67 +18,46 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
-client = None  # Global httpx client
-# Google Sheets setup
+client = None
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet5")  # Us
+sheet = spreadsheet.worksheet("Sheet5")
 
 def load_authorized_users():
     global AUTHORIZED_USERS
-    AUTHORIZED_USERS = set()  # Reset the set
-
-    user_ids = sheet.col_values(1)  # Get all user IDs from column 1
-
-    print(f"Fetched user IDs from GSheet: {user_ids}")  # Debugging
-
-    for user_id in user_ids[1:]:  # Skip the first row (header)
-        if user_id.strip():  # Avoid empty cells
+    AUTHORIZED_USERS = set()
+    user_ids = sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {user_ids}")
+    for user_id in user_ids[1:]:
+        if user_id.strip():
             try:
-                AUTHORIZED_USERS.add(int(user_id))  # Convert to integer
+                AUTHORIZED_USERS.add(int(user_id))
             except ValueError:
-                print(f"Skipping invalid ID: {user_id}")  # Debugging for non-numeric values
-
-    print(f"Loaded authorized users: {AUTHORIZED_USERS}")  # Debugging
-
-# Save authorized users to Google Sheets		
+                print(f"Skipping invalid ID: {user_id}")
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
 def save_users():
-    """Save authorized users in Google Sheets without altering existing data."""
-    
-    # Get all user IDs currently stored in the sheet
-    user_ids = sheet.col_values(1)  # Column A (TG ID)
-
-    # Add headers if the sheet is empty
+    user_ids = sheet.col_values(1)
     if not user_ids:
         sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
-        user_ids = sheet.col_values(1)  # Refresh after adding headers
-
+        user_ids = sheet.col_values(1) 
     for user_id in AUTHORIZED_USERS:
         user_info = user_data.get(user_id, {})
         tg_username = user_info.get("username", "Unknown")
         tg_name = user_info.get("first_name", "Trader")
         pocket_option_id = user_info.get("pocket_option_id", "N/A")
-
-        user_id_str = str(user_id)  # Ensure ID matches the format in Sheets
-
+        user_id_str = str(user_id)
         if user_id_str in user_ids:
-            # Update existing row for the user
-            row_number = user_ids.index(user_id_str) + 1  # Find row number
-            sheet.update(f"B{row_number}", [[tg_username]])  # Update Username
-            sheet.update(f"C{row_number}", [[tg_name]])  # Update Name
-            sheet.update(f"D{row_number}", [[pocket_option_id]])  # Update PocketOption ID
+            row_number = user_ids.index(user_id_str) + 1  
+            sheet.update(f"B{row_number}", [[tg_username]])  
+            sheet.update(f"C{row_number}", [[tg_name]])
+            sheet.update(f"D{row_number}", [[pocket_option_id]])
         else:
-            # Append new user as a new row
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
-
     print("✅ Users saved successfully!")
-    
 load_authorized_users()
-
-
 
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
@@ -159,7 +138,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "❌ Access Denied.\nYou are not authorized to use this bot."
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -174,6 +153,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         if text in otc_pairs:
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(row, row + 3)]
