@@ -154,7 +154,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "parse_mode": "Markdown"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                background_tasks.add_task(log_new_user, user)  # ✅ changed from asyncio.create_task
+                background_tasks.add_task(log_new_user, user) 
                 return {"ok": True}
 
             # Authorized user: show OTC pair keyboard
@@ -187,7 +187,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             ]
             payload = {
                 "chat_id": chat_id,
-                "text": f"🤖 {text} ☑️\n\n⌛ Select Time:",
+                "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
