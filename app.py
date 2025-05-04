@@ -146,12 +146,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": (
                         f"👋 Hello {full_name}! 👋 \n\n"
                         "You don't have access to use this bot yet.\n"
-                        "To get verified:\n 👉 Join t.me/ZentraAiRegister and tap the pinned message to register."
+                        "To get verified:\nJoin t.me/ZentraAiRegister and tap the pinned message to register."
                     ),
                     "parse_mode": "Markdown"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                background_tasks.add_task(log_new_user, user) 
                 return {"ok": True}
 
             # Authorized user: show OTC pair keyboard
