@@ -291,7 +291,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Fallback for any other message
         payload = {
             "chat_id": chat_id,
-            "text": f"❓ Unknown command.\n\nIf you want to get access,\nJoin {tg_channel} and tap the pinned message to register."
+            "text": f"❓ Unknown command.\n\nTo get access:\n\nJoin {tg_channel} and tap the pinned message to register."
         }
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
