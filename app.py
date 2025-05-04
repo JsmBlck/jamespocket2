@@ -91,15 +91,12 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing...",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing....",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data....",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal....",
         f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."
     ]
 
@@ -162,14 +159,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                "text": (
-    f"✅ Welcome *{full_name}*!\n\n"
     "⚠️ Trading involves risk. Only trade with funds you can afford to lose.\n"
     "Proceed wisely and select an OTC pair below:"),
                 "parse_mode": "Markdown",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}  # ✅ fixed quote typo here
+            return {"ok": True}
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
