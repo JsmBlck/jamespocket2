@@ -146,7 +146,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": (
                         f"👋 Hello {full_name}! 👋 \n\n"
                         "You don't have access to use this bot yet.\n"
-                        "To get verified, please message my support."
+                        "To get verified:\n 👉 Join t.me/ZentraAiRegister and tap the pinned message to register."
                     ),
                     "parse_mode": "Markdown"
                 }
