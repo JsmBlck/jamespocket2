@@ -88,19 +88,19 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing.",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing...",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing....",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data....",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal....",
-        f"🤖 {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing...",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing....",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data..",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data....",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal...",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal....",
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."
     ]
 
     # Send the first analysis message and get the message_id directly
