@@ -25,7 +25,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet5")
-
+tg_channel = "t.me/ZentraAiRegister"
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -145,7 +145,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "chat_id": chat_id,
                     "text": (
                         "You don't have access to use this bot yet.\n\n"
-                        "To get verified:\n\nJoin t.me/ZentraAiRegister and tap the pinned message to register."
+                        f"To get verified:\n\nJoin {tg_channel} and tap the pinned message to register."
                     ),
                     "parse_mode": "Markdown"
                 }
@@ -288,6 +288,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
             await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
+        # Fallback for any other message
+        payload = {
+            "chat_id": chat_id,
+            "text": f"❓ Unknown command.\n\nIf you want to get access,\nJoin {tg_channel} and tap the pinned message to register."
+        }
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
 
     # --- HANDLE CALLBACKS ---
     if cq := data.get("callback_query"):
