@@ -129,40 +129,34 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /start
         if text == "/start":
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-            username = user.get("username") or "Not Available"
-
+            username = user.get("username")
+            username_display = f"@{username}" if username else "Not set"
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": (
                         "You don't have access to use this bot yet.\n\n"
-                        f"To get verified:\n\nJoin {tg_channel} and tap the pinned message to register."
-                    ),
-                    "parse_mode": "Markdown"
-                }
+                        f"To get verified:\n\nJoin {tg_channel} and tap the 📌 Pinned message to register."),
+                    "parse_mode": "Markdown"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 admin_payload = {
                 "chat_id": -1002294677733, 
                 "text": f"✅ User Started\n\n"
                         f"*Full Name:* {full_name}\n"
-                        f"*Username:* @{username}\n"
+                        f"*Username:* {username_display}\n"
                         f"*Telegram ID:* `{user_id}`",
                 "parse_mode": "Markdown"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
                 return {"ok": True}
-
-            # Authorized user: show OTC pair keyboard
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
                 "text": (
                     "⚠️ Not financial advice. Trading’s risky — play smart, play sharp.\n"
                     "If you’re here to win, let’s make it worth it.\n\n"
-                    "👇 Pick an OTC pair and let’s go get it:"
-                ),
+                    "👇 Pick an OTC pair and let’s go get it:"),
                 "parse_mode": "Markdown",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
