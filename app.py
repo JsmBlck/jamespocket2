@@ -118,14 +118,12 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-
     # --- HANDLE NORMAL TEXT MESSAGES ---
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-
         # Handle /start
         if text == "/start":
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
@@ -180,7 +178,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         # Handle /addmember
-        if text.startswith("/addmember"):
+        if text.startswith(("/addmember", "/add")):
             parts = text.strip().split()
             if len(parts) < 3:
                 payload = {
@@ -229,44 +227,38 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         # Handle /removemember
-        if text.startswith("/removemember"):
+        if text.startswith(("/removemember", "/remove")):
             if user_id not in ADMIN_IDS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
-                }
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             parts = text.strip().split()
             if len(parts) < 2:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ Usage: /removemember <user_id>"
-                }
+                    "text": "⚠️ Usage: /removemember <user_id>"}
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
             try:
                 remove_user_id = str(parts[1])
                 user_ids = sheet.col_values(1)
-
                 if remove_user_id in user_ids:
                     row = user_ids.index(remove_user_id) + 1
                     sheet.delete_rows(row)
                     AUTHORIZED_USERS.discard(int(remove_user_id))
                     payload = {
                         "chat_id": chat_id,
-                        "text": f"✅ User {remove_user_id} has been removed successfully."
-                    }
+                        "text": f"✅ User {remove_user_id} has been removed successfully."}
                 else:
                     payload = {
                         "chat_id": chat_id,
-                        "text": "⚠️ User ID not found in the list."
-                    }
+                        "text": "⚠️ User ID not found in the list."}
             except ValueError:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ Invalid user ID. Please enter a valid number."
-                }
+                    "text": "⚠️ Invalid user ID. Please enter a valid number."}
             await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
 
@@ -285,8 +277,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Fallback for any other message
         payload = {
             "chat_id": chat_id,
-            "text": f"Unknown command."
-        }
+            "text": f"Unknown command."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
@@ -301,30 +292,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         _, pair, expiry = data_str.split("|", 2)
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
-
     return {"ok": True}
-
-async def log_new_user(user):
-    full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-    username = user.get("username", "Not Available")
-    user_id = user.get("id")
-
-    log_text = (
-        f"📥 New /start\n\n"
-        f"👤 Name: {full_name}\n"
-        f"🔗 Username: @{username if username != 'Not Available' else 'N/A'}\n"
-        f"🆔 ID: `{user_id}`"
-    )
-
-    payload = {
-        "chat_id": -1002540584976,  # replace with your log channel ID (e.g. -100xxxxxxxxxx)
-        "text": log_text,
-        "parse_mode": "Markdown"
-    }
-
-    await client.post(SEND_MESSAGE, json=payload)
-
-
 
 if __name__ == "__main__":
     import uvicorn
