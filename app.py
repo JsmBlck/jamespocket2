@@ -186,7 +186,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": "⚠️ Usage: /addmember <user_id> <pocket_option_id>"}
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
             if user_id not in ADMIN_IDS:
                 payload = {
                     "chat_id": chat_id,
@@ -260,18 +259,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "chat_id": chat_id,
                     "text": "⚠️ Invalid user ID. Please enter a valid number."}
             await client.post(SEND_MESSAGE, json=payload)
-            return {"ok": True}
-
-        if text.startswith("/accessid"):
-            user = data["message"]["from"]
-            user_id = user["id"]
-            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-            username = f"@{user['username']}" if user.get("username") else "(no username)"
-            user_payload = {
-                "chat_id": chat_id,
-                "text": f"👤 Your Telegram ID is:\n`{user_id}`",
-                "parse_mode": "Markdown"}
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=user_payload)
             return {"ok": True}
         
         # Fallback for any other message
