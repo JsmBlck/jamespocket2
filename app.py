@@ -150,6 +150,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "parse_mode": "Markdown"
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                admin_payload = {
+                "chat_id": -1002294677733,  # 🔁 Replace with your real Telegram ID
+                "text": f"📥 User Started\n\n"
+                        f"*Full Name:* {full_name}\n"
+                        f"*Username:* {username}\n"
+                        f"*Telegram ID:* `{user_id}`",
+                "parse_mode": "Markdown"}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
                 return {"ok": True}
 
             # Authorized user: show OTC pair keyboard
@@ -302,16 +310,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": f"👤 Your Telegram ID is:\n`{user_id}`",
                 "parse_mode": "Markdown"}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=user_payload)
-            admin_payload = {
-                "chat_id": -1002294677733,  # 🔁 Replace with your real Telegram ID
-                "text": f"📥 New /accessid request:\n\n"
-                        f"*Full Name:* {full_name}\n"
-                        f"*Username:* {username}\n"
-                        f"*Telegram ID:* `{user_id}`",
-                "parse_mode": "Markdown"}
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
             return {"ok": True}
-
         
         # Fallback for any other message
         payload = {
