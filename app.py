@@ -152,7 +152,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "⚠️ Not financial advice. Trading’s risky — play smart, play sharp.\n"
+                    "⚠️ Not financial advice. ⚠️ \n\nTrading is risky - play smart, play sharp.\n"
                     "If you’re here to win, let’s make it worth it.\n\n"
                     "👇 Pick an OTC pair and let’s go get it:"),
                 "parse_mode": "Markdown",
@@ -160,26 +160,22 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-
         # Handle OTC Pair Selection
         if text in otc_pairs:
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
-                }
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(row, row + 3)]
-                for row in range(0, len(expiry_options), 3)
-            ]
+                for row in range(0, len(expiry_options), 3)]
             payload = {
                 "chat_id": chat_id,
                 "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
-                "reply_markup": {"inline_keyboard": inline_kb}
-            }
+                "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
@@ -189,24 +185,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if len(parts) < 3:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ Usage: /addmember <user_id> <pocket_option_id>"
-                }
+                    "text": "⚠️ Usage: /addmember <user_id> <pocket_option_id>"}
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
 
             if user_id not in ADMIN_IDS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "❌ You are not authorized to use this command."
-                }
+                    "text": "❌ You are not authorized to use this command."}
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
             try:
                 new_user_id = int(parts[1])
                 pocket_option_id = parts[2]
                 AUTHORIZED_USERS.add(new_user_id)
-
                 try:
                     resp = await client.get(f"{API_BASE}/getChat", params={"chat_id": new_user_id})
                     user_info = resp.json().get("result", {})
@@ -216,10 +208,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     print(f"⚠️ Failed to fetch user info: {e}")
                     username = "Unknown"
                     first_name = "Trader"
-
                 user_ids = sheet.col_values(1)
                 user_id_str = str(new_user_id)
-
                 if user_id_str in user_ids:
                     row_number = user_ids.index(user_id_str) + 1
                     sheet.update(f"B{row_number}", [[username]])
@@ -227,20 +217,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     sheet.update(f"D{row_number}", [[pocket_option_id]])
                 else:
                     sheet.append_row([new_user_id, username, first_name, pocket_option_id])
-
                 payload = {
                     "chat_id": chat_id,
-                    "text": f"✅ User {new_user_id} added with Pocket Option ID: {pocket_option_id}"
-                }
+                    "text": f"✅ User {new_user_id} added with Pocket Option ID: {pocket_option_id}"}
                 await client.post(SEND_MESSAGE, json=payload)
-
             except ValueError:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ Invalid user ID. Please enter a valid number."
-                }
+                    "text": "⚠️ Invalid user ID. Please enter a valid number."}
                 await client.post(SEND_MESSAGE, json=payload)
-
             return {"ok": True}
 
         # Handle /removemember
