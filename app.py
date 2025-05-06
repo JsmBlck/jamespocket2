@@ -142,8 +142,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 admin_payload = {
-                "chat_id": -1002294677733,  # 🔁 Replace with your real Telegram ID
-                "text": f"📥 User Started\n\n"
+                "chat_id": -1002294677733, 
+                "text": f"✅ User Started\n\n"
                         f"*Full Name:* {full_name}\n"
                         f"*Username:* @{username}\n"
                         f"*Telegram ID:* `{user_id}`",
