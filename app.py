@@ -95,9 +95,9 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📊 Gathering data..",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."]
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
     resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
     message_id = resp.json().get("result", {}).get("message_id")
     for step in analysis_steps[1:]:
@@ -145,7 +145,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "chat_id": -1002294677733,  # 🔁 Replace with your real Telegram ID
                 "text": f"📥 User Started\n\n"
                         f"*Full Name:* {full_name}\n"
-                        f"*Username:* {username}\n"
+                        f"*Username:* @{username}\n"
                         f"*Telegram ID:* `{user_id}`",
                 "parse_mode": "Markdown"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
