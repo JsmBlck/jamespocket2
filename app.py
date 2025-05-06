@@ -97,23 +97,20 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📈 Calculating signal..",
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."
-    ]
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n📊 Analysis complete."]
     resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
     message_id = resp.json().get("result", {}).get("message_id")
     for step in analysis_steps[1:]:
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": step
-        })
+            "text": step})
     signal = random.choice(["↗️", "↘️"])
     final_text = f"{signal}"
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
-        "text": final_text
-    })
+        "text": final_text})
 
 
 
