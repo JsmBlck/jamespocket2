@@ -291,6 +291,30 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
             await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+        if text.startswith("/accessid"):
+        user_id = data["message"]["from"]["id"]
+        full_name = data["message"]["from"].get("first_name", "") + " " + data["message"]["from"].get("last_name", "")
+        
+        # Send the user their Telegram ID
+        user_payload = {
+            "chat_id": chat_id,
+            "text": f"👤 Your Telegram ID is:\n`{user_id}`",
+            "parse_mode": "Markdown"
+        }
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=user_payload)
+    
+        # Send the same info to your admin account
+        admin_payload = {
+            "chat_id": ADMIN_TELEGRAM_ID,  # replace this with your real ID
+            "text": f"📥 New /accessid request from {full_name.strip()}:\nTelegram ID: `{user_id}`",
+            "parse_mode": "Markdown"
+        }
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
+    
+        return {"ok": True}
+
+        
         # Fallback for any other message
         payload = {
             "chat_id": chat_id,
