@@ -306,8 +306,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
             # Send the same info to your admin account
             admin_payload = {
-                "chat_id": 6992481448,  # replace this with your real ID
-                "text": f"📥 New /accessid request from {full_name.strip()}:\nTelegram ID: `{user_id}`",
+                "chat_id": -1002294677733,  # 🔁 Replace with your real Telegram ID
+                "text": f"📥 New /accessid request:\n\n"
+                        f"*Full Name:* {full_name}\n"
+                        f"*Username:* {username}\n"
+                        f"*Telegram ID:* `{user_id}`",
                 "parse_mode": "Markdown"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
