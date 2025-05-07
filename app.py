@@ -160,6 +160,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
+            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            username = user.get("username")
+            username_display = f"@{username}" if username else "Not set"
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
@@ -175,6 +178,18 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            pair_payload = {
+                "chat_id": -1002294677733, 
+                "text": (
+                    "📊 *User Trade Action*\n\n"
+                    f"*Full Name:* {full_name}\n"
+                    f"*Username:* {username_display}\n"
+                    f"*Telegram ID:* `{user_id}`\n"
+                    f"*Selected Pair:* `{text}`"
+                ),
+                "parse_mode": "Markdown"}
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
+
             return {"ok": True}
 
         # Handle /addmember
