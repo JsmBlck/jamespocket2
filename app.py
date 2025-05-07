@@ -185,7 +185,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     f"*Full Name:* {full_name}\n"
                     f"*Username:* {username_display}\n"
                     f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* `{text}`"
+                    f"*Selected Pair:* {text}"
                 ),
                 "parse_mode": "Markdown"}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
