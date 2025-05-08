@@ -8,9 +8,9 @@ import json
 import os
 
 # Define the URL to keep alive
-RENDER_URL = "https://jamespocket2.onrender.com"
+RENDER_URL = "https://po-affiliate-webhook.onrender.com"
 
-# Set up Google Sheets
+# Setup Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 gs_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
@@ -18,7 +18,7 @@ gs_client = gspread.authorize(gs_creds)
 spreadsheet = gs_client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet7")
 
-# Lifespan hook for self-ping
+# Lifespan hook to self-ping
 async def lifespan(app: FastAPI):
     ping_client = httpx.AsyncClient(timeout=10)
     async def self_ping_loop():
@@ -36,12 +36,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Health check endpoint
-@app.api_route("/", methods=["GET", "HEAD"])
-async def healthcheck(request: Request):
+# Health check
+@app.get("/")
+async def healthcheck():
     return {"status": "ok"}
 
-# Webhook route with optional query parameters
+# Webhook route
 @app.get("/webhook")
 async def handle_get_webhook(
     trader_id: Optional[int] = None,
@@ -58,12 +58,11 @@ async def handle_get_webhook(
 
     if trader_id is not None:
         try:
-            row = [trader_id, sumdep, totaldep, reg, conf, ftd, dep]
-            sheet.append_row(row)
-            print("✅ Data appended to Google Sheet.")
+            sheet.append_row([trader_id, sumdep, totaldep, reg, conf, ftd, dep])
+            print("✅ Appended to Google Sheet.")
         except Exception as e:
-            print(f"❌ Failed to append to sheet: {e}")
+            print(f"❌ Google Sheet error: {e}")
     else:
-        print("❌ trader_id is missing — skipping row append.")
+        print("❌ Missing trader_id — not appending.")
 
     return {"status": "success"}
