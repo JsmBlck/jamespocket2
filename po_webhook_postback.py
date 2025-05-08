@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.post("/webhook")
+@app.get("/webhook")
 async def handle_postback(data: PostbackData):
     # Print the received data for debugging
     print(f"Received data: {data}")
