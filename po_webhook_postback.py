@@ -2,16 +2,22 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from fastapi.concurrency import run_in_threadpool
 import json
+import os
 
-# Set up FastAPI app
 app = FastAPI()
 
-# Google Sheets credentials and initialization
-SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-CREDS = ServiceAccountCredentials.from_json_keyfile_name('path_to_your_credentials.json', SCOPE)
-client = gspread.authorize(CREDS)
-sheet = client.open("Your_Google_Sheet_Name").sheet1  # Change to your actual sheet name
+# Google Sheets setup
+scope = ["https://spreadsheets.google.com/feeds", 
+         "https://www.googleapis.com/auth/spreadsheets", 
+         "https://www.googleapis.com/auth/drive"]
+
+creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+client = gspread.authorize(creds)
+spreadsheet = client.open("TelegramBotMembers")
+sheet = spreadsheet.worksheet("Sheet7")
 
 # Postback data model
 class PostbackData(BaseModel):
@@ -25,10 +31,8 @@ class PostbackData(BaseModel):
 
 @app.post("/webhook")
 async def handle_postback(data: PostbackData):
-    # Print the received data for debugging
     print(f"Received data: {data}")
 
-    # Save the data to Google Sheets
     row = [
         data.trader_id, 
         data.sumdep, 
@@ -38,8 +42,10 @@ async def handle_postback(data: PostbackData):
         data.ftd, 
         data.dep
     ]
-    
-    # Append the data to the next row in the sheet
-    sheet.append_row(row)
 
-    return {"status": "success"}
+    try:
+        await run_in_threadpool(sheet.append_row, row)
+        return {"status": "success"}
+    except Exception as e:
+        print(f"Error saving to sheet: {e}")
+        return {"status": "error", "detail": str(e)}
