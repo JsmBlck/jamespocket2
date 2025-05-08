@@ -7,3 +7,4 @@ oauth2client
 fastapi
 uvicorn
 httpx
+pydantic
