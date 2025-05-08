@@ -52,28 +52,21 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# Webhook route for GET requests with query parameters
 @app.get("/webhook")
-async def handle_postback(data: PostbackData):
-    # Print the received data for debugging
-    print(f"Received data: {data}")
-
-    # Save the data to Google Sheets
-    row = [
-        data.trader_id, 
-        data.sumdep, 
-        data.totaldep, 
-        data.reg, 
-        data.conf, 
-        data.ftd, 
-        data.dep
-    ]
+async def handle_get_webhook(
+    trader_id: int,
+    sumdep: float,
+    totaldep: float,
+    reg: int,
+    conf: int,
+    ftd: int,
+    dep: float
+):
+    print(f"✅ Received: trader_id={trader_id}, sumdep={sumdep}, totaldep={totaldep}, reg={reg}, conf={conf}, ftd={ftd}, dep={dep}")
     
-    # Append the data to the next row in the sheet
+    # Append to Google Sheet
+    row = [trader_id, sumdep, totaldep, reg, conf, ftd, dep]
     sheet.append_row(row)
 
     return {"status": "success"}
-
-@app.api_route("/", methods=["GET", "HEAD"])
-async def healthcheck(request: Request):
-    return {"status": "ok"}
-
