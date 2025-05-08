@@ -32,7 +32,7 @@ class PostbackData(BaseModel):
     ftd: int
     dep: int
 
-@app.post("/webhook")
+@app.get("/webhook")
 async def receive_postback(data: PostbackData):
     print(f"Received data: {data}")
     row = [
