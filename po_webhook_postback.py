@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
+import os
 
 # Set up FastAPI app
 app = FastAPI()
