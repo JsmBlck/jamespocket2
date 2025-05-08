@@ -8,7 +8,7 @@ import json
 import os
 
 # Define the URL to keep alive
-RENDER_URL = "https://po-affiliate-webhook.onrender.com"
+RENDER_URL = "https://jamespocket2.onrender.com"
 
 # Setup Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
