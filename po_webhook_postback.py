@@ -1,7 +1,7 @@
 import asyncio
 import httpx
 from fastapi import FastAPI, Request
-from pydantic import BaseModel
+from typing import Optional
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
@@ -36,26 +36,34 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Health check endpoint for self-ping
+# Health check endpoint
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-# Webhook route for GET requests from Pocket Option
+# Webhook route with optional query parameters
 @app.get("/webhook")
 async def handle_get_webhook(
-    trader_id: int,
-    sumdep: float,
-    totaldep: float,
-    reg: int,
-    conf: int,
-    ftd: int,
-    dep: float
+    trader_id: Optional[int] = None,
+    sumdep: Optional[float] = None,
+    totaldep: Optional[float] = None,
+    reg: Optional[int] = None,
+    conf: Optional[int] = None,
+    ftd: Optional[int] = None,
+    dep: Optional[float] = None,
+    request: Request = None
 ):
-    print(f"✅ Received: trader_id={trader_id}, sumdep={sumdep}, totaldep={totaldep}, reg={reg}, conf={conf}, ftd={ftd}, dep={dep}")
-    
-    # Append to Google Sheet
-    row = [trader_id, sumdep, totaldep, reg, conf, ftd, dep]
-    sheet.append_row(row)
+    print(f"📥 Raw request: {request.url}")
+    print(f"✅ Parsed values: trader_id={trader_id}, sumdep={sumdep}, totaldep={totaldep}, reg={reg}, conf={conf}, ftd={ftd}, dep={dep}")
+
+    if trader_id is not None:
+        try:
+            row = [trader_id, sumdep, totaldep, reg, conf, ftd, dep]
+            sheet.append_row(row)
+            print("✅ Data appended to Google Sheet.")
+        except Exception as e:
+            print(f"❌ Failed to append to sheet: {e}")
+    else:
+        print("❌ trader_id is missing — skipping row append.")
 
     return {"status": "success"}
