@@ -41,28 +41,33 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck():
     return {"status": "ok"}
 
-# Webhook route
+# Webhook route (now accepting all as strings)
 @app.get("/webhook")
 async def handle_get_webhook(
-    trader_id: Optional[int] = None,
-    sumdep: Optional[float] = None,
-    totaldep: Optional[float] = None,
-    reg: Optional[int] = None,
-    conf: Optional[int] = None,
-    ftd: Optional[int] = None,
-    dep: Optional[float] = None,
+    trader_id: Optional[str] = None,
+    sumdep: Optional[str] = None,
+    totaldep: Optional[str] = None,
+    reg: Optional[str] = None,
+    conf: Optional[str] = None,
+    ftd: Optional[str] = None,
+    dep: Optional[str] = None,
     request: Request = None
 ):
     print(f"📥 Raw request: {request.url}")
-    print(f"✅ Parsed values: trader_id={trader_id}, sumdep={sumdep}, totaldep={totaldep}, reg={reg}, conf={conf}, ftd={ftd}, dep={dep}")
 
-    if trader_id is not None:
-        try:
-            sheet.append_row([trader_id, sumdep, totaldep, reg, conf, ftd, dep])
-            print("✅ Appended to Google Sheet.")
-        except Exception as e:
-            print(f"❌ Google Sheet error: {e}")
-    else:
-        print("❌ Missing trader_id — not appending.")
+    try:
+        row = [
+            int(trader_id) if trader_id and trader_id != "false" else None,
+            float(sumdep) if sumdep and sumdep != "false" else None,
+            float(totaldep) if totaldep and totaldep != "false" else None,
+            int(reg == "true") if reg else 0,
+            int(conf == "true") if conf else 0,
+            int(ftd == "true") if ftd else 0,
+            float(dep) if dep and dep != "false" else None
+        ]
+        sheet.append_row(row)
+        print("✅ Appended to Google Sheet:", row)
+    except Exception as e:
+        print(f"❌ Error parsing or appending: {e}")
 
     return {"status": "success"}
