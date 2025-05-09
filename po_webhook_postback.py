@@ -92,11 +92,12 @@ async def handle_get_webhook(
                     row[0] or int(existing_row[0]),
                     updated_sumdep,
                     updated_totaldep,
-                    row[3] if row[3] is not None else int(existing_row[3]) if existing_row[3] else 0,
-                    row[4] if row[4] is not None else int(existing_row[4]) if existing_row[4] else 0,
-                    row[5] if row[5] is not None else int(existing_row[5]) if existing_row[5] else 0,
+                    row[3] if trader_id and "reg" in request.query_params else int(existing_row[3]) if existing_row[3] else 0,
+                    row[4] if trader_id and "conf" in request.query_params else int(existing_row[4]) if existing_row[4] else 0,
+                    row[5] if trader_id and "ftd" in request.query_params else int(existing_row[5]) if existing_row[5] else 0,
                     updated_dep
                 ]
+
 
                 sheet.update(f"A{cell.row}:G{cell.row}", [updated_row])
                 print(f"✅ Updated row {cell.row} with merged + added values: {updated_row}")
