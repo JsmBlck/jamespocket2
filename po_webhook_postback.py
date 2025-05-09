@@ -7,7 +7,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 import os
 
-# Define the URL to keep alive
 RENDER_URL = "https://jamespocket2.onrender.com"
 
 # Setup Google Sheets
@@ -18,7 +17,7 @@ gs_client = gspread.authorize(gs_creds)
 spreadsheet = gs_client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet7")
 
-# Lifespan hook to self-ping
+# Lifespan hook
 async def lifespan(app: FastAPI):
     ping_client = httpx.AsyncClient(timeout=10)
     async def self_ping_loop():
@@ -36,12 +35,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Health check
 @app.get("/")
 async def healthcheck():
     return {"status": "ok"}
 
-# Webhook route (now accepting all as strings)
 @app.get("/webhook")
 async def handle_get_webhook(
     trader_id: Optional[str] = None,
@@ -56,6 +53,7 @@ async def handle_get_webhook(
     print(f"📥 Raw request: {request.url}")
 
     try:
+        # Prepare row data
         row = [
             int(trader_id) if trader_id and trader_id != "false" else None,
             float(sumdep) if sumdep and sumdep != "false" else None,
@@ -66,21 +64,49 @@ async def handle_get_webhook(
             float(dep) if dep and dep.replace('.', '', 1).isdigit() else (1.0 if dep == "true" else 0.0 if dep == "false" else None)
         ]
 
-        # Try to find existing trader_id in column A
+        while len(row) < 7:
+            row.append(None)
+
+        # Try to find existing trader
         if trader_id and trader_id != "false":
-            cell = sheet.find(trader_id)
+            try:
+                cell = sheet.find(trader_id)
+            except gspread.exceptions.CellNotFound:
+                cell = None
+
             if cell:
-                sheet.update(f"A{cell.row}:G{cell.row}", [row])
-                print(f"✅ Updated row {cell.row} for trader_id {trader_id}: {row}")
+                existing_row = sheet.row_values(cell.row)
+                while len(existing_row) < 7:
+                    existing_row.append("")
+
+                existing_sumdep = float(existing_row[1]) if existing_row[1] else 0.0
+                existing_totaldep = float(existing_row[2]) if existing_row[2] else 0.0
+                existing_dep = float(existing_row[6]) if existing_row[6] else 0.0
+
+                new_dep = row[6] if row[6] is not None else 0.0
+                updated_sumdep = existing_sumdep + new_dep
+                updated_totaldep = existing_totaldep + new_dep
+                updated_dep = new_dep
+
+                updated_row = [
+                    row[0] or int(existing_row[0]),
+                    updated_sumdep,
+                    updated_totaldep,
+                    row[3] if row[3] is not None else int(existing_row[3]) if existing_row[3] else 0,
+                    row[4] if row[4] is not None else int(existing_row[4]) if existing_row[4] else 0,
+                    row[5] if row[5] is not None else int(existing_row[5]) if existing_row[5] else 0,
+                    updated_dep
+                ]
+
+                sheet.update(f"A{cell.row}:G{cell.row}", [updated_row])
+                print(f"✅ Updated row {cell.row} with merged + added values: {updated_row}")
             else:
                 sheet.append_row(row)
                 print("✅ Appended to Google Sheet:", row)
-        else:
-            print("⚠️ Invalid trader_id; skipping append/update.")
 
     except Exception as e:
-        print(f"❌ Error updating/appending to Google Sheet.")
+        print("❌ Error updating/appending to Google Sheet.")
         print("   ➤ Raw values:", trader_id, sumdep, totaldep, reg, conf, ftd, dep)
-        print(f"   ➤ Exception: {e}")
-    
+        print("   ➤ Exception:", e)
+
     return {"status": "success"}
