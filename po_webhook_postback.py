@@ -65,10 +65,22 @@ async def handle_get_webhook(
             int(ftd == "true") if ftd else 0,
             float(dep) if dep and dep.replace('.', '', 1).isdigit() else (1.0 if dep == "true" else 0.0 if dep == "false" else None)
         ]
-        sheet.append_row(row)
-        print("✅ Appended to Google Sheet:", row)
+
+        # Try to find existing trader_id in column A
+        if trader_id and trader_id != "false":
+            cell = sheet.find(trader_id)
+            if cell:
+                sheet.update(f"A{cell.row}:G{cell.row}", [row])
+                print(f"✅ Updated row {cell.row} for trader_id {trader_id}: {row}")
+            else:
+                sheet.append_row(row)
+                print("✅ Appended to Google Sheet:", row)
+        else:
+            print("⚠️ Invalid trader_id; skipping append/update.")
+
     except Exception as e:
-        print(f"❌ Error appending row to Google Sheet.")
+        print(f"❌ Error updating/appending to Google Sheet.")
         print("   ➤ Raw values:", trader_id, sumdep, totaldep, reg, conf, ftd, dep)
         print(f"   ➤ Exception: {e}")
+    
     return {"status": "success"}
