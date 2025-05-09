@@ -63,11 +63,12 @@ async def handle_get_webhook(
             int(reg == "true") if reg else 0,
             int(conf == "true") if conf else 0,
             int(ftd == "true") if ftd else 0,
-            float(dep) if dep and dep != "false" else None
+            float(dep) if dep and dep.replace('.', '', 1).isdigit() else (1.0 if dep == "true" else 0.0 if dep == "false" else None)
         ]
         sheet.append_row(row)
         print("✅ Appended to Google Sheet:", row)
     except Exception as e:
-        print(f"❌ Error parsing or appending: {e}")
-
+        print(f"❌ Error appending row to Google Sheet.")
+        print("   ➤ Raw values:", trader_id, sumdep, totaldep, reg, conf, ftd, dep)
+        print(f"   ➤ Exception: {e}")
     return {"status": "success"}
