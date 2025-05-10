@@ -3,7 +3,7 @@ import httpx
 from fastapi import FastAPI, Request
 from typing import Optional
 import gspread
-from gspread.exceptions import CellNotFound
+from gspread import CellNotFound
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 import os
