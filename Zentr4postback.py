@@ -10,7 +10,11 @@ import os
 RENDER_URL = "https://jamespocket2.onrender.com"
 
 # Setup Google Sheets
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 gs_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gs_client = gspread.authorize(gs_creds)
@@ -49,21 +53,23 @@ async def handle_get_webhook(
     print(f"📥 Raw request: {request.url}")
 
     try:
-        row = [
-            trader_id if trader_id and trader_id != "false" else None,
-            float(totaldep) if totaldep and totaldep != "false" else 0.0,
-            1 if reg == "true" else 0
-        ]
+        if not trader_id or trader_id == "false":
+            raise ValueError("Invalid or missing trader_id")
 
-        if trader_id and trader_id != "false":
-            try:
-                cell = sheet.find(trader_id)
-                row_number = cell.row
-                sheet.update(f"A{row_number}:C{row_number}", [row])
-                print(f"✅ Updated row {row_number}: {row}")
-            except gspread.exceptions.CellNotFound:
-                sheet.append_row(row)
-                print("✅ Appended to Google Sheet:", row)
+        clean_trader_id = trader_id.strip()
+        clean_totaldep = float(totaldep) if totaldep and totaldep != "false" else 0.0
+        clean_reg = 1 if reg == "true" else 0
+
+        row = [clean_trader_id, clean_totaldep, clean_reg]
+
+        try:
+            cell = sheet.find(clean_trader_id)
+            row_number = cell.row
+            sheet.update(f"A{row_number}:C{row_number}", [row])
+            print(f"✅ Updated row {row_number}: {row}")
+        except gspread.exceptions.CellNotFound:
+            sheet.append_row(row)
+            print("✅ Appended to Google Sheet:", row)
 
     except Exception as e:
         print("❌ Error during webhook processing.")
