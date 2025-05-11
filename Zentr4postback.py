@@ -56,9 +56,10 @@ async def webhook(
     sumdep: Optional[str] = "",
     totaldep: Optional[str] = "0",
     reg: Optional[str] = "",
-    dep: Optional[str] = ""
+    dep: Optional[str] = "",
+    ftd: Optional[str] = ""  # 🆕 Added ftd field
 ):
-    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}, sumdep={sumdep}, reg={reg}, dep={dep}")
+    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}, sumdep={sumdep}, reg={reg}, dep={dep}, ftd={ftd}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
@@ -85,20 +86,22 @@ async def webhook(
         sheet.update_cell(row, 3, reg)                 # Registration flag
         sheet.update_cell(row, 4, dep)                 # Deposit event
         sheet.update_cell(row, 5, sumdep)              # Latest deposit amount
+        sheet.update_cell(row, 6, ftd)                 # 🆕 FTD flag
 
-        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}, reg={reg}, dep={dep}, sumdep={sumdep}")
+        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}, reg={reg}, dep={dep}, sumdep={sumdep}, ftd={ftd}")
         return {
             "status": "updated",
             "trader_id": trader_id,
             "totaldep": updated_total,
             "reg": reg,
             "dep": dep,
-            "sumdep": sumdep
+            "sumdep": sumdep,
+            "ftd": ftd
         }
 
     except (ValueError, gspread.exceptions.GSpreadException):
         # Trader not found — register new
-        sheet.append_row([trader_id, deposit, reg, dep, sumdep])
+        sheet.append_row([trader_id, deposit, reg, dep, sumdep, ftd])  # 🆕 Include ftd
         print(f"🆕 Registered new trader {trader_id}")
         return {
             "status": "registered",
@@ -106,7 +109,8 @@ async def webhook(
             "totaldep": deposit,
             "reg": reg,
             "dep": dep,
-            "sumdep": sumdep
+            "sumdep": sumdep,
+            "ftd": ftd
         }
 
     except Exception as e:
