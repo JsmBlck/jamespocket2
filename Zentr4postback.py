@@ -3,42 +3,52 @@ from typing import Optional
 import gspread
 import json
 import httpx
+import asyncio
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 
-# Lifespan hook
+# Constants
+RENDER_URL = "https://jamespocket2.onrender.com"
+SPREADSHEET_NAME = "TelegramBotMembers"
+WORKSHEET_NAME = "Sheet7"
+
+# Lifespan hook for self-ping (keep-alive)
 async def lifespan(app: FastAPI):
     ping_client = httpx.AsyncClient(timeout=10)
+
     async def self_ping_loop():
-        await asyncio.sleep(5)
+        await asyncio.sleep(5)  # initial delay
         while True:
             try:
                 await ping_client.get(RENDER_URL)
                 print("✅ Self-ping successful!")
             except Exception as e:
-                print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)
+                print(f"❌ Self-ping failed: {e}")
+            await asyncio.sleep(300)  # every 5 minutes
+
     asyncio.create_task(self_ping_loop())
     yield
     await ping_client.aclose()
 
+# Initialize FastAPI app
 app = FastAPI(lifespan=lifespan)
 
-
-# Google Sheets Auth
-scope = ["https://spreadsheets.google.com/feeds",
-         "https://www.googleapis.com/auth/spreadsheets",
-         "https://www.googleapis.com/auth/drive"]
+# Google Sheets authorization
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
 
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 gs_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gs_client = gspread.authorize(gs_creds)
-spreadsheet = gs_client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet7")
+spreadsheet = gs_client.open(SPREADSHEET_NAME)
+sheet = spreadsheet.worksheet(WORKSHEET_NAME)
 
 @app.get("/")
 def root():
-    return {"message": "ZentraFx Postback Webhook is live."}
+    return {"message": "✅ ZentraFx Postback Webhook is live."}
 
 @app.get("/webhook")
 async def webhook(
@@ -48,12 +58,12 @@ async def webhook(
     reg: Optional[str] = "",
     dep: Optional[str] = ""
 ):
-    print(f"📥 Received: trader_id={trader_id}, totaldep={totaldep}, sumdep={sumdep}, reg={reg}, dep={dep}")
+    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}, sumdep={sumdep}, reg={reg}, dep={dep}")
 
     if not trader_id:
-        return {"status": "error", "message": "Missing trader_id"}
+        return {"status": "error", "message": "❌ Missing trader_id"}
 
-    # Handle deposit value
+    # Convert totaldep safely
     try:
         deposit = float(totaldep or "0")
     except ValueError:
@@ -63,29 +73,29 @@ async def webhook(
         # Check if trader already exists
         cell = sheet.find(str(trader_id))
         row = cell.row
-        current_dep = sheet.cell(row, 2).value or "0"
-        updated_dep = float(current_dep) + deposit
+        current_total = sheet.cell(row, 2).value or "0"
+        updated_total = float(current_total) + deposit
 
-        # Update all columns for existing trader
-        sheet.update_cell(row, 2, str(updated_dep))  # Total Deposit
-        sheet.update_cell(row, 3, reg)               # reg
-        sheet.update_cell(row, 4, dep)               # dep
-        sheet.update_cell(row, 5, sumdep)            # sumdep
+        # Update trader info
+        sheet.update_cell(row, 2, str(updated_total))  # Total Deposit
+        sheet.update_cell(row, 3, reg)                 # Registration flag
+        sheet.update_cell(row, 4, dep)                 # Deposit event
+        sheet.update_cell(row, 5, sumdep)              # Latest deposit amount
 
-        print(f"✅ Updated trader {trader_id}: totaldep={updated_dep}, reg={reg}, dep={dep}, sumdep={sumdep}")
+        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}, reg={reg}, dep={dep}, sumdep={sumdep}")
         return {
             "status": "updated",
             "trader_id": trader_id,
-            "totaldep": updated_dep,
+            "totaldep": updated_total,
             "reg": reg,
             "dep": dep,
             "sumdep": sumdep
         }
 
-    except Exception:
-        # Register new trader
+    except gspread.exceptions.CellNotFound:
+        # New trader — append new row
         sheet.append_row([trader_id, deposit, reg, dep, sumdep])
-        print(f"🆕 New trader {trader_id} registered: totaldep={deposit}, reg={reg}, dep={dep}, sumdep={sumdep}")
+        print(f"🆕 Registered new trader {trader_id}")
         return {
             "status": "registered",
             "trader_id": trader_id,
@@ -94,3 +104,7 @@ async def webhook(
             "dep": dep,
             "sumdep": sumdep
         }
+
+    except Exception as e:
+        print(f"❌ Error handling trader_id={trader_id}: {e}")
+        return {"status": "error", "message": str(e)}
