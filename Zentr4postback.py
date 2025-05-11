@@ -92,18 +92,22 @@ async def webhook(
             "sumdep": sumdep
         }
 
-    except gspread.exceptions.CellNotFound:
-        # New trader — append new row
-        sheet.append_row([trader_id, deposit, reg, dep, sumdep])
-        print(f"🆕 Registered new trader {trader_id}")
-        return {
-            "status": "registered",
-            "trader_id": trader_id,
-            "totaldep": deposit,
-            "reg": reg,
-            "dep": dep,
-            "sumdep": sumdep
-        }
+    except gspread.exceptions.GSpreadException as e:
+        if "Cell not found" in str(e):
+            # New trader — append new row
+            sheet.append_row([trader_id, deposit, reg, dep, sumdep])
+            print(f"🆕 Registered new trader {trader_id}")
+            return {
+                "status": "registered",
+                "trader_id": trader_id,
+                "totaldep": deposit,
+                "reg": reg,
+                "dep": dep,
+                "sumdep": sumdep
+            }
+        else:
+            print(f"❌ GSpread error: {e}")
+            return {"status": "error", "message": str(e)}
 
     except Exception as e:
         print(f"❌ Error handling trader_id={trader_id}: {e}")
