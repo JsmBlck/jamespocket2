@@ -70,8 +70,12 @@ async def webhook(
         deposit = 0.0
 
     try:
-        # Check if trader already exists
+        # Try to find the trader ID in the sheet
         cell = sheet.find(str(trader_id))
+
+        if cell is None:
+            raise ValueError("Trader not found")
+
         row = cell.row
         current_total = sheet.cell(row, 2).value or "0"
         updated_total = float(current_total) + deposit
@@ -92,22 +96,18 @@ async def webhook(
             "sumdep": sumdep
         }
 
-    except gspread.exceptions.GSpreadException as e:
-        if "Cell not found" in str(e):
-            # New trader — append new row
-            sheet.append_row([trader_id, deposit, reg, dep, sumdep])
-            print(f"🆕 Registered new trader {trader_id}")
-            return {
-                "status": "registered",
-                "trader_id": trader_id,
-                "totaldep": deposit,
-                "reg": reg,
-                "dep": dep,
-                "sumdep": sumdep
-            }
-        else:
-            print(f"❌ GSpread error: {e}")
-            return {"status": "error", "message": str(e)}
+    except (ValueError, gspread.exceptions.GSpreadException):
+        # Trader not found — register new
+        sheet.append_row([trader_id, deposit, reg, dep, sumdep])
+        print(f"🆕 Registered new trader {trader_id}")
+        return {
+            "status": "registered",
+            "trader_id": trader_id,
+            "totaldep": deposit,
+            "reg": reg,
+            "dep": dep,
+            "sumdep": sumdep
+        }
 
     except Exception as e:
         print(f"❌ Error handling trader_id={trader_id}: {e}")
