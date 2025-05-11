@@ -5,7 +5,24 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 
-app = FastAPI()
+# Lifespan hook
+async def lifespan(app: FastAPI):
+    ping_client = httpx.AsyncClient(timeout=10)
+    async def self_ping_loop():
+        await asyncio.sleep(5)
+        while True:
+            try:
+                await ping_client.get(RENDER_URL)
+                print("✅ Self-ping successful!")
+            except Exception as e:
+                print(f"❌ Ping failed: {e}")
+            await asyncio.sleep(300)
+    asyncio.create_task(self_ping_loop())
+    yield
+    await ping_client.aclose()
+
+app = FastAPI(lifespan=lifespan)
+
 
 # Google Sheets Auth
 scope = ["https://spreadsheets.google.com/feeds",
