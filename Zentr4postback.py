@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from typing import Optional
 import gspread
 import json
+import httpx
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 
