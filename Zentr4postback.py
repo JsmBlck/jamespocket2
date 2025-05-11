@@ -53,18 +53,17 @@ def root():
 @app.get("/webhook")
 async def webhook(
     trader_id: Optional[str] = None,
-    sumdep: Optional[str] = "",
     totaldep: Optional[str] = "0",
-    reg: Optional[str] = "",
+    reg: Optional[str] = "",  # still accepted in URL but not stored
+    sumdep: Optional[str] = "",
     dep: Optional[str] = "",
-    ftd: Optional[str] = ""  # 🆕 Added ftd field
+    ftd: Optional[str] = ""
 ):
-    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}, sumdep={sumdep}, reg={reg}, dep={dep}, ftd={ftd}")
+    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
-    # Convert totaldep safely
     try:
         deposit = float(totaldep or "0")
     except ValueError:
@@ -81,36 +80,24 @@ async def webhook(
         current_total = sheet.cell(row, 2).value or "0"
         updated_total = float(current_total) + deposit
 
-        # Update trader info
-        sheet.update_cell(row, 2, str(updated_total))  # Total Deposit
-        sheet.update_cell(row, 3, reg)                 # Registration flag
-        sheet.update_cell(row, 4, dep)                 # Deposit event
-        sheet.update_cell(row, 5, sumdep)              # Latest deposit amount
-        sheet.update_cell(row, 6, ftd)                 # 🆕 FTD flag
+        # Update only total deposit
+        sheet.update_cell(row, 2, str(updated_total))
 
-        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}, reg={reg}, dep={dep}, sumdep={sumdep}, ftd={ftd}")
+        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}")
         return {
             "status": "updated",
             "trader_id": trader_id,
-            "totaldep": updated_total,
-            "reg": reg,
-            "dep": dep,
-            "sumdep": sumdep,
-            "ftd": ftd
+            "totaldep": updated_total
         }
 
     except (ValueError, gspread.exceptions.GSpreadException):
         # Trader not found — register new
-        sheet.append_row([trader_id, deposit, reg, dep, sumdep, ftd])  # 🆕 Include ftd
+        sheet.append_row([trader_id, deposit])
         print(f"🆕 Registered new trader {trader_id}")
         return {
             "status": "registered",
             "trader_id": trader_id,
-            "totaldep": deposit,
-            "reg": reg,
-            "dep": dep,
-            "sumdep": sumdep,
-            "ftd": ftd
+            "totaldep": deposit
         }
 
     except Exception as e:
