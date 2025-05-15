@@ -19,7 +19,7 @@ DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 
 # Google Sheets Config
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gc = gspread.authorize(creds)
 
 sheet = gc.open("TelegramBotMembers")
