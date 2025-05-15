@@ -38,6 +38,11 @@ authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 
 tg_channel = "t.me/ZentraAiRegister"
 
+otc_pairs = [
+    "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
+expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
+
 user_data = {}
 
 def get_deposit_for_trader(trader_id: str) -> float | None:
@@ -84,6 +89,33 @@ app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
+
+async def simulate_analysis(chat_id: int, pair: str, expiry: str):
+    analysis_steps = [
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing...",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📊 Gathering data..",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
+    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+    message_id = resp.json().get("result", {}).get("message_id")
+    for step in analysis_steps[1:]:
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": step})
+    signal = random.choice(["↗️", "↘️"])
+    final_text = f"{signal}"
+    await client.post(EDIT_MESSAGE, json={
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "text": final_text})
+    
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
@@ -171,6 +203,38 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        
+         if text in otc_pairs:
+            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            username = user.get("username")
+            username_display = f"@{username}" if username else "Not set"
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            inline_kb = [
+                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
+                 for i in range(row, row + 3)]
+                for row in range(0, len(expiry_options), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
+                "reply_markup": {"inline_keyboard": inline_kb}}
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            pair_payload = {
+                "chat_id": -1002294677733, 
+                "text": (
+                    "📊 *User Trade Action*\n\n"
+                    f"*Full Name:* {full_name}\n"
+                    f"*Username:* {username_display}\n"
+                    f"*Telegram ID:* `{user_id}`\n"
+                    f"*Selected Pair:* {text}"
+                ),
+                "parse_mode": "Markdown"}
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
+            return {"ok": True}
         
         payload = {
             "chat_id": chat_id,
