@@ -179,6 +179,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        
+        payload = {
+            "chat_id": chat_id,
+            "text": f"Unknown command."}
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
+
+
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
