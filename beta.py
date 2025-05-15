@@ -98,8 +98,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if text == "/start":
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "\ud83d\udccc Registration Link", "url": tg_channel}],
-                    [{"text": "\u2705 Check ID", "callback_data": "check_id"}]
+                    [{"text": "📌  Registration Link", "url": tg_channel}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
             payload = {
@@ -121,7 +121,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "\u26a0\ufe0f That Pocket Option Account ID was not found in our records.\n"
+                        "⚠️ That Pocket Option Account ID was not found in our records.\n"
                         "Please check your ID or register first."
                     )
                 }
@@ -136,7 +136,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        f"\ud83c\udf89 Your account with a total deposit of ${dep:.2f} has been verified!\n"
+                        f"Your account with a total deposit of ${dep:.2f} has been verified!\n"
                         "You now have full access to the bot."
                     )
                 }
@@ -145,7 +145,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "\ud83d\udcb8 I've Funded", "callback_data": f"check_funding:{po_id}"}]
+                    [{"text": "I've Funded", "callback_data": f"check_funding:{po_id}"}]
                 ]
             }
             payload = {
@@ -199,7 +199,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
             payload = {
                 "chat_id": chat_id,
-                "text": "\ud83c\udf89 You are now verified and have full access to the bot!"
+                "text": "You are now verified and have full access to the bot!"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
