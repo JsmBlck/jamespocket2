@@ -207,6 +207,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             po_id = data_str.split(":", 1)[1]
             dep = get_deposit_for_trader(po_id)
             if dep is None or dep < 30:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "✅ Check Deposit", "callback_data": f"check_funding:{po_id}"}]
+                    ]
+                }
                 payload = {
                     "chat_id": chat_id,
                     "text": (
