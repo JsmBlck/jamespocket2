@@ -134,7 +134,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "✅ You are now verified and can access the bot fully.\n\n"
                         "👇 Please choose a pair to get signal:"
                     ),
                     "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
