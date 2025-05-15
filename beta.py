@@ -273,3 +273,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+        if data_str.startswith("expiry|"):
+            _, pair, expiry = data_str.split("|", 2)
+            background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
+            return {"ok": True}
+
