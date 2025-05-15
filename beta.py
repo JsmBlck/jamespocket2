@@ -1,10 +1,13 @@
 import os
 import httpx
-import gspread
+import asyncio
+import random
 import json
-from fastapi import FastAPI, Request, BackgroundTasks
-from oauth2client.service_account import ServiceAccountCredentials
+import gspread
 from dotenv import load_dotenv
+from fastapi import FastAPI, Request, BackgroundTasks
+from contextlib import asynccontextmanager
+from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
 
