@@ -8,7 +8,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 from oauth2client.service_account import ServiceAccountCredentials
+
 load_dotenv()
+
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
@@ -18,14 +20,26 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
+
 client = None
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet5")
+sheet = spreadsheet.worksheet("Sheet7")  # Changed to your actual sheet
+
 tg_channel = "t.me/ZentraAiRegister"
+
+AUTHORIZED_USERS = set()
+user_data = {}
+
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -38,11 +52,12 @@ def load_authorized_users():
             except ValueError:
                 print(f"Skipping invalid ID: {user_id}")
     print(f"Loaded authorized users: {AUTHORIZED_USERS}")
+
 def save_users():
     user_ids = sheet.col_values(1)
     if not user_ids:
         sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
-        user_ids = sheet.col_values(1) 
+        user_ids = sheet.col_values(1)
     for user_id in AUTHORIZED_USERS:
         user_info = user_data.get(user_id, {})
         tg_username = user_info.get("username", "Unknown")
@@ -50,18 +65,35 @@ def save_users():
         pocket_option_id = user_info.get("pocket_option_id", "N/A")
         user_id_str = str(user_id)
         if user_id_str in user_ids:
-            row_number = user_ids.index(user_id_str) + 1  
-            sheet.update(f"B{row_number}", [[tg_username]])  
+            row_number = user_ids.index(user_id_str) + 1
+            sheet.update(f"B{row_number}", [[tg_username]])
             sheet.update(f"C{row_number}", [[tg_name]])
             sheet.update(f"D{row_number}", [[pocket_option_id]])
         else:
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
     print("✅ Users saved successfully!")
+
+# Function to get deposit for a trader ID (PO account) from Sheet7
+def get_deposit_for_trader(trader_id: str) -> float | None:
+    trader_ids = sheet.col_values(1)
+    deposits = sheet.col_values(2)
+    for idx, tid in enumerate(trader_ids[1:], start=1):  # skip header row
+        if tid.strip() == trader_id:
+            try:
+                return float(deposits[idx])
+            except (ValueError, IndexError):
+                return None
+    return None
+
 load_authorized_users()
+
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
-    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"
+]
+
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
@@ -78,7 +110,9 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()  # Clean up
+
 app = FastAPI(lifespan=lifespan)
+
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
@@ -94,7 +128,8 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."
+    ]
     resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
     message_id = resp.json().get("result", {}).get("message_id")
     for step in analysis_steps[1:]:
@@ -138,7 +173,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        # This is the stateless step: user sends their PO account ID after "Check ID" prompt
+        # User sends PO account ID (number) after Check ID
         if text.isdigit() and len(text) > 5:  # crude check for PO account ID format
             po_id = text.strip()
             dep = get_deposit_for_trader(po_id)
@@ -170,8 +205,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        # Normal user access check here, unchanged...
-
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -184,7 +217,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
 
         if data_str == "check_id":
-            user_id = cq["from"]["id"]
             payload = {
                 "chat_id": chat_id,
                 "text": "Please send your Pocket Option Account ID (numbers only)."
@@ -223,10 +255,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        # your existing callback handlers ...
-
     return {"ok": True}
-
 
 if __name__ == "__main__":
     import uvicorn
