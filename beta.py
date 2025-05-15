@@ -128,7 +128,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
 
         if text == "/start":
-            # Check if user already authorized (in Sheet8)
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) in tg_ids:
                 payload = {
@@ -138,7 +137,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
         
-            # Otherwise send registration keyboard
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "📌  Registration Link", "url": tg_channel}],
@@ -155,7 +153,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
@@ -194,54 +191,43 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
             payload = {
                 "chat_id": chat_id,
-                 "text": (
-                        "✅ Your account is registered!\n\n"
-                        "To get full access, you need to fund your account with at least $30.\n"
-                        "Once you've funded it, just send your Account ID again."
-                    )
+                "text": (
+                    "✅ Your account is registered!\n\n"
+                    "To get full access, you need to fund your account with at least $30.\n"
+                    "Once you've funded it, just send your Account ID again."
+                )
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        
-         if text in otc_pairs:
-            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-            username = user.get("username")
-            username_display = f"@{username}" if username else "Not set"
-            if user_id not in AUTHORIZED_USERS:
+        if text in otc_pairs:
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"}
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
+
             inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(row, row + 3)]
-                for row in range(0, len(expiry_options), 3)]
+                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"}
+                 for i in range(row, min(row + 3, len(expiry_options)))]
+                for row in range(0, len(expiry_options), 3)
+            ]
             payload = {
                 "chat_id": chat_id,
                 "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
-                "reply_markup": {"inline_keyboard": inline_kb}}
+                "reply_markup": {"inline_keyboard": inline_kb}
+            }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            pair_payload = {
-                "chat_id": -1002294677733, 
-                "text": (
-                    "📊 *User Trade Action*\n\n"
-                    f"*Full Name:* {full_name}\n"
-                    f"*Username:* {username_display}\n"
-                    f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* {text}"
-                ),
-                "parse_mode": "Markdown"}
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
-        
+
         payload = {
             "chat_id": chat_id,
             "text": f"Unknown command"}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
-
 
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
@@ -283,9 +269,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
             payload = {
                 "chat_id": chat_id,
-                "text": "You are now verified and have full access to the bot!"
+                "text": "✅ Your account has been verified! You now have full access."
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
-    return {"ok": True}
