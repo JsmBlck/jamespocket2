@@ -134,9 +134,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "⚠️ Not financial advice. ⚠️ \n\nTrading is risky - play smart, play sharp.\n"
-                        "If you’re here to win, let’s make it worth it.\n\n"
-                        "👇 Pick an OTC pair and let’s go get it:"
+                        "✅ You are now verified and can access the bot fully.\n\n"
+                        "👇 Please choose a pair to get signal:"
                     ),
                     "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
@@ -190,9 +189,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        f"Your account has been verified!\n"
-                        "You now have full access to the bot."
-                    )
+                        "✅ You are now verified and can access the bot fully.\n\n"
+                        "👇 Please choose a pair to get signal:"
+                    ),
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -275,8 +275,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             save_authorized_user(tg_id, po_id, username, first_name)
 
             payload = {
-                "chat_id": chat_id,
-                "text": "✅ Your account has been verified! You now have full access."
+                    "chat_id": chat_id,
+                    "text": (
+                        "✅ You are now verified and can access the bot fully.\n\n"
+                        "👇 Please choose a pair to get signal:"
+                    ),
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
