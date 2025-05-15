@@ -186,6 +186,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 username = user.get("username")
                 first_name = user.get("first_name")
                 save_authorized_user(tg_id, po_id, username, first_name)
+                keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
                     "text": (
@@ -273,7 +274,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username = from_user.get("username")
             first_name = from_user.get("first_name")
             save_authorized_user(tg_id, po_id, username, first_name)
-
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                     "chat_id": chat_id,
                     "text": (
