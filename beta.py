@@ -33,45 +33,13 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet7")  # Changed to your actual sheet
+sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only for deposit)
+authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 
 tg_channel = "t.me/ZentraAiRegister"
 
-AUTHORIZED_USERS = set()
+# No longer storing authorized users in memory set; saving directly to sheet
 user_data = {}
-
-def load_authorized_users():
-    global AUTHORIZED_USERS
-    AUTHORIZED_USERS = set()
-    user_ids = sheet.col_values(1)
-    print(f"Fetched user IDs from GSheet: {user_ids}")
-    for user_id in user_ids[1:]:
-        if user_id.strip():
-            try:
-                AUTHORIZED_USERS.add(int(user_id))
-            except ValueError:
-                print(f"Skipping invalid ID: {user_id}")
-    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
-
-def save_users():
-    user_ids = sheet.col_values(1)
-    if not user_ids:
-        sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
-        user_ids = sheet.col_values(1)
-    for user_id in AUTHORIZED_USERS:
-        user_info = user_data.get(user_id, {})
-        tg_username = user_info.get("username", "Unknown")
-        tg_name = user_info.get("first_name", "Trader")
-        pocket_option_id = user_info.get("pocket_option_id", "N/A")
-        user_id_str = str(user_id)
-        if user_id_str in user_ids:
-            row_number = user_ids.index(user_id_str) + 1
-            sheet.update(f"B{row_number}", [[tg_username]])
-            sheet.update(f"C{row_number}", [[tg_name]])
-            sheet.update(f"D{row_number}", [[pocket_option_id]])
-        else:
-            sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
-    print("✅ Users saved successfully!")
 
 # Function to get deposit for a trader ID (PO account) from Sheet7
 def get_deposit_for_trader(trader_id: str) -> float | None:
@@ -85,7 +53,19 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
                 return None
     return None
 
-load_authorized_users()
+def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
+    # Check if tg_id already exists in Sheet8 (col 1)
+    tg_ids = authorized_sheet.col_values(1)
+    if str(tg_id) in tg_ids:
+        # Update info if needed
+        row = tg_ids.index(str(tg_id)) + 1
+        authorized_sheet.update(f"B{row}", username or "Unknown")
+        authorized_sheet.update(f"C{row}", first_name or "Trader")
+        authorized_sheet.update(f"D{row}", po_id)
+    else:
+        # Append new row [tg_id, username, first_name, po_id]
+        authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
+    print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
 
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
@@ -238,15 +218,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
 
-            # Add user to authorized list
-            user_id = cq["from"]["id"]
-            AUTHORIZED_USERS.add(user_id)
-            user_data[user_id] = {
-                "username": cq["from"].get("username"),
-                "first_name": cq["from"].get("first_name"),
-                "pocket_option_id": po_id
-            }
-            save_users()
+            # Save user to authorized users sheet (Sheet8)
+            tg_id = cq["from"]["id"]
+            username = cq["from"].get("username")
+            first_name = cq["from"].get("first_name")
+            save_authorized_user(tg_id, po_id, username, first_name)
 
             payload = {
                 "chat_id": chat_id,
