@@ -116,9 +116,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "Welcome! To use this bot, please register your Pocket Option account.\n\n"
-                    "Click the registration link below to register.\n\n"
-                    "Or if you already registered, click 'Check ID' to verify your account."
+                    "Welcome! To get access, you need to register/create a new account using the link below.\n\n"
+                    "After you create your new account, just click the '✅ Check ID' button below and send your account ID to check and proceed to the next step."
                 ),
                 "reply_markup": keyboard
             }
@@ -155,7 +154,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        f"Your account with a total deposit of ${dep:.2f} has been verified!\n"
+                        f"Your account has been verified!\n"
                         "You now have full access to the bot."
                     )
                 }
@@ -164,7 +163,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Check Deposit", "callback_data": f"check_funding:{po_id}"}]
+                    [{"text": "✅ Check Deposit", "callback_data": f"check_funding:{po_id}"}]
                 ]
             }
             payload = {
@@ -182,7 +181,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
         payload = {
             "chat_id": chat_id,
-            "text": f"Unknown command."}
+            "text": f"Unknown command"}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
@@ -199,7 +198,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Pocket Option Account ID (numbers only)."
+                "text": "Please send your Pocket Option account id (numbers only).\n❌ Wrong format: id 123123123\n✅ Correct format: 123123123"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
@@ -211,9 +210,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        f"Your total deposit is ${dep if dep is not None else 0:.2f}, which is less than $30.\n"
-                        "Please fund your account and try again."
-                    )
+                        f"Your account deposit of ${dep:.2f} does not meet the minimum required amount of $30.\n\n"
+                        "Please fund your account to get full access.\n\n"
+                        "Once you have funded, click the button below to confirm."
+                    ),
+                    "reply_markup": keyboard
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
