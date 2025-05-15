@@ -24,7 +24,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet5")
+sheet = spreadsheet.worksheet("Sheet8")
 tg_channel = "t.me/ZentraAiRegister"
 def load_authorized_users():
     global AUTHORIZED_USERS
