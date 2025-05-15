@@ -96,6 +96,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
 
         if text == "/start":
+            # Check if user already authorized (in Sheet8)
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) in tg_ids:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "✅ You're already verified! You can use the bot freely."
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+        
+            # Otherwise send registration keyboard
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "📌  Registration Link", "url": tg_channel}],
@@ -113,6 +124,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
