@@ -55,9 +55,9 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
         row = tg_ids.index(str(tg_id)) + 1
-        authorized_sheet.update(f"B{row}", username or "Unknown")
-        authorized_sheet.update(f"C{row}", first_name or "Trader")
-        authorized_sheet.update(f"D{row}", po_id)
+        authorized_sheet.update(f"B{row}", [[username or "Unknown"]])
+        authorized_sheet.update(f"C{row}", [[first_name or "Trader"]])
+        authorized_sheet.update(f"D{row}", [[po_id]])
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
