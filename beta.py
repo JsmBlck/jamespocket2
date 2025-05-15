@@ -160,20 +160,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "✅ Check Deposit", "callback_data": f"check_funding:{po_id}"}]
-                ]
-            }
             payload = {
                 "chat_id": chat_id,
                  "text": (
-                    f"Your account deposit of ${dep:.2f} does not meet the minimum required amount of $30.\n\n"
-                    "Please fund your account to get full access.\n\n"
-                    "Once you have funded, click the button below to confirm."
-                ),
-                "reply_markup": keyboard
+                        "✅ Your account is registered!\n\n"
+                        "To get full access, you need to fund your account with at least $30.\n"
+                        "Once you've funded it, just send your Account ID again."
+                    )
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
@@ -198,7 +191,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Pocket Option account id (numbers only).\n❌ Wrong format: id 123123123\n✅ Correct format: 123123123"
+                "text": "Please send your Pocket Option account id (numbers only).\n❌ : id 123123123\n✅ : 123123123"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
@@ -207,19 +200,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             po_id = data_str.split(":", 1)[1]
             dep = get_deposit_for_trader(po_id)
             if dep is None or dep < 30:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "✅ Check Deposit", "callback_data": f"check_funding:{po_id}"}]
-                    ]
-                }
                 payload = {
                     "chat_id": chat_id,
                     "text": (
                         "✅ Your account is registered!\n\n"
                         "To get full access, you need to fund your account with at least $30.\n"
-                        "Once you've funded it, click the button below to confirm."
-                    ),
-                    "reply_markup": keyboard
+                        "Once you've funded it, just send your Account ID again."
+                    )
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
