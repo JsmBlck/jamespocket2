@@ -169,9 +169,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Your account deposit does not meet the minimum required amount of $30.\n\n"
-                    "Please fund your account to get full access.\n\n"
-                    "Once you have funded, click the button below to confirm."
+                    "✅ Your account is registered!\n\n"
+                    "To get full access, you need to fund your account with at least $30.\n"
+                    "Once you've funded it, click the button below to confirm."
                 ),
                 "reply_markup": keyboard
             }
@@ -215,9 +215,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        f"Your account deposit does not meet the minimum required amount of $30.\n\n"
-                        "Please fund your account to get full access.\n\n"
-                        "Once you have funded, click the button below to confirm."
+                        "✅ Your account is registered!\n\n"
+                        "To get full access, you need to fund your account with at least $30.\n"
+                        "Once you've funded it, click the button below to confirm."
                     ),
                     "reply_markup": keyboard
                 }
