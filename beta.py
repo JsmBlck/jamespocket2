@@ -130,12 +130,19 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             po_id = text.strip()
             dep = get_deposit_for_trader(po_id)
             if dep is None:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "📌  Registration Link", "url": tg_channel}],
+                        [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                    ]
+                }
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "⚠️ That Pocket Option Account ID was not found in our records.\n"
-                        "Please check your ID or register first."
-                    )
+                        "⚠️ That account is not registered or not signed up using my link.\n"
+                        "Please register a new account and make sure to use the link I provided."
+                    ),
+                    "reply_markup": keyboard
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -157,14 +164,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "I've Funded", "callback_data": f"check_funding:{po_id}"}]
+                    [{"text": "Check Deposit", "callback_data": f"check_funding:{po_id}"}]
                 ]
             }
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Great! We found your account with a total deposit of ${dep:.2f}.\n\n"
-                    "Please fund at least $30 to get full access.\n\n"
+                    f"Your account deposit of ${dep:.2f} does not meet the minimum required amount of $30.\n\n"
+                    "Please fund your account to get full access.\n\n"
                     "Once you have funded, click the button below to confirm."
                 ),
                 "reply_markup": keyboard
