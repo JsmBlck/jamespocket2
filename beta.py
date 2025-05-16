@@ -321,6 +321,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+        
         if data_str.startswith("expiry|"):
             _, pair, expiry = data_str.split("|", 2)
             signals = ["⬆️", "⬇️"]
@@ -334,15 +336,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         
-            # Format user info (ensure variables are defined)
-            full_name = message.get("from", {}).get("first_name", "Unknown")
-            username = message.get("from", {}).get("username", "")
+            # Safe user info extraction
+            message = cq.get("message", {})
+            from_user = cq.get("from", {})
+            full_name = from_user.get("first_name", "Unknown")
+            username = from_user.get("username", "")
             username_display = f"@{username}" if username else "No username"
-            user_id = message.get("from", {}).get("id", "N/A")
+            user_id = from_user.get("id", "N/A")
         
             # Send user trade log to channel/group
             pair_payload = {
-                "chat_id": -1002676665035,  # Replace with your group/channel ID
+                "chat_id": -1002676665035,
                 "text": (
                     "📊 *User Trade Action*\n\n"
                     f"*Full Name:* {full_name}\n"
@@ -356,7 +360,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
-        
+
         
 
 
