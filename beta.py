@@ -210,6 +210,37 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        if message_text == "CHANGE PAIR COMMAND":
+            keyboard = [["Currencies OTC Pairs", "Cryptocurrencies OTC Pairs"]]
+            payload = {
+                "chat_id": chat_id,
+                "text": "🔄 Select a pair type to switch:",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+    
+        elif message_text == "Currencies OTC Pairs":
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "🕒 Choose an OTC pair to trade:",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+    
+        elif message_text == "Cryptocurrencies OTC Pairs":
+            keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "💰 Choose a crypto currency pair to trade:",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+
+        
         if text in otc_pairs:
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
@@ -239,36 +270,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
-    if message_text == "CHANGE PAIR COMMAND":
-        keyboard = [["Currencies OTC Pairs", "Cryptocurrencies OTC Pairs"]]
-        payload = {
-            "chat_id": chat_id,
-            "text": "🔄 Select a pair type to switch:",
-            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-        }
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        return {"ok": True}
-
-    elif message_text == "Currencies OTC Pairs":
-        keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-        payload = {
-            "chat_id": chat_id,
-            "text": "🕒 Choose an OTC pair to trade:",
-            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-        }
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        return {"ok": True}
-
-    elif message_text == "Cryptocurrencies OTC Pairs":
-        keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
-        payload = {
-            "chat_id": chat_id,
-            "text": "💰 Choose a crypto currency pair to trade:",
-            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-        }
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        return {"ok": True}
-
+    
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
