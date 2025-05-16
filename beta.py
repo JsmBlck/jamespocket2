@@ -43,7 +43,7 @@ otc_pairs = [
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC", "CHANGE PAIR COMMAND"]
 crypto_pairs = [
     "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD",
-    "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD", "LTC/USD"]
+    "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "CHANGE PAIR COMMAND"]
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 
 user_data = {}
@@ -236,6 +236,36 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         payload = {
             "chat_id": chat_id,
             "text": f"Unknown command"}
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
+
+    if message_text == "CHANGE PAIR COMMAND":
+        keyboard = [["Currencies OTC Pairs", "Cryptocurrencies OTC Pairs"]]
+        payload = {
+            "chat_id": chat_id,
+            "text": "🔄 Select a pair type to switch:",
+            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+        }
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
+
+    elif message_text == "Currencies OTC Pairs":
+        keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+        payload = {
+            "chat_id": chat_id,
+            "text": "🕒 Choose an OTC pair to trade:",
+            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+        }
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
+
+    elif message_text == "Cryptocurrencies OTC Pairs":
+        keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
+        payload = {
+            "chat_id": chat_id,
+            "text": "💰 Choose a crypto currency pair to trade:",
+            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+        }
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
