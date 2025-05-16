@@ -40,10 +40,10 @@ tg_channel = "t.me/ZentraAiRegister"
 
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
-    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC", "CHANGE PAIR COMMAND"]
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC", "🔄 Change Pair"]
 crypto_pairs = [
     "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC", "Chainlink OTC", "Dogecoin OTC",
-    "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "CHANGE PAIR COMMAND"]
+    "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "🔄 Change Pair"]
 expiry_options = ["S5", "S10", "S15"]
 
 user_data = {}
@@ -210,7 +210,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        if text == "CHANGE PAIR COMMAND":
+        if text == "🔄 Change Pair":
             keyboard = [["Currencies OTC Pairs", "Cryptocurrencies OTC Pairs"]]
             payload = {
                 "chat_id": chat_id,
@@ -305,7 +305,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Pocket Option account id (numbers only).\n❌ : id 123123123\n✅ : 123123123"
+                "text": "Please send your Pocket Option Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
