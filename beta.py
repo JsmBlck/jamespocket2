@@ -200,26 +200,27 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "🕒 Choose an OTC pair to trade:",
+                "text": "You chose the Currencies category. 🕒 Choose an OTC pair to trade:",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-         elif text == "Stocks":
-            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+        
+        elif text == "Stocks":
+            keyboard = [stocks[i:i+3] for i in range(0, len(stocks), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "🕒 Choose an OTC pair to trade:",
+                "text": "You chose the Stocks category. 🕒 Choose a stock to trade:",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-    
+        
         elif text == "Cryptocurrencies":
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "💰 Choose a crypto currency pair to trade:",
+                "text": "You chose the Cryptocurrencies category. 💰 Choose a crypto currency pair to trade:",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
