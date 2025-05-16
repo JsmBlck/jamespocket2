@@ -313,4 +313,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        if data_str.startswith("expiry|"):
+            _, pair, expiry = data_str.split("|", 2)
+            signals = ["⬆️", "⬇️"]
+            signal = random.choice(signals)
+            signal_message = f"Signal for {pair} with expiry {expiry}: {signal}"
+            payload = {
+                "chat_id": chat_id,
+                "text": signal_message
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+
+
 
