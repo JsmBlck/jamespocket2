@@ -36,7 +36,7 @@ spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 
-tg_channel = "t.me/ZentraAiRegister"
+tg_channel = "https://u3.shortink.io/register?utm_campaign=815367&utm_source=affiliate&utm_medium=sr&a=BaVC7XCAwnsCc6&ac=fluxmate&code=50START"
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "EUR/JPY OTC", "EUR/NZD OTC", "EUR/USD OTC", "GBP/AUD OTC", "GBP/JPY OTC", "UAH/USD OTC",
