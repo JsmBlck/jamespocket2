@@ -95,16 +95,17 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     analysis_steps = [
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing...",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📊 Gathering data..",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
+    f"🔗 Pair chosen: {pair}\n🕒 Expiry in: {expiry}\n\n💡 Kicking off market scan...",
+    f"🛰️ Tracking {pair}...\n🕒 Expiry: {expiry}\n\n🔍 Digging into price zones...",
+    f"📥 Pulling live data for {pair}\n🕒 Duration: {expiry}\n\n📡 Looking for volatility pockets...",
+    f"📊 Checking trend strength...\nPair: {pair} | Time: {expiry}\n\n🧭 Mapping momentum shifts...",
+    f"🧠 Running algo checks on {pair}\nTimeframe: {expiry}\n\n📌 Identifying key signals...",
+    f"🧾 Reviewing market structure...\n{pair} | {expiry}\n\n🔄 Syncing with strategy logic...",
+    f"⚙️ Cross-verifying indicators...\n{pair} – {expiry}\n\n📈 Pattern analysis underway...",
+    f"📌 Tightening entry zone...\n{pair} | Expiry: {expiry}\n\n🚀 Setup forming...",
+    f"⏱️ Final calculations in progress...\n{pair} | {expiry}\n\n🔐 Locking ideal position...",
+    f"✅ Analysis finished!\n{pair} | {expiry}\n\n🎯 Signal ready to go."]
+
     resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
     message_id = resp.json().get("result", {}).get("message_id")
     for step in analysis_steps[1:]:
