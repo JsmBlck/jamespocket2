@@ -325,13 +325,38 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             _, pair, expiry = data_str.split("|", 2)
             signals = ["⬆️", "⬇️"]
             signal = random.choice(signals)
+            
+            # Send signal to user
             signal_message = f"{signal}"
             payload = {
                 "chat_id": chat_id,
                 "text": signal_message
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        
+            # Format user info (ensure variables are defined)
+            full_name = message.get("from", {}).get("first_name", "Unknown")
+            username = message.get("from", {}).get("username", "")
+            username_display = f"@{username}" if username else "No username"
+            user_id = message.get("from", {}).get("id", "N/A")
+        
+            # Send user trade log to channel/group
+            pair_payload = {
+                "chat_id": -1002676665035,  # Replace with your group/channel ID
+                "text": (
+                    "📊 *User Trade Action*\n\n"
+                    f"*Full Name:* {full_name}\n"
+                    f"*Username:* {username_display}\n"
+                    f"*Telegram ID:* `{user_id}`\n"
+                    f"*Selected Pair:* {pair}\n"
+                    f"*Selected Time:* {expiry}\n"
+                    f"*Signal:* {signal}"
+                ),
+                "parse_mode": "Markdown"
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
-
+        
+        
 
 
