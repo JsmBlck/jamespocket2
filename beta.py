@@ -113,7 +113,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "chat_id": chat_id,
             "message_id": message_id,
             "text": step})
-    signal = random.choice(["↗️", "↘️"])
+    signal = random.choice(["⬆️", "⬇️"])
     final_text = f"{signal}"
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
