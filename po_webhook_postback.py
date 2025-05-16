@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)
+            await asyncio.sleep(240)
     asyncio.create_task(self_ping_loop())
     yield
     await ping_client.aclose()
