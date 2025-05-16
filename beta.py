@@ -40,7 +40,10 @@ tg_channel = "t.me/ZentraAiRegister"
 
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
-    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC", "CHANGE PAIR COMMAND"]
+crypto_pairs = [
+    "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD",
+    "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD", "LTC/USD", "BTC/USD", "ETH/USD", "LTC/USD"]
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 
 user_data = {}
