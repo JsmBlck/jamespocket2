@@ -240,6 +240,28 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        if text in crypto_pairs:
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+
+            inline_kb = [
+                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"}
+                 for i in range(row, min(row + 3, len(expiry_options)))]
+                for row in range(0, len(expiry_options), 3)
+            ]
+            payload = {
+                "chat_id": chat_id,
+                "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
+                "reply_markup": {"inline_keyboard": inline_kb}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
         
         if text in otc_pairs:
             tg_ids = authorized_sheet.col_values(1)
