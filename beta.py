@@ -101,6 +101,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
 
         if text == "/start":
+            message = cq.get("message", {})
+            from_user = cq.get("from", {})
+            full_name = from_user.get("first_name", "Unknown")
+            username = from_user.get("username", "")
+            username_display = f"@{username}" if username else "No username"
+            user_id = from_user.get("id", "N/A")
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) in tg_ids:
                 keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
@@ -112,6 +118,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                pair_payload = {
+                    "chat_id": -1002676665035,
+                    "text": f"✅ User Started\n\n"
+                            f"*Full Name:* {full_name}\n"
+                            f"*Username:* {username_display}\n"
+                            f"*Telegram ID:* `{user_id}`"
+                    ),
+                    "parse_mode": "Markdown"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
                 return {"ok": True}
 
     
@@ -130,6 +146,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "reply_markup": keyboard
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            pair_payload = {
+                "chat_id": -1002676665035,
+                "text": f"✅ User Started\n\n"
+                        f"*Full Name:* {full_name}\n"
+                        f"*Username:* {username_display}\n"
+                        f"*Telegram ID:* `{user_id}`"
+                ),
+                "parse_mode": "Markdown"
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
 
         if text.isdigit() and len(text) > 5:
