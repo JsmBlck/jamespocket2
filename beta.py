@@ -101,8 +101,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
 
         if text == "/start":
-            message = cq.get("message", {})
-            from_user = cq.get("from", {})
+            message = data.get("message", {})  
+            from_user = message.get("from", {}) 
             full_name = from_user.get("first_name", "Unknown")
             username = from_user.get("username", "")
             username_display = f"@{username}" if username else "No username"
