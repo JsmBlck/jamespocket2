@@ -185,7 +185,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                    "text": "⚠️ You need to get verified to use this bot."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -202,7 +202,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                    "text": "⚠️ You need to get verified to use this bot."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -219,7 +219,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                    "text": "⚠️ You need to get verified to use this bot."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -236,14 +236,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                    "text": "⚠️ You need to get verified to use this bot."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "You chose the Cryptocurrencies category. 💰 Choose a crypto currency pair to trade:",
+                "text": "You chose the Cryptocurrencies category. 💰 Choose a crypto currency to trade:",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
@@ -282,10 +282,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = cq["message"]["chat"]["id"]
         message_id = cq["message"]["message_id"]
         cq_id = cq.get("id")
-
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
@@ -293,7 +291,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
         if data_str.startswith("check_funding:"):
             po_id = data_str.split(":", 1)[1]
             dep = get_deposit_for_trader(po_id)
@@ -308,7 +305,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
             from_user = cq.get("from", {})
             tg_id = from_user.get("id")
             username = from_user.get("username")
@@ -325,7 +321,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
         if data_str.startswith("expiry|"):
             _, pair, expiry = data_str.split("|", 2)
             signals = ["⬆️", "⬇️"]
