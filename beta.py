@@ -93,33 +93,6 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    analysis_steps = [
-    f"🔗 Pair chosen: {pair}\n🕒 Expiry in: {expiry}\n\n💡 Kicking off market scan...",
-    f"🛰️ Tracking {pair}...\n🕒 Expiry: {expiry}\n\n🔍 Digging into price zones...",
-    f"📥 Pulling live data for {pair}\n🕒 Duration: {expiry}\n\n📡 Looking for volatility pockets...",
-    f"📊 Checking trend strength...\nPair: {pair} | Time: {expiry}\n\n🧭 Mapping momentum shifts...",
-    f"🧠 Running algo checks on {pair}\nTimeframe: {expiry}\n\n📌 Identifying key signals...",
-    f"🧾 Reviewing market structure...\n{pair} | {expiry}\n\n🔄 Syncing with strategy logic...",
-    f"⚙️ Cross-verifying indicators...\n{pair} – {expiry}\n\n📈 Pattern analysis underway...",
-    f"📌 Tightening entry zone...\n{pair} | Expiry: {expiry}\n\n🚀 Setup forming...",
-    f"⏱️ Final calculations in progress...\n{pair} | {expiry}\n\n🔐 Locking ideal position...",
-    f"✅ Analysis finished!\n{pair} | {expiry}\n\n🎯 Signal ready to go."]
-
-    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
-    message_id = resp.json().get("result", {}).get("message_id")
-    for step in analysis_steps[1:]:
-        await client.post(EDIT_MESSAGE, json={
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "text": step})
-    signal = random.choice(["⬆️", "⬇️"])
-    final_text = f"{signal}"
-    await client.post(EDIT_MESSAGE, json={
-        "chat_id": chat_id,
-        "message_id": message_id,
-        "text": final_text})
-    
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
@@ -241,7 +214,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        if text in crypto_pairs:
+
+
+        # Replace only these parts inside your existing /webhook handler:
+
+        if text in crypto_pairs or text in otc_pairs:
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
@@ -250,11 +227,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
+        
             inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"}
-                 for i in range(row, min(row + 3, len(expiry_options)))]
-                for row in range(0, len(expiry_options), 3)
+                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
+                 for i in range(len(expiry_options))]
             ]
             payload = {
                 "chat_id": chat_id,
@@ -264,29 +240,23 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         
-        if text in otc_pairs:
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-
-            inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"}
-                 for i in range(row, min(row + 3, len(expiry_options)))]
-                for row in range(0, len(expiry_options), 3)
-            ]
+        # And replace the callback_query handler part for expiry selection with this:
+        
+        if data_str.startswith("expiry|"):
+            _, pair, expiry = data_str.split("|", 2)
+            # Delete the time options message
+            background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
+        
+            # Send only arrow signal (random up or down)
+            signal = random.choice(["⬆️", "⬇️"])
             payload = {
                 "chat_id": chat_id,
-                "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
-                "reply_markup": {"inline_keyboard": inline_kb}
+                "text": signal
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        
         payload = {
             "chat_id": chat_id,
             "text": f"Unknown command"}
