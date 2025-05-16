@@ -76,11 +76,12 @@ async def lifespan(app: FastAPI):
         await asyncio.sleep(5)
         while True:
             try:
-                await client.get(RENDER_URL)
+                await client.get(f"{RENDER_URL}/")
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(240)
+            await asyncio.sleep(240)  # Every 4 minutes
+
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
