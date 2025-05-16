@@ -187,7 +187,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         if text == "🔄 Change Category":
-            keyboard = [["Currencies", "Stocks", "Cryptocurrencies"]]
+            keyboard = [["Currencies", "Stocks", "Crypto"]]
             payload = {
                 "chat_id": chat_id,
                 "text": "🔄 Select a pair type to switch:",
