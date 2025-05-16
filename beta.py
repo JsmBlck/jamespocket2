@@ -216,7 +216,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         
-        elif text == "Cryptocurrencies":
+        elif text == "Crypto":
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -256,7 +256,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
         payload = {
             "chat_id": chat_id,
-            "text": f"Unknown command"}
+            "text": "Unknown command. Please press /start to begin."
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
