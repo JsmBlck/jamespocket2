@@ -239,22 +239,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
-        # And replace the callback_query handler part for expiry selection with this:
-        
-        if data_str.startswith("expiry|"):
-            _, pair, expiry = data_str.split("|", 2)
-            # Delete the time options message
-            background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-        
-            # Send only arrow signal (random up or down)
-            signal = random.choice(["⬆️", "⬇️"])
-            payload = {
-                "chat_id": chat_id,
-                "text": signal
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
 
         
         payload = {
@@ -317,7 +301,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             _, pair, expiry = data_str.split("|", 2)
             signals = ["⬆️", "⬇️"]
             signal = random.choice(signals)
-            signal_message = f"Signal for {pair} with expiry {expiry}: {signal}"
+            signal_message = f"{signal}"
             payload = {
                 "chat_id": chat_id,
                 "text": signal_message
