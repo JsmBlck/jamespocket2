@@ -37,14 +37,16 @@ sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only fo
 authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 
 tg_channel = "t.me/ZentraAiRegister"
-
+expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC", "🔄 Change Pair"]
 crypto_pairs = [
     "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC", "Chainlink OTC", "Dogecoin OTC",
     "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "🔄 Change Pair"]
-expiry_options = ["S5", "S10", "S15"]
+stocks = [
+    "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
+    "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Pair"]
 
 user_data = {}
 
@@ -185,7 +187,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         if text == "🔄 Change Pair":
-            keyboard = [["Currencies OTC Pairs", "Cryptocurrencies OTC Pairs"]]
+            keyboard = [["Currencies", "Stocks", "Cryptocurrencies"]]
             payload = {
                 "chat_id": chat_id,
                 "text": "🔄 Select a pair type to switch:",
@@ -194,7 +196,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
     
-        elif text == "Currencies OTC Pairs":
+        elif text == "Currencies":
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "🕒 Choose an OTC pair to trade:",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+         elif text == "Stocks":
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -204,7 +215,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
     
-        elif text == "Cryptocurrencies OTC Pairs":
+        elif text == "Cryptocurrencies":
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -218,7 +229,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         # Replace only these parts inside your existing /webhook handler:
 
-        if text in crypto_pairs or text in otc_pairs:
+        if text in crypto_pairs or text in otc_pairs or text in stocks:
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
