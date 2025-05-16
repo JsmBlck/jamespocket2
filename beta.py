@@ -47,9 +47,7 @@ crypto_pairs = [
 stocks = [
     "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
     "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
-
 user_data = {}
-
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -60,7 +58,6 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
-
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -71,7 +68,6 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
@@ -88,9 +84,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
-
 app = FastAPI(lifespan=lifespan)
-
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
@@ -185,8 +179,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
+##############################################################################################################################################
         if text == "🔄 Change Category":
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             keyboard = [["Currencies", "Stocks", "Crypto"]]
             payload = {
                 "chat_id": chat_id,
@@ -195,8 +197,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
         elif text == "Currencies":
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -205,8 +214,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
         elif text == "Stocks":
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             keyboard = [stocks[i:i+3] for i in range(0, len(stocks), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -215,8 +231,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
         elif text == "Crypto":
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -225,12 +248,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
-
-
-
-        # Replace only these parts inside your existing /webhook handler:
-
+##############################################################################################################################################
         if text in crypto_pairs or text in otc_pairs or text in stocks:
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
@@ -240,7 +258,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-        
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(len(expiry_options))]
@@ -252,11 +269,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
-        
+##############################################################################################################################################
         payload = {
             "chat_id": chat_id,
-            "text": "Unknown command. Please press /start to begin."
+            "text": "Unknown command. Please press /start to begin."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
