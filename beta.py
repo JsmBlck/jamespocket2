@@ -124,7 +124,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "Welcome! To get access, you need to register/create a new account using the link below.\n\n"
+                    "To get access, you need to register/create a new account using the link below.\n\n"
                     "After you create your new account, just click the '✅ Check ID' button below and send your account ID to check and proceed to the next step."
                 ),
                 "reply_markup": keyboard
