@@ -108,7 +108,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if text == "/start":
             message = data.get("message", {})  
             from_user = message.get("from", {}) 
-            full_name = from_user.get("first_name", "Unknown")
+            full_name = from_user.get("first_name", "Trader")
             username = from_user.get("username", "")
             username_display = f"@{username}" if username else "No username"
             user_id = from_user.get("id", "N/A")
@@ -146,8 +146,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "To get access, you need to register/create a new account using the link below.\n\n"
-                    "After you create your new account, just click the '✅ Check ID' button below and send your account ID to check and proceed to the next step."
+                    f"Welcome {full_name}!\n\n"
+                    "To get access, you’ll need to create an account. It’s quick and easy — just follow the steps below.\n\n"
+                    "1️⃣ Create an Account: Click the “📌 Registration Link” and sign up using a new and unused email address.\n"
+                    "2️⃣ Copy Your Account ID: After registering, you’ll get an account ID.\n"
+                    "3️⃣ Verify Your ID: Click the “✅Check ID” button and send your account ID numbers only.\n\n"
+                    "Sample:\n"
+                    "❌: id 123123123\n"
+                    "✅: 123123123"
                 ),
                 "reply_markup": keyboard
             }
