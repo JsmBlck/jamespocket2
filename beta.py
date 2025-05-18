@@ -69,6 +69,8 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
 @asynccontextmanager
+
+
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
@@ -76,16 +78,18 @@ async def lifespan(app: FastAPI):
         await asyncio.sleep(5)
         while True:
             try:
-                await client.get(f"{RENDER_URL}/")
+                await client.get(RENDER_URL)
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(240)  # Every 4 minutes
+            await asyncio.sleep(300)  # Every 4 minutes
 
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
 app = FastAPI(lifespan=lifespan)
+
+
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
