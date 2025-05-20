@@ -343,7 +343,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "text": f"💰 Current Account Deposit: ${dep:.2f}"
+                        f"💰 Current Account Deposit: ${dep:.2f}"
                     )
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
