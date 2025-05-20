@@ -208,8 +208,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "chat_id": chat_id,
                 "text": (
                     "✅ Your account is registered!\n\n"
-                    "To get full access, you need to fund your account with at least $30.\n"
-                    "Once you've funded it, just send your Account ID again."
+                    "🔓 You're just one step away from full access.\n\n"
+                    "💰 Final Step:\nFund your account with any amount.\n\n"
+                    "Once you’ve made the deposit, simply send your Account ID again to complete verification."
                 )
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
