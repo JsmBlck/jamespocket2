@@ -189,7 +189,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
 
-            if dep >= 30:
+            if dep >= 5:
                 tg_id = user_id
                 username = user.get("username")
                 first_name = user.get("first_name")
