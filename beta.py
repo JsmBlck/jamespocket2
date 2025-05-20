@@ -197,7 +197,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 username = user.get("username")
                 first_name = user.get("first_name")
                 save_authorized_user(tg_id, po_id, username, first_name)
-                keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
                     "text": (
@@ -208,14 +207,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
+            keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "📌  Registration Link", "url": tg_channel}],
+                        [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}]
+                    ]
+                }
             payload = {
                 "chat_id": chat_id,
                 "text": (
                     "✅ Your account is registered!\n\n"
                     "To get full access, you need to fund your account with at least $30.\n"
-                    f"💰 Account Deposit: ${dep:.2f}\n"
                     "Once you've funded it, just send your Account ID again."
-                )
+                ),
+                "reply_markup": keyboard
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
@@ -331,7 +336,18 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
+        if data_str.startswith("check_deposit:"):
+            po_id = data_str.split(":", 1)[1]
+            dep = get_deposit_for_trader(po_id)
+            if dep is None or dep < 30:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "text": f"💰 Current Account Deposit: ${dep:.2f}"
+                    )
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             from_user = cq.get("from", {})
             tg_id = from_user.get("id")
             username = from_user.get("username")
