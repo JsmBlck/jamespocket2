@@ -147,10 +147,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "chat_id": chat_id,
                 "text": (
                     f"Welcome {full_name}!\n\n"
-                    "To get access, you’ll need to create an account. It’s quick and easy — just follow the steps below.\n\n"
+                    "Let’s get you started — just follow these quick steps below:\n\n"
                     "1️⃣ Create an Account:\nClick the “📌 Registration Link” and sign up using a new and unused email address.\n\n"
-                    "2️⃣ Copy Your Account ID:\nAfter registering, you’ll get an account ID.\n\n"
-                    "3️⃣ Verify Your ID:\nClick the “✅Check ID” button and send your account ID numbers only."
+                    "2️⃣ Copy Your Account ID:\nOnce registered, Copy your account ID on your Profile.\n\n"
+                    "3️⃣ Verify Your ID:\nClick the “✅ Check ID” button and send your account ID, numbers only.\n\n"
                 ),
                 "reply_markup": keyboard
             }
