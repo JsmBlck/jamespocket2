@@ -150,10 +150,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "To get access, you’ll need to create an account. It’s quick and easy — just follow the steps below.\n\n"
                     "1️⃣ Create an Account: Click the “📌 Registration Link” and sign up using a new and unused email address.\n"
                     "2️⃣ Copy Your Account ID: After registering, you’ll get an account ID.\n"
-                    "3️⃣ Verify Your ID: Click the “✅Check ID” button and send your account ID numbers only.\n\n"
-                    "Sample:\n"
-                    "❌: id 123123123\n"
-                    "✅: 123123123"
+                    "3️⃣ Verify Your ID: Click the “✅Check ID” button and send your account ID numbers only."
                 ),
                 "reply_markup": keyboard
             }
