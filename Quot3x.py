@@ -10,7 +10,7 @@ import os
 # Constants
 RENDER_URL = "https://jamespocket2-c99h.onrender.com"
 SPREADSHEET_NAME = "TelegramBotMembers"
-WORKSHEET_NAME = "Sheet9"
+WORKSHEET_NAME = "Sheet9"  # This is your Quotex data sheet
 
 # Lifespan hook for self-ping (keep-alive)
 async def lifespan(app: FastAPI):
@@ -44,7 +44,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 gs_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gs_client = gspread.authorize(gs_creds)
 spreadsheet = gs_client.open(SPREADSHEET_NAME)
-sheet = spreadsheet.worksheet(WORKSHEET_NAME)
+quotex_sheet = spreadsheet.worksheet(WORKSHEET_NAME)
 
 @app.get("/")
 def root():
@@ -65,9 +65,6 @@ async def quotex_webhook(
         deposit = float(payout or "0")
     except ValueError:
         deposit = 0.0
-
-    # Use a different worksheet for Quotex
-    quotex_sheet = spreadsheet.worksheet("Quotex")
 
     try:
         cell = quotex_sheet.find(str(uid))
