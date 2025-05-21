@@ -51,55 +51,52 @@ def root():
     return {"message": "✅ ZentraFx Postback Webhook is live."}
 
 @app.get("/webhook")
-async def webhook(
-    trader_id: Optional[str] = None,
-    totaldep: Optional[str] = "0",
-    reg: Optional[str] = "",  # still accepted in URL but not stored
-    sumdep: Optional[str] = "",
-    dep: Optional[str] = "",
-    ftd: Optional[str] = ""
+async def quotex_webhook(
+    status: Optional[str] = None,
+    uid: Optional[str] = None,
+    payout: Optional[str] = "0"
 ):
-    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}")
+    print(f"📥 Quotex Incoming: status={status}, uid={uid}, payout={payout}")
 
-    if not trader_id:
-        return {"status": "error", "message": "❌ Missing trader_id"}
+    if not uid or not status:
+        return {"status": "error", "message": "Missing required params"}
 
     try:
-        deposit = float(totaldep or "0")
+        deposit = float(payout or "0")
     except ValueError:
         deposit = 0.0
 
+    # Use a different worksheet for Quotex
+    quotex_sheet = spreadsheet.worksheet("Quotex")
+
     try:
-        # Try to find the trader ID in the sheet
-        cell = sheet.find(str(trader_id))
+        cell = quotex_sheet.find(str(uid))
 
         if cell is None:
-            raise ValueError("Trader not found")
+            raise ValueError("User not found")
 
         row = cell.row
-        current_total = sheet.cell(row, 2).value or "0"
+        current_total = quotex_sheet.cell(row, 2).value or "0"
         updated_total = float(current_total) + deposit
 
-        # Update only total deposit
-        sheet.update_cell(row, 2, str(updated_total))
+        quotex_sheet.update_cell(row, 2, str(updated_total))
 
-        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}")
+        print(f"✅ Updated Quotex user {uid}: total={updated_total}")
         return {
             "status": "updated",
-            "trader_id": trader_id,
-            "totaldep": updated_total
+            "user_id": uid,
+            "total": updated_total
         }
 
     except (ValueError, gspread.exceptions.GSpreadException):
-        # Trader not found — register new
-        sheet.append_row([trader_id, deposit])
-        print(f"🆕 Registered new trader {trader_id}")
+        quotex_sheet.append_row([uid, deposit])
+        print(f"🆕 Registered new Quotex user {uid}")
         return {
             "status": "registered",
-            "trader_id": trader_id,
-            "totaldep": deposit
+            "user_id": uid,
+            "total": deposit
         }
 
     except Exception as e:
-        print(f"❌ Error handling trader_id={trader_id}: {e}")
+        print(f"❌ Quotex error: {e}")
         return {"status": "error", "message": str(e)}
