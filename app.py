@@ -287,7 +287,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Fallback for any other message
         payload = {
             "chat_id": chat_id,
-            "text": f"Unknown command."}
+            "text": f"Unknown command. \nClick this 👉 /start."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
