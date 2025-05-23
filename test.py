@@ -173,15 +173,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if dep is None:
                 keyboard = {
                     "inline_keyboard": [
-                        [{"text": "📌  Registration Link", "url": tg_channel}],
-                        [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                        [{"text": "🔄 Restart Process", "callback_data": "/start"}]
                     ]
                 }
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "⚠️ That account is not registered or not signed up using my link.\n"
-                        "Please register a new account and make sure to use the link I provided."
+                        "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
+                        "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
+                        "Tap below to start over 👇"
                     ),
                     "reply_markup": keyboard
                 }
