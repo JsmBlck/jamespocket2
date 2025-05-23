@@ -35,9 +35,8 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
-
-pocketlink = "https://u3.shortink.io/register?utm_campaign=815367&utm_source=affiliate&utm_medium=sr&a=BaVC7XCAwnsCc6&ac=fluxmate&code=50START"
-quotexlink = "https://broker-qx.pro/sign-up/?lid=1360671"
+pocketlink = os.getenv("POCKET_LINK")
+quotexlink = os.getenv("QUOTEX_LINK")
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
