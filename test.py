@@ -375,7 +375,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         if data_str == "restart_process":
-            full_name = f"{callback_data['from']['first_name']} {callback_data['from'].get('last_name', '')}".strip()
+            message = data.get("message", {})  
+            from_user = message.get("from", {}) 
+            full_name = from_user.get("first_name", "Trader")
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
