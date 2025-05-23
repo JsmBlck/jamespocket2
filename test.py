@@ -36,7 +36,8 @@ spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 
-tg_channel = "https://u3.shortink.io/register?utm_campaign=815367&utm_source=affiliate&utm_medium=sr&a=BaVC7XCAwnsCc6&ac=fluxmate&code=50START"
+pocketlink = "https://u3.shortink.io/register?utm_campaign=815367&utm_source=affiliate&utm_medium=sr&a=BaVC7XCAwnsCc6&ac=fluxmate&code=50START"
+quotexlink = "https://broker-qx.pro/sign-up/?lid=1360671"
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
@@ -324,7 +325,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "broker_pocket":
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "📌  Registration Link", "url": tg_channel}],
+                    [{"text": "📌  Registration Link", "url": pocketlink}],
                     [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
@@ -342,7 +343,27 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
+        if data_str == "broker_quotex":
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "📌  Registration Link", "url": quotexlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                ]
+            }
+            payload = {
+                "chat_id": chat_id,
+                "text": (
+                    "Here are the steps to start using the bot with **Quotex**:\n\n"
+                    "1️⃣ **Create an Account**\nTap the “📌 Registration Link” and sign up using a new, unused email address.\n\n"
+                    "2️⃣ **Copy Your Account ID**\nAfter registering, go to your profile and copy your Quotex account ID.\n\n"
+                    "3️⃣ **Verify Your ID**\nClick the “✅ Check ID” button and send your account ID (numbers only).\n\n"
+                    "4️⃣ **Fund Your Account**\nTo unlock full access to the bot, deposit any amount into your Quotex account.\n\n"
+                    "Let me know once you're done and ready to go! 🚀"
+                ),
+                "reply_markup": keyboard
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
         
         if data_str == "check_id":
             payload = {
