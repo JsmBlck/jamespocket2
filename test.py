@@ -60,6 +60,8 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
+
+
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -89,9 +91,57 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
+
+async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
+    await asyncio.sleep(300)
+    dep = get_deposit_for_trader(po_id)
+    if dep is None:
+        keyboard = {
+            "inline_keyboard": [
+                [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
+            ]
+        }
+        payload = {
+            "chat_id": chat_id,
+            "text": (
+                "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
+                "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
+                "Tap below to start over 👇"
+            ),
+            "reply_markup": keyboard
+        }
+        await client.post(SEND_MESSAGE, json=payload)
+        return
+    if dep >= 5:
+        tg_id = user_id
+        username = user.get("username")
+        first_name = user.get("first_name")
+        save_authorized_user(tg_id, po_id, username, first_name)
+
+        keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+        payload = {
+            "chat_id": chat_id,
+            "text": (
+                "✅ You are now verified and can access the bot fully.\n\n"
+                "👇 Please choose a pair to get signal:"
+            ),
+            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+        }
+        await client.post(SEND_MESSAGE, json=payload)
+        return
+    payload = {
+        "chat_id": chat_id,
+        "text": (
+            "✅ Your account is registered!\n\n"
+            "🔓 You're just one step away from full access.\n\n"
+            "💰 Final Step:\nFund your account with any amount.\n\n"
+            "Once you’ve made the deposit, simply send your Account ID again to complete verification."
+        )
+    }
+    await client.post(SEND_MESSAGE, json=payload)
+
+
 app = FastAPI(lifespan=lifespan)
-
-
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
@@ -169,52 +219,21 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-            dep = get_deposit_for_trader(po_id)
-            if dep is None:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
-                    ]
-                }
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
-                        "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
-                        "Tap below to start over 👇"
-                    ),
-                    "reply_markup": keyboard
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-
-            if dep >= 5:
-                tg_id = user_id
-                username = user.get("username")
-                first_name = user.get("first_name")
-                save_authorized_user(tg_id, po_id, username, first_name)
-                keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "✅ You are now verified and can access the bot fully.\n\n"
-                        "👇 Please choose a pair to get signal:"
-                    ),
-                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
+        
             payload = {
                 "chat_id": chat_id,
-                "text": (
-                    "✅ Your account is registered!\n\n"
-                    "🔓 You're just one step away from full access.\n\n"
-                    "💰 Final Step:\nFund your account with any amount.\n\n"
-                    "Once you’ve made the deposit, simply send your Account ID again to complete verification."
-                )
+                "text": "Thanks! We're checking your account. Please wait around 5 minutes..."
             }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            await client.post(SEND_MESSAGE, json=payload)
+        
+            # Schedule delayed check
+            background_tasks.add_task(
+                delayed_verification_check,
+                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
+            )
+        
             return {"ok": True}
+
 ##############################################################################################################################################
         if text == "🔄 Change Category":
             tg_ids = authorized_sheet.col_values(1)
