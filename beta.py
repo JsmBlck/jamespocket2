@@ -147,10 +147,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "chat_id": chat_id,
                 "text": (
                     f"Welcome {full_name}!\n\n"
-                    "Let’s get you started — just follow these quick steps below:\n\n"
-                    "1️⃣ Create an Account:\nClick the “📌 Registration Link” and sign up using a new and unused email address.\n\n"
-                    "2️⃣ Copy Your Account ID:\nOnce registered, Copy your account ID on your Profile.\n\n"
-                    "3️⃣ Verify Your ID:\nClick the “✅ Check ID” button and send your account ID, numbers only.\n\n"
+                "Let’s get you started — just follow these quick steps below:\n\n"
+                "1️⃣ Create an Account:\nClick the “📌 Registration Link” and sign up using a new and unused email address.\n\n"
+                "2️⃣ Copy Your Account ID:\nOnce registered, Copy your account ID on your Profile.\n\n"
+                "3️⃣ Verify Your ID:\nClick the “✅ Check ID” button and send your account ID, numbers only.\n\n"
+                "4️⃣ Fund Your Account:\nAfter registration, simply fund your account with any amount to unlock full access to the bot.\n"
                 ),
                 "reply_markup": keyboard
             }
