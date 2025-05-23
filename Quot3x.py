@@ -10,7 +10,7 @@ import os
 # Constants
 RENDER_URL = "https://jamespocket2-c99h.onrender.com"
 SPREADSHEET_NAME = "TelegramBotMembers"
-WORKSHEET_NAME = "Sheet9"  # This is your Quotex data sheet
+WORKSHEET_NAME = "Sheet7"  # This is your Quotex data sheet
 
 # Lifespan hook for self-ping (keep-alive)
 async def lifespan(app: FastAPI):
