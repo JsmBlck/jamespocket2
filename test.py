@@ -375,8 +375,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
         if data_str == "restart_process":
-            message = data.get("message", {})  
-            from_user = message.get("from", {}) 
+            message = cq.get("message", {})
+            from_user = cq.get("from", {})
             full_name = from_user.get("first_name", "Trader")
             keyboard = {
                 "inline_keyboard": [
