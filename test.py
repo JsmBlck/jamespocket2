@@ -352,7 +352,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Pocket Option Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
+                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
