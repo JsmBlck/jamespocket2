@@ -39,8 +39,10 @@ authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 tg_channel = "https://u3.shortink.io/register?utm_campaign=815367&utm_source=affiliate&utm_medium=sr&a=BaVC7XCAwnsCc6&ac=fluxmate&code=50START"
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
-    "EUR/JPY OTC", "EUR/NZD OTC", "EUR/USD OTC", "GBP/AUD OTC", "GBP/JPY OTC", "UAH/USD OTC",
-    "SAR/CNY OTC", "AED/CNY OTC", "CHF/JPY OTC", "BHD/CNY OTC",  "CAD/CHF OTC", "CAD/JPY OTC", "🔄 Change Category"]
+    "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
+    "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
+    "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
+    "🔄 Change Category"]
 crypto_pairs = [
     "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC", "Chainlink OTC", "Dogecoin OTC",
     "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "🔄 Change Category"]
@@ -223,7 +225,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot."
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -240,7 +242,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot."
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -257,7 +259,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot."
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -274,7 +276,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot."
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -292,7 +294,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
