@@ -173,7 +173,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if dep is None:
                 keyboard = {
                     "inline_keyboard": [
-                        [{"text": "🔄 Restart Process", "callback_data": "/start"}]
+                        [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
                     ]
                 }
                 payload = {
@@ -347,7 +347,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-
+        
         
         if data_str == "check_id":
             payload = {
@@ -374,6 +374,24 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        if data_str == "restart_process":
+        full_name = f"{callback_data['from']['first_name']} {callback_data['from'].get('last_name', '')}".strip()
+        keyboard = {
+            "inline_keyboard": [
+                [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
+                [{"text": "Quotex", "callback_data": "broker_quotex"}]
+            ]
+        }
+        payload = {
+            "chat_id": chat_id,
+            "text": (
+                f"Hey {full_name}, welcome back! 🙌\n\n"
+                "Which broker do you want to use?"
+            ),
+            "reply_markup": keyboard
+        }
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
         
         if data_str.startswith("expiry|"):
             _, pair, expiry = data_str.split("|", 2)
