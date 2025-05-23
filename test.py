@@ -320,6 +320,30 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         cq_id = cq.get("id")
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
+
+        if data_str == "broker_pocket":
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "📌  Registration Link", "url": tg_channel}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                ]
+            }
+            payload = {
+                "chat_id": chat_id,
+                "text": (
+                    "Here are the steps to start using the bot with **Pocket Broker**:\n\n"
+                    "1️⃣ **Create an Account**\nTap the “📌 Registration Link” and sign up using a new, unused email address.\n\n"
+                    "2️⃣ **Copy Your Account ID**\nAfter registering, go to your profile and copy your Pocket Broker account ID.\n\n"
+                    "3️⃣ **Verify Your ID**\nClick the “✅ Check ID” button and send your account ID (numbers only).\n\n"
+                    "4️⃣ **Fund Your Account**\nTo unlock full access to the bot, deposit any amount into your Pocket Broker account.\n\n"
+                    "Let me know once you're done and ready to go! 🚀"
+                ),
+                "reply_markup": keyboard
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+
+        
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
