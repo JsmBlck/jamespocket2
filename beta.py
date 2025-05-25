@@ -171,7 +171,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 # Define inline keyboard buttons here
                 inline_keyboard = {
                     "inline_keyboard": [
-                       [{"text": "🚀 Start the Bot", "url": f"botlink"}]
+                        [{"text": "🚀 Start the Bot", "url": os.getenv("BOT_LINK")}]
                     ]
                 }
 
