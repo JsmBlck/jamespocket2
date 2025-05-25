@@ -168,26 +168,30 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if "video" in msg and "caption" in msg:
                 video_file_id = msg["video"]["file_id"]
                 caption = msg["caption"]
-
-                # Define inline keyboard buttons here
+                button_options = [
+                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
+                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
+                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
+                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
+                ]
+                chosen_button = random.choice(button_options)
                 inline_keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "🚀 Get the Bot for Free!", "url": os.getenv("BOT_LINK")}]
-                    ]
+                    "inline_keyboard": [[chosen_button]]
                 }
-
                 payload = {
                     "chat_id": -1002549064084,
                     "video": video_file_id,
                     "caption": caption,
                     "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"  # or "Markdown" if you want
-                }
-
-                # Use sendVideo API to resend video with caption and inline keyboard
+                    "parse_mode": "HTML"}
                 send_video_url = f"{API_BASE}/sendVideo"
                 background_tasks.add_task(client.post, send_video_url, json=payload)
-
                 return {"ok": True}
         
         if text == "/start":
