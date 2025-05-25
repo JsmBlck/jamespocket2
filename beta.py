@@ -37,6 +37,7 @@ sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only fo
 authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
 quotexlink = os.getenv("QUOTEX_LINK")
+botlink = os.getenv("BOT_LINK")
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
@@ -170,8 +171,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 # Define inline keyboard buttons here
                 inline_keyboard = {
                     "inline_keyboard": [
-                        [{"text": "👍 Like", "callback_data": "like_video"}],
-                        [{"text": "Visit Website", "url": "https://example.com"}]
+                       [{"text": "🚀 Start the Bot", "url": f"botlink"}]
                     ]
                 }
 
