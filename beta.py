@@ -176,7 +176,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
 
                 payload = {
-                    "chat_id": chat_id,
+                    "chat_id": -1002549064084,
                     "video": video_file_id,
                     "caption": caption,
                     "reply_markup": inline_keyboard,
