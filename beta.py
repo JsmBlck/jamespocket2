@@ -161,6 +161,34 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user = msg["from"]
         user_id = user["id"]
 
+        if user_id in ADMIN_IDS:
+            # Check if message contains video and caption
+            if "video" in msg and "caption" in msg:
+                video_file_id = msg["video"]["file_id"]
+                caption = msg["caption"]
+
+                # Define inline keyboard buttons here
+                inline_keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "👍 Like", "callback_data": "like_video"}],
+                        [{"text": "Visit Website", "url": "https://example.com"}]
+                    ]
+                }
+
+                payload = {
+                    "chat_id": chat_id,
+                    "video": video_file_id,
+                    "caption": caption,
+                    "reply_markup": inline_keyboard,
+                    "parse_mode": "HTML"  # or "Markdown" if you want
+                }
+
+                # Use sendVideo API to resend video with caption and inline keyboard
+                send_video_url = f"{API_BASE}/sendVideo"
+                background_tasks.add_task(client.post, send_video_url, json=payload)
+
+                return {"ok": True}
+        
         if text == "/start":
             message = data.get("message", {})  
             from_user = message.get("from", {}) 
