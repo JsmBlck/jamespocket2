@@ -163,31 +163,37 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
 
         if user_id in ADMIN_IDS:
-            # Check if message contains video and caption
             if "video" in msg and "caption" in msg:
                 video_file_id = msg["video"]["file_id"]
                 caption = msg["caption"]
-
-                # Define inline keyboard buttons here
-                inline_keyboard = {
+        
+                # Save temporarily in memory (or DB if needed)
+                pending_posts[user_id] = {
+                    "video_file_id": video_file_id,
+                    "caption": caption
+                }
+        
+                # Confirm/Cancel buttons
+                confirm_keyboard = {
                     "inline_keyboard": [
-                        [{"text": "🚀 Start the Bot", "url": os.getenv("BOT_LINK")}]
+                        [{"text": "✅ Confirm Post", "callback_data": "confirm_post"}],
+                        [{"text": "❌ Cancel Post", "callback_data": "cancel_post"}]
                     ]
                 }
-
+        
                 payload = {
-                    "chat_id": -1002549064084,
+                    "chat_id": user_id,
                     "video": video_file_id,
                     "caption": caption,
-                    "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"  # or "Markdown" if you want
+                    "reply_markup": confirm_keyboard,
+                    "parse_mode": "HTML"
                 }
-
-                # Use sendVideo API to resend video with caption and inline keyboard
+        
                 send_video_url = f"{API_BASE}/sendVideo"
                 background_tasks.add_task(client.post, send_video_url, json=payload)
-
+        
                 return {"ok": True}
+
         
         if text == "/start":
             message = data.get("message", {})  
@@ -483,3 +489,34 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
+            
+        if data == "confirm_post":
+            post = pending_posts.get(user_id)
+            if post:
+                inline_keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "🚀 Get the Bot for Free!", "url": os.getenv("BOT_LINK")}]
+                    ]
+                }
+    
+                payload = {
+                    "chat_id": -1002549064084,
+                    "video": post["video_file_id"],
+                    "caption": post["caption"],
+                    "reply_markup": inline_keyboard,
+                    "parse_mode": "HTML"
+                }
+    
+                await client.post(f"{API_BASE}/sendVideo", json=payload)
+                await client.post(f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": callback["id"], "text": "✅ Posted!"})
+                del pending_posts[user_id]
+    
+        elif data == "cancel_post":
+            await client.post(f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": callback["id"], "text": "❌ Cancelled."})
+            if user_id in pending_posts:
+                del pending_posts[user_id]
+    
+        return {"ok": True}
+
+
+
