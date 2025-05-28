@@ -1,4 +1,3 @@
-
 import os
 import httpx
 import asyncio
@@ -20,7 +19,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
+RENDER_URL = "https://jamespocket2-n04b.onrender.com"
 
 client = None
 
@@ -36,22 +35,17 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
-pocketlink = os.getenv("POCKET_LINK")
-quotexlink = os.getenv("QUOTEX_LINK")
-botlink = os.getenv("BOT_LINK")
+
+tg_channel = "https://u3.shortink.io/register?utm_campaign=815367&utm_source=affiliate&utm_medium=sr&a=BaVC7XCAwnsCc6&ac=fluxmate&code=50START"
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
     "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
     "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
-    "🔄 Change Category"
-]
+    "🔄 Change Category"]
 crypto_pairs = [
-    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC",
-    "Chainlink OTC", "Dogecoin OTC", "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC",
-    "Bitcoin Cash OTC", "Bonk OTC", "Litecoin OTC", "Pepe OTC", "Ripple OTC", "Shiba Inu OTC",
-    "🔄 Change Category"
-]
+    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC", "Chainlink OTC", "Dogecoin OTC",
+    "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "🔄 Change Category"]
 stocks = [
     "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
     "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
@@ -66,8 +60,6 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
-
-
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -97,57 +89,9 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
-
-async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(300)
-    dep = get_deposit_for_trader(po_id)
-    if dep is None:
-        keyboard = {
-            "inline_keyboard": [
-                [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
-            ]
-        }
-        payload = {
-            "chat_id": chat_id,
-            "text": (
-                "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
-                "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
-                "Tap below to start over 👇"
-            ),
-            "reply_markup": keyboard
-        }
-        await client.post(SEND_MESSAGE, json=payload)
-        return
-    if dep >= 5:
-        tg_id = user_id
-        username = user.get("username")
-        first_name = user.get("first_name")
-        save_authorized_user(tg_id, po_id, username, first_name)
-
-        keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-        payload = {
-            "chat_id": chat_id,
-            "text": (
-                "✅ You are now verified and can access the bot fully.\n\n"
-                "👇 Please choose a pair to get signal:"
-            ),
-            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-        }
-        await client.post(SEND_MESSAGE, json=payload)
-        return
-    payload = {
-        "chat_id": chat_id,
-        "text": (
-            "✅ Your account is registered!\n\n"
-            "🔓 You're just one step away from full access.\n\n"
-            "💰 Final Step:\nFund your account with any amount.\n\n"
-            "Once you’ve made the deposit, simply send your Account ID again to complete verification."
-        )
-    }
-    await client.post(SEND_MESSAGE, json=payload)
-
-
 app = FastAPI(lifespan=lifespan)
+
+
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
@@ -163,37 +107,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user = msg["from"]
         user_id = user["id"]
 
-        if user_id in ADMIN_IDS:
-            # Check if message contains video and caption
-            if "video" in msg and "caption" in msg:
-                video_file_id = msg["video"]["file_id"]
-                caption = msg["caption"]
-                button_options = [
-                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
-                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
-                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
-                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
-                ]
-                chosen_button = random.choice(button_options)
-                inline_keyboard = {
-                    "inline_keyboard": [[chosen_button]]
-                }
-                payload = {
-                    "chat_id": -1002549064084,
-                    "video": video_file_id,
-                    "caption": caption,
-                    "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"}
-                send_video_url = f"{API_BASE}/sendVideo"
-                background_tasks.add_task(client.post, send_video_url, json=payload)
-                return {"ok": True}
-        
         if text == "/start":
             message = data.get("message", {})  
             from_user = message.get("from", {}) 
@@ -228,15 +141,19 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
+                    [{"text": "📌  Registration Link", "url": tg_channel}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Hey {full_name}, welcome! 🙌\n\n"
-                    "Which broker do you want to use?"
+                    f"Welcome {full_name}!\n\n"
+                "Let’s get you started — just follow these quick steps below:\n\n"
+                "1️⃣ Create an Account:\nClick the “📌 Registration Link” and sign up using a new and unused email address.\n\n"
+                "2️⃣ Copy Your Account ID:\nOnce registered, Copy your account ID on your Profile.\n\n"
+                "3️⃣ Verify Your ID:\nClick the “✅ Check ID” button and send your account ID, numbers only.\n\n"
+                "4️⃣ Fund Your Account:\nAfter registration, simply fund your account with any amount to unlock full access to the bot.\n"
                 ),
                 "reply_markup": keyboard
             }
@@ -256,21 +173,52 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-        
+            dep = get_deposit_for_trader(po_id)
+            if dep is None:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "📌  Registration Link", "url": tg_channel}],
+                        [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                    ]
+                }
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "⚠️ That account is not registered or not signed up using my link.\n"
+                        "Please register a new account and make sure to use the link I provided."
+                    ),
+                    "reply_markup": keyboard
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+
+            if dep >= 5:
+                tg_id = user_id
+                username = user.get("username")
+                first_name = user.get("first_name")
+                save_authorized_user(tg_id, po_id, username, first_name)
+                keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "✅ You are now verified and can access the bot fully.\n\n"
+                        "👇 Please choose a pair to get signal:"
+                    ),
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             payload = {
                 "chat_id": chat_id,
-                "text": "Thanks! We're checking your account. Please wait around 5 minutes..."
+                "text": (
+                    "✅ Your account is registered!\n\n"
+                    "🔓 You're just one step away from full access.\n\n"
+                    "💰 Final Step:\nFund your account with any amount.\n\n"
+                    "Once you’ve made the deposit, simply send your Account ID again to complete verification."
+                )
             }
-            await client.post(SEND_MESSAGE, json=payload)
-        
-            # Schedule delayed check
-            background_tasks.add_task(
-                delayed_verification_check,
-                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
-            )
-        
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-
 ##############################################################################################################################################
         if text == "🔄 Change Category":
             tg_ids = authorized_sheet.col_values(1)
@@ -376,39 +324,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         cq_id = cq.get("id")
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-
-        if data_str in ["broker_pocket", "broker_quotex"]:
-            broker_name = "Pocket Broker" if data_str == "broker_pocket" else "Quotex"
-            register_link = pocketlink if data_str == "broker_pocket" else quotexlink
-        
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "📌 Registration Link", "url": register_link}],
-                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
-                ]
-            }
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    f"Great choice! Let's set you up with {broker_name} 🛠️\n\n"
-                    "Just follow these 4 quick steps:\n\n"
-                    "1️⃣ Create an Account\nTap the “📌 Registration Link” and sign up with a new, unused email.\n\n"
-                    "2️⃣ Copy Your Account ID\nAfter registration, head to your profile and copy your account ID.\n\n"
-                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your account ID (numbers only).\n\n"
-                    "4️⃣ Fund Your Account\nDeposit any amount to unlock full access to the bot features.\n\n"
-                ),
-                "reply_markup": keyboard
-            }
-        
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-
-        
-        
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
+                "text": "Please send your Pocket Option Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
@@ -430,26 +349,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        if data_str == "restart_process":
-            message = cq.get("message", {})
-            from_user = cq.get("from", {})
-            full_name = from_user.get("first_name", "Trader")
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
-                ]
-            }
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    f"Hey {full_name}, welcome back! 🙌\n\n"
-                    "Which broker do you want to use?"
-                ),
-                "reply_markup": keyboard
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
         
         if data_str.startswith("expiry|"):
             _, pair, expiry = data_str.split("|", 2)
@@ -488,3 +387,5 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
+
+        
