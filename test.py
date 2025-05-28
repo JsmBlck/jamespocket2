@@ -161,7 +161,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-            dep = get_deposit_for_trader(po_id)
+            dep = await get_deposit_for_trader(po_id)
             if dep is None:
                 keyboard = {
                     "inline_keyboard": [
