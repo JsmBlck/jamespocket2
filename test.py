@@ -42,7 +42,6 @@ otc_pairs = [
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 user_data = {}
-@asynccontextmanager
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -63,6 +62,7 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
