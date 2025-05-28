@@ -255,6 +255,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 ##############################################################################################################################################
          # Handle OTC Pair Selection
         if text in otc_pairs:
+            tg_ids = authorized_sheet.col_values(1)
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
             username = user.get("username")
             username_display = f"@{username}" if username else "Not set"
