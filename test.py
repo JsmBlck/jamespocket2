@@ -37,6 +37,7 @@ spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
+supportacccount = os.getenc("SUPPORT_LINK")
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
@@ -116,7 +117,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         return
     keyboard = {
         "inline_keyboard": [
-            [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}]
+            [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}],
+            [{"text": "💬 Contact Support", "url": supportacccount}],
         ]
     }
     payload = {
