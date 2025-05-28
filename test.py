@@ -8,9 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 from oauth2client.service_account import ServiceAccountCredentials
-
 load_dotenv()
-
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
@@ -20,9 +18,7 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-n04b.onrender.com"
-
 client = None
-
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
@@ -43,13 +39,8 @@ otc_pairs = [
     "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
     "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
     "🔄 Change Category"]
-crypto_pairs = [
-    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC", "Chainlink OTC", "Dogecoin OTC",
-    "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "🔄 Change Category"]
-stocks = [
-    "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
-    "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
 user_data = {}
+@asynccontextmanager
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -70,9 +61,6 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
-@asynccontextmanager
-
-
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
