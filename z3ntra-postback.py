@@ -54,7 +54,7 @@ def root():
 async def webhook(
     trader_id: Optional[str] = None,
     totaldep: Optional[str] = "0",
-    reg: Optional[str] = "",  # still accepted in URL but not stored
+    reg: Optional[str] = "",
     sumdep: Optional[str] = "",
     dep: Optional[str] = "",
     ftd: Optional[str] = ""
@@ -77,17 +77,14 @@ async def webhook(
             raise ValueError("Trader not found")
 
         row = cell.row
-        current_total = sheet.cell(row, 2).value or "0"
-        updated_total = float(current_total) + deposit
+        # Overwrite with latest totaldep (do not add)
+        sheet.update_cell(row, 2, str(deposit))
 
-        # Update only total deposit
-        sheet.update_cell(row, 2, str(updated_total))
-
-        print(f"✅ Updated trader {trader_id}: totaldep={updated_total}")
+        print(f"✅ Updated trader {trader_id}: totaldep={deposit}")
         return {
             "status": "updated",
             "trader_id": trader_id,
-            "totaldep": updated_total
+            "totaldep": deposit
         }
 
     except (ValueError, gspread.exceptions.GSpreadException):
