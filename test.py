@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
     yield
     await client.aclose()
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(30)
+    await asyncio.sleep(15)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
@@ -114,14 +114,20 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}]
+        ]
+    }
     payload = {
         "chat_id": chat_id,
         "text": (
             "✅ Your account is registered!\n\n"
             "🔓 You're just one step away from full access.\n\n"
-            "💰 Final Step:\nFund your account with any amount.\n\n"
-            "Once you’ve made the deposit, simply send your Account ID again to complete verification."
-        )
+            "💰 Final Step:\nTo get access, fund your account with a **minimum of $20**.\n\n"
+            "Once you've made the deposit, click the button below to continue verification."
+        ),
+        "reply_markup": keyboard
     }
     await client.post(SEND_MESSAGE, json=payload)
 
@@ -318,6 +324,36 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+        if data_str == "check_deposit":
+            payload = {
+                "chat_id": chat_id,
+                "text": "Thanks! We're checking your account. Please wait a few seconds..."
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+            from_user = cq.get("from", {})
+            tg_id = from_user.get("id")
+            username = from_user.get("username")
+            first_name = from_user.get("first_name")
+            save_authorized_user(tg_id, po_id, username, first_name)
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "✅ You are now verified and can access the bot fully.\n\n"
+                        "👇 Please choose a pair to get signal:"
+                    ),
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+             # Schedule delayed check
+            background_tasks.add_task(
+                delayed_verification_check,
+                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
+            )
+            return {"ok": True}
+
 
         if data_str == "restart_process":
             message = cq.get("message", {})
