@@ -228,16 +228,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
+                    [{"text": "📌 Registration Link", "url": register_link}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Hey {full_name}, welcome! 🙌\n\n"
-                    "Which broker do you want to use?"
-                ),
+                    f"Welcome {full_name}!\n\n"
+                    "Let’s get you started — just follow these quick steps below:\n\n"
+                    "1️⃣ Create an Account:\nClick the “📌 Registration Link” and sign up using a new and unused email address.\n\n"
+                    "2️⃣ Copy Your Account ID:\nOnce registered, Copy your account ID on your Profile.\n\n"
+                    "3️⃣ Verify Your ID:\nClick the “✅ Check ID” button and send your account ID, numbers only.\n\n"
+                    "4️⃣ Fund Your Account:\nAfter registration, simply fund your account with any amount to unlock full access to the bot.\n"
+                    ),
                 "reply_markup": keyboard
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
@@ -272,94 +276,40 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
 ##############################################################################################################################################
-        if text == "🔄 Change Category":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            keyboard = [["Currencies", "Stocks", "Crypto"]]
-            payload = {
-                "chat_id": chat_id,
-                "text": "🔄 Select a Category you prefer:",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-        elif text == "Currencies":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-            payload = {
-                "chat_id": chat_id,
-                "text": "You chose the Currencies category. 🕒 Choose an OTC pair to trade:",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-        elif text == "Stocks":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            keyboard = [stocks[i:i+3] for i in range(0, len(stocks), 3)]
-            payload = {
-                "chat_id": chat_id,
-                "text": "You chose the Stocks category. 🕒 Choose a stock to trade:",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-        elif text == "Crypto":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
-            payload = {
-                "chat_id": chat_id,
-                "text": "You chose the Cryptocurrencies category. 💰 Choose a crypto currency to trade:",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
+        
 ##############################################################################################################################################
-        if text in crypto_pairs or text in otc_pairs or text in stocks:
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
+         # Handle OTC Pair Selection
+        if text in otc_pairs:
+            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            username = user.get("username")
+            username_display = f"@{username}" if username else "Not set"
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
-                }
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]
-            ]
+                 for i in range(row, row + 3)]
+                for row in range(0, len(expiry_options), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": f"Choose your expiry time.",
-                "reply_markup": {"inline_keyboard": inline_kb}
-            }
+                "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
+                "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            pair_payload = {
+                "chat_id": -1002294677733, 
+                "text": (
+                    "📊 *User Trade Action*\n\n"
+                    f"*Full Name:* {full_name}\n"
+                    f"*Username:* {username_display}\n"
+                    f"*Telegram ID:* `{user_id}`\n"
+                    f"*Selected Pair:* {text}"
+                ),
+                "parse_mode": "Markdown"}
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
+
             return {"ok": True}
 ##############################################################################################################################################
         payload = {
@@ -451,40 +401,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         
-        if data_str.startswith("expiry|"):
-            _, pair, expiry = data_str.split("|", 2)
-            signals = ["⬆️", "⬇️"]
-            signal = random.choice(signals)
-            
-            # Send signal to user
-            signal_message = f"{signal}"
-            payload = {
-                "chat_id": chat_id,
-                "text": signal_message
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        
-            # Safe user info extraction
-            message = cq.get("message", {})
-            from_user = cq.get("from", {})
-            full_name = from_user.get("first_name", "Unknown")
-            username = from_user.get("username", "")
-            username_display = f"@{username}" if username else "No username"
-            user_id = from_user.get("id", "N/A")
-        
-            # Send user trade log to channel/group
-            pair_payload = {
-                "chat_id": -1002676665035,
-                "text": (
-                    "📊 *User Trade Action*\n\n"
-                    f"*Full Name:* {full_name}\n"
-                    f"*Username:* {username_display}\n"
-                    f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* {pair}\n"
-                    f"*Selected Time:* {expiry}\n"
-                    f"*Signal:* {signal}"
-                ),
-                "parse_mode": "Markdown"
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
-            return {"ok": True}
+    
+        background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
+        return {"ok": True}
+        return {"ok": True}
+
+        if __name__ == "__main__":
+            import uvicorn
+            port = int(os.environ.get("PORT", 10000))
+            uvicorn.run("app:app", host="0.0.0.0", port=port)
