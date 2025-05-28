@@ -328,7 +328,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_deposit":
             payload = {
                 "chat_id": chat_id,
-                "text": "Thanks! We're checking your account. Please wait a few seconds..."
+                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
