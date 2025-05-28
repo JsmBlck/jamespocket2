@@ -20,7 +20,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
+RENDER_URL = "https://jamespocket2-n04b.onrender.com"
 
 client = None
 
@@ -148,19 +148,9 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
 
 
 app = FastAPI(lifespan=lifespan)
-
-# Existing healthcheck (keep this)
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
-
-# ➕ ADD this route to handle Telegram POST updates
-@app.post("/")
-async def telegram_webhook(request: Request):
-    data = await request.json()
-    # Optionally: process Telegram update here
-    print("Telegram Update:", data)
-    return {"ok": True}
 
 
 @app.post("/webhook")
