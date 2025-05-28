@@ -37,24 +37,10 @@ spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
-quotexlink = os.getenv("QUOTEX_LINK")
-botlink = os.getenv("BOT_LINK")
-expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
-    "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
-    "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
-    "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
-    "🔄 Change Category"
-]
-crypto_pairs = [
-    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC",
-    "Chainlink OTC", "Dogecoin OTC", "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC",
-    "Bitcoin Cash OTC", "Bonk OTC", "Litecoin OTC", "Pepe OTC", "Ripple OTC", "Shiba Inu OTC",
-    "🔄 Change Category"
-]
-stocks = [
-    "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
-    "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
+    "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
+expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 user_data = {}
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
@@ -228,7 +214,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "📌 Registration Link", "url": register_link}],
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
                     [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
@@ -333,7 +319,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "📌 Registration Link", "url": register_link}],
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
                     [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
