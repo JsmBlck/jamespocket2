@@ -205,8 +205,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
                 return {"ok": True}
-
-    
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "📌 Registration Link", "url": pocketlink}],
@@ -238,7 +236,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
-
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
             payload = {
@@ -262,7 +259,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
+                    "text": "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -364,23 +361,18 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
-                ]
-            }
+                    [{"text": "Quotex", "callback_data": "broker_quotex"}]]}
             payload = {
                 "chat_id": chat_id,
                 "text": (
                     f"Hey {full_name}, welcome back! 🙌\n\n"
-                    "Which broker do you want to use?"
-                ),
-                "reply_markup": keyboard
-            }
+                    "Which broker do you want to use?"),
+                "reply_markup": keyboard}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
-    
+            
+        _, pair, expiry = data_str.split("|", 2)
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
-        return {"ok": True}
         return {"ok": True}
 
         if __name__ == "__main__":
