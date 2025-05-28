@@ -32,7 +32,7 @@ spreadsheet = client.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
 
-botlink = os.getenv("BOT_LINK")
+polink = os.getenv("POCKET_LINK")
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
@@ -129,7 +129,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
     
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "📌  Registration Link", "url": botlink}],
+                    [{"text": "📌  Registration Link", "url": polink}],
                     [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
@@ -165,7 +165,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if dep is None:
                 keyboard = {
                     "inline_keyboard": [
-                        [{"text": "📌  Registration Link", "url": botlink}],
+                        [{"text": "📌  Registration Link", "url": polink}],
                         [{"text": "✅ Check ID", "callback_data": "check_id"}]
                     ]
                 }
