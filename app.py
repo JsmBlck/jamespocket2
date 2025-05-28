@@ -203,6 +203,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /addmember
         if text.startswith(("/addmember", "/add")):
             parts = text.strip().split()
+            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            username = user.get("username")
+            username_display = f"@{username}" if username else "Not set"
             if len(parts) < 3:
                 payload = {
                     "chat_id": chat_id,
@@ -239,7 +242,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     sheet.append_row([new_user_id, username, first_name, pocket_option_id])
                 payload = {
                     "chat_id": chat_id,
-                    "text": f"✅ User {new_user_id} added with Pocket Option ID: {pocket_option_id}"}
+                    "text": f"✅ {full_name} | {username_display} | {new_user_id} \n added with Pocket Option ID: {pocket_option_id}"}
                 await client.post(SEND_MESSAGE, json=payload)
             except ValueError:
                 payload = {
