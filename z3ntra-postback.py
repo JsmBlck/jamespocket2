@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 from typing import Optional
 import gspread
@@ -9,9 +8,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 # Constants
-RENDER_URL = "https://jamespocket2.onrender.com"
+RENDER_URL = "https://z3ntra-postback.onrender.com"
 SPREADSHEET_NAME = "TelegramBotMembers"
-WORKSHEET_NAME = "Sheet7"
+WORKSHEET_NAME = "Sheet9"
 
 # Lifespan hook for self-ping (keep-alive)
 async def lifespan(app: FastAPI):
