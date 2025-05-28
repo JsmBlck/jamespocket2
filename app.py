@@ -203,9 +203,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle /addmember
         if text.startswith(("/addmember", "/add")):
             parts = text.strip().split()
-            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-            username = user.get("username")
-            username_display = f"@{username}" if username else "Not set"
             if len(parts) < 3:
                 payload = {
                     "chat_id": chat_id,
@@ -222,6 +219,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 new_user_id = int(parts[1])
                 pocket_option_id = parts[2]
                 AUTHORIZED_USERS.add(new_user_id)
+            
                 try:
                     resp = await client.get(f"{API_BASE}/getChat", params={"chat_id": new_user_id})
                     user_info = resp.json().get("result", {})
@@ -231,6 +229,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     print(f"⚠️ Failed to fetch user info: {e}")
                     username = "Unknown"
                     first_name = "Trader"
+            
+                # Prepare full name and username display
+                full_name = first_name
+                username_display = f"@{username}" if username != "Unknown" else "No username"
+            
                 user_ids = sheet.col_values(1)
                 user_id_str = str(new_user_id)
                 if user_id_str in user_ids:
@@ -240,10 +243,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     sheet.update(f"D{row_number}", [[pocket_option_id]])
                 else:
                     sheet.append_row([new_user_id, username, first_name, pocket_option_id])
+            
                 payload = {
                     "chat_id": chat_id,
-                    "text": f"✅ {full_name} | {username_display} | {new_user_id} \n added with Pocket Option ID: {pocket_option_id}"}
+                    "text": f"✅ {full_name} | {username_display} | {new_user_id} \n added with Pocket Option ID: {pocket_option_id}"
+                }
                 await client.post(SEND_MESSAGE, json=payload)
+
             except ValueError:
                 payload = {
                     "chat_id": chat_id,
