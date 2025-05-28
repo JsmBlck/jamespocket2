@@ -42,6 +42,7 @@ otc_pairs = [
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 user_data = {}
+@asynccontextmanager
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -52,8 +53,6 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
-
-
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -64,9 +63,6 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
-@asynccontextmanager
-
-
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
@@ -79,13 +75,11 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
             await asyncio.sleep(300)  # Every 4 minutes
-
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
-
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(300)
+    await asyncio.sleep(30)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
@@ -104,12 +98,11 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-    if dep >= 5:
+    if dep >= 20:
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
         save_authorized_user(tg_id, po_id, username, first_name)
-
         keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
         payload = {
             "chat_id": chat_id,
@@ -137,18 +130,14 @@ app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
-
-
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-
         if user_id in ADMIN_IDS:
             # Check if message contains video and caption
             if "video" in msg and "caption" in msg:
@@ -246,23 +235,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-        
             payload = {
                 "chat_id": chat_id,
-                "text": "Thanks! We're checking your account. Please wait around 5 minutes..."
+                "text": "Thanks! We're checking your account. Please wait a few seconds..."
             }
             await client.post(SEND_MESSAGE, json=payload)
-        
             # Schedule delayed check
             background_tasks.add_task(
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
-        
             return {"ok": True}
-
-##############################################################################################################################################
-        
 ##############################################################################################################################################
          # Handle OTC Pair Selection
         if text in otc_pairs:
@@ -295,12 +278,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 ),
                 "parse_mode": "Markdown"}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
-
             return {"ok": True}
 ##############################################################################################################################################
         payload = {
             "chat_id": chat_id,
-            "text": "Unknown command. Please press /start to begin."}
+            "text": f"Unknown command. \nClick this 👉 /start."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
@@ -313,34 +295,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
 
-        if data_str in ["broker_pocket", "broker_quotex"]:
-            broker_name = "Pocket Broker" if data_str == "broker_pocket" else "Quotex"
-            register_link = pocketlink if data_str == "broker_pocket" else quotexlink
-        
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "📌 Registration Link", "url": pocketlink}],
-                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
-                ]
-            }
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    f"Great choice! Let's set you up with {broker_name} 🛠️\n\n"
-                    "Just follow these 4 quick steps:\n\n"
-                    "1️⃣ Create an Account\nTap the “📌 Registration Link” and sign up with a new, unused email.\n\n"
-                    "2️⃣ Copy Your Account ID\nAfter registration, head to your profile and copy your account ID.\n\n"
-                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your account ID (numbers only).\n\n"
-                    "4️⃣ Fund Your Account\nDeposit any amount to unlock full access to the bot features.\n\n"
-                ),
-                "reply_markup": keyboard
-            }
-        
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-
-        
-        
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
@@ -348,7 +302,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
             from_user = cq.get("from", {})
             tg_id = from_user.get("id")
             username = from_user.get("username")
