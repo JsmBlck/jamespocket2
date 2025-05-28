@@ -1,3 +1,4 @@
+
 import os
 import httpx
 import asyncio
@@ -19,7 +20,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-c99h.onrender.com"
+RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
 
 client = None
 
@@ -33,19 +34,24 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only for deposit)
-authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
+sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
+authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
 quotexlink = os.getenv("QUOTEX_LINK")
+botlink = os.getenv("BOT_LINK")
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
     "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
     "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
-    "🔄 Change Category"]
+    "🔄 Change Category"
+]
 crypto_pairs = [
-    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC", "Chainlink OTC", "Dogecoin OTC",
-    "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC", "🔄 Change Category"]
+    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC",
+    "Chainlink OTC", "Dogecoin OTC", "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC",
+    "Bitcoin Cash OTC", "Bonk OTC", "Litecoin OTC", "Pepe OTC", "Ripple OTC", "Shiba Inu OTC",
+    "🔄 Change Category"
+]
 stocks = [
     "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
     "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
@@ -157,6 +163,37 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user = msg["from"]
         user_id = user["id"]
 
+        if user_id in ADMIN_IDS:
+            # Check if message contains video and caption
+            if "video" in msg and "caption" in msg:
+                video_file_id = msg["video"]["file_id"]
+                caption = msg["caption"]
+                button_options = [
+                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
+                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
+                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
+                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
+                ]
+                chosen_button = random.choice(button_options)
+                inline_keyboard = {
+                    "inline_keyboard": [[chosen_button]]
+                }
+                payload = {
+                    "chat_id": -1002549064084,
+                    "video": video_file_id,
+                    "caption": caption,
+                    "reply_markup": inline_keyboard,
+                    "parse_mode": "HTML"}
+                send_video_url = f"{API_BASE}/sendVideo"
+                background_tasks.add_task(client.post, send_video_url, json=payload)
+                return {"ok": True}
+        
         if text == "/start":
             message = data.get("message", {})  
             from_user = message.get("from", {}) 
