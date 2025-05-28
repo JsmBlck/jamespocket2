@@ -285,7 +285,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
+                    "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
