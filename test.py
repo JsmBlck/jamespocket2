@@ -1,4 +1,3 @@
-
 import os
 import httpx
 import asyncio
@@ -266,17 +265,41 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-            payload = {
+        
+            checking_steps = [
+                "🔍 Checking account ID...",
+                "🔍 Checking account ID..",
+                "🔍 Checking account ID...",
+                "⏳ Verifying deposit status...",
+                "⏳ Verifying deposit status..",
+                "⏳ Verifying deposit status...",
+                "✅ Finalizing verification..."
+            ]
+        
+            # Send first message and store message_id
+            resp = await client.post(SEND_MESSAGE, json={
                 "chat_id": chat_id,
-                "text": "Thanks! We're checking your account. Please wait a few seconds..."
-            }
-            await client.post(SEND_MESSAGE, json=payload)
-            # Schedule delayed check
+                "text": checking_steps[0]
+            })
+            message_id = resp.json().get("result", {}).get("message_id")
+        
+            # Edit the message with animation steps
+            for step in checking_steps[1:]:
+                await asyncio.sleep(1.2)
+                await client.post(EDIT_MESSAGE, json={
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                    "text": step
+                })
+        
+            # Now run the background verification task
             background_tasks.add_task(
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
+        
             return {"ok": True}
+
 ##############################################################################################################################################
          # Handle OTC Pair Selection
         if text in otc_pairs:
