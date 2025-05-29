@@ -248,7 +248,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n"
+                    "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n\n"
                     "2️⃣ Copy your Account ID from your profile.\n\n"
                     "3️⃣ Tap ✅ Check ID and send your ID here."
                 ),
