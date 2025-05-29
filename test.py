@@ -84,7 +84,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     if dep is None:
         keyboard = {
             "inline_keyboard": [
-                [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
+                [{"text": "🔄 Start Over", "callback_data": "restart_process"}]
             ]
         }
         payload = {
@@ -241,13 +241,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Welcome {full_name}!\n\n"
-                    "Let’s get you started — just follow these quick steps below:\n\n"
-                    "1️⃣ Create an Account:\nClick the “📌 Registration Link” and sign up using a new and unused email address.\n\n"
-                    "2️⃣ Copy Your Account ID:\nOnce registered, Copy your account ID on your Profile.\n\n"
-                    "3️⃣ Verify Your ID:\nClick the “✅ Check ID” button and send your account ID, numbers only.\n\n"
-                    "4️⃣ Fund Your Account:\nAfter registration, simply fund your account with any amount to unlock full access to the bot.\n"
-                    ),
+                    "text": (
+                    f"👋 Welcome, {full_name}!\n\n"
+                    "You're just a few simple steps away from getting started:\n\n"
+                    "1️⃣ **Create Your Account**\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
+                    "2️⃣ **Grab Your Account ID**\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
+                    "3️⃣ **Verify Your ID**\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+                    "Let’s get started!"
+                ),
                 "reply_markup": keyboard
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
@@ -294,7 +295,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
-        
+            # Wait briefly then delete the message
+            await asyncio.sleep(0.9)
+            await client.post(DELETE_MESSAGE, json={
+                "chat_id": chat_id,
+                "message_id": message_id
+            })
             return {"ok": True}
 
 ##############################################################################################################################################
@@ -408,14 +414,22 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             full_name = from_user.get("first_name", "Trader")
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]]}
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                ]
+            }
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Hey {full_name}, welcome back! 🙌\n\n"
-                    "Which broker do you want to use?"),
-                "reply_markup": keyboard}
+                    f"👋 Welcome, {full_name}!\n\n"
+                    "You're just a few simple steps away from getting started:\n\n"
+                    "1️⃣ **Create Your Account**\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
+                    "2️⃣ **Grab Your Account ID**\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
+                    "3️⃣ **Verify Your ID**\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+                    "Let’s get started!"
+                ),
+                "reply_markup": keyboard
+            }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
             
