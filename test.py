@@ -241,7 +241,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
                     "1️⃣ **Create Your Account**\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
