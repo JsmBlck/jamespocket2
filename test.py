@@ -88,17 +88,17 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
                     [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    f"⚠️ It looks like your account isn’t registered through our official link.\n"
-                    "To proceed, please create a new account using the correct registration link provided earlier.\n"
-                    "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
-                    "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
-                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
-                ),
-                "reply_markup": keyboard
-            }
+        payload = {
+            "chat_id": chat_id,
+            "text": (
+                f"⚠️ It looks like your account isn’t registered through our official link.\n"
+                "To proceed, please create a new account using the correct registration link provided earlier.\n"
+                "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
+                "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
+                "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+            ),
+            "reply_markup": keyboard
+        }
         await client.post(SEND_MESSAGE, json=payload)
         return
     if dep >= 20:
