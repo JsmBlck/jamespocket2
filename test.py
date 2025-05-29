@@ -101,7 +101,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-    if dep >= 20:
+    if dep >= 50:
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
@@ -129,8 +129,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
             "✅ Your account has been registered!\n\n"
             "🔓 You're almost there — just one last step to unlock full access.\n\n"
             f"💰 Current Deposit: ${dep}\n\n"
-            "⛔️ To complete your verification, you need to fund your account with a **minimum total deposit of $20**.\n\n"
-            "📌 Once your total deposit reaches $20 or more, click the button below to continue verification."
+            "⛔️ To complete your verification, you need to fund your account with a minimum total deposit of $50.\n\n"
+            "📌 Once your total deposit reaches $50 or more, click the button below to continue verification."
         ),
         "reply_markup": keyboard
     }
