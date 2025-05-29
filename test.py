@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
     yield
     await client.aclose()
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(15)
+    await asyncio.sleep(1)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
@@ -263,19 +263,19 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
+
+        
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-        
             checking_steps = [
-                "🔍 Checking account ID...",
+                "🔍 Checking account ID.",
                 "🔍 Checking account ID..",
                 "🔍 Checking account ID...",
-                "⏳ Verifying deposit status...",
-                "⏳ Verifying deposit status..",
-                "⏳ Verifying deposit status...",
-                "✅ Finalizing verification..."
+                "🔍 Checking account ID....",
+                "🔍 Checking account ID.....",
+                "🔍 Checking account ID......",
+                "✅ Done Checking."
             ]
-        
             # Send first message and store message_id
             resp = await client.post(SEND_MESSAGE, json={
                 "chat_id": chat_id,
@@ -285,7 +285,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
             # Edit the message with animation steps
             for step in checking_steps[1:]:
-                await asyncio.sleep(1.2)
+                await asyncio.sleep(0.7)
                 await client.post(EDIT_MESSAGE, json={
                     "chat_id": chat_id,
                     "message_id": message_id,
