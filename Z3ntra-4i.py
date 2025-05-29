@@ -220,7 +220,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "👇 Please choose a pair to get signal:"
+                        "⚠️ Not financial advice. ⚠️ \n\nTrading is risky - play smart, play sharp.\n"
+                        "If you’re here to win, let’s make it worth it.\n\n"
+                        "👇 Pick an OTC pair and let’s go get it:"
                     ),
                     "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
