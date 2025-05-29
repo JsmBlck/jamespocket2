@@ -91,11 +91,11 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         payload = {
             "chat_id": chat_id,
             "text": (
-                "⚠️ Your account isn't registered with our official link.\n\n"
+                "⚠️ Looks like your account wasn't made using our official link.\n\n"
                 "To continue, follow these quick steps:\n"
-                "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n\n"
+                "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
                 "2️⃣ Copy your Account ID from your profile.\n\n"
-                "3️⃣ Tap ✅ Check ID and send your ID here."
+                "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
             ),
             "reply_markup": keyboard
         }
@@ -246,11 +246,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"👋 Welcome, {full_name}!\n\n"
+                   f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n\n"
+                    "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
                     "2️⃣ Copy your Account ID from your profile.\n\n"
-                    "3️⃣ Tap ✅ Check ID and send your ID here."
+                    "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
                 ),
                 "reply_markup": keyboard
             }
@@ -431,9 +431,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n\n"
+                    "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
                     "2️⃣ Copy your Account ID from your profile.\n\n"
-                    "3️⃣ Tap ✅ Check ID and send your ID here."
+                    "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
                 ),
                 "reply_markup": keyboard
             }
