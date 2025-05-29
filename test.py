@@ -268,12 +268,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
             checking_steps = [
-                "🔍 Checking account ID.",
-                "🔍 Checking account ID..",
-                "🔍 Checking account ID...",
-                "🔍 Checking account ID....",
-                "🔍 Checking account ID.....",
-                "🔍 Checking account ID......",
+                f"☑️ {po_id}\n\n🔍 Checking account ID.}",
+                f"☑️ {po_id}\n\n🔍 Checking account ID..",
+                f"☑️ {po_id}\n\n🔍 Checking account ID...",
                 "✅ Done Checking."
             ]
             # Send first message and store message_id
