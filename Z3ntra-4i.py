@@ -198,7 +198,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "inline_keyboard": [[chosen_button]]
                 }
                 payload = {
-                    "chat_id": -1002549064084,
+                    "chat_id": -1002567612473,
                     "video": video_file_id,
                     "caption": caption,
                     "reply_markup": inline_keyboard,
