@@ -83,19 +83,22 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
-            "inline_keyboard": [
-                [{"text": "🔄 Start Over", "callback_data": "restart_process"}]
-            ]
-        }
-        payload = {
-            "chat_id": chat_id,
-            "text": (
-                "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
-                "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
-                "Tap below to start over 👇"
-            ),
-            "reply_markup": keyboard
-        }
+                "inline_keyboard": [
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                ]
+            }
+            payload = {
+                "chat_id": chat_id,
+                "text": (
+                    f"⚠️ It looks like your account isn’t registered through our official link.\n"
+                    "To proceed, please create a new account using the correct registration link provided earlier.\n"
+                    "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
+                    "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
+                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+                ),
+                "reply_markup": keyboard
+            }
         await client.post(SEND_MESSAGE, json=payload)
         return
     if dep >= 20:
@@ -268,16 +271,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
             checking_steps = [
-                f"🔍 Checking account ID.\n\n☑️ {po_id}",
-                f"🔍 Checking account ID..\n\n☑️ {po_id}",
-                f"🔍 Checking account ID...\n\n☑️ {po_id}",
-                f"🔍 Checking account ID.\n\n☑️ {po_id}",
-                f"🔍 Checking account ID..\n\n☑️ {po_id}",
-                f"🔍 Checking account ID...\n\n☑️ {po_id}",
-                f"🔍 Checking account ID.\n\n☑️ {po_id}",
-                f"🔍 Checking account ID..\n\n☑️ {po_id}",
-                f"🔍 Checking account ID...\n\n☑️ {po_id}",
-                "✅ Done Checking."
+                "🔍 Checking Account ID.",
+                "🔍 Checking Account ID..",
+                "🔍 Checking Account ID...",
+                "🔎 Still checking...",
+                "⏳ Almost there...",
+                "🔄 Cross-checking registration...",
+                "🧠 Cheking deposit data...",
+                "📊 Reading account info...",
+                "💾 Finalizing verification...",
+                "✅ Checking complete!"
             ]
             # Send first message and store message_id
             resp = await client.post(SEND_MESSAGE, json={
@@ -301,7 +304,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
             # Wait briefly then delete the message
-            await asyncio.sleep(0.9)
+            await asyncio.sleep(1.2)
             await client.post(DELETE_MESSAGE, json={
                 "chat_id": chat_id,
                 "message_id": message_id
