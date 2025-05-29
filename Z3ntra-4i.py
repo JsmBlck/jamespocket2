@@ -256,7 +256,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             pair_payload = {
-                "chat_id": -1002676665035,
+                "chat_id": -1002294677733,
                 "text": (
                     f"✅ User Started\n\n"
                     f"*Full Name:* {full_name}\n"
@@ -335,17 +335,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            pair_payload = {
-                "chat_id": -1002294677733, 
-                "text": (
-                    "📊 *User Trade Action*\n\n"
-                    f"*Full Name:* {full_name}\n"
-                    f"*Username:* {username_display}\n"
-                    f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* {text}"
-                ),
-                "parse_mode": "Markdown"}
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
 ##############################################################################################################################################
         payload = {
