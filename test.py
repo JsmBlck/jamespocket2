@@ -91,11 +91,11 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         payload = {
             "chat_id": chat_id,
             "text": (
-                f"⚠️ It looks like your account isn’t registered through our official link.\n"
-                "To proceed, please create a new account using the correct registration link provided earlier.\n"
-                "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
-                "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
-                "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+                "⚠️ Your account isn't registered with our official link.\n\n"
+                "To continue, follow these quick steps:\n"
+                "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n"
+                "2️⃣ Copy your Account ID from your profile.\n"
+                "3️⃣ Tap ✅ Check ID and send your ID here.\n\n"
             ),
             "reply_markup": keyboard
         }
@@ -181,16 +181,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 video_file_id = msg["video"]["file_id"]
                 caption = msg["caption"]
                 button_options = [
-                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
-                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
-                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
-                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Start Using the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "✅ Get the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🔥 Claim Your Free Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "⚡ Launch the Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "📈 Boost Trades with the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "🤖 Try the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "💼 Use the Bot Today", "url": os.getenv("BOT_LINK")},
+                    {"text": "🆓 Start Trading with the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "👆 Tap Here to Get the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "✨ Use the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "📲 Grab the Bot ", "url": os.getenv("BOT_LINK")},
                 ]
                 chosen_button = random.choice(button_options)
                 inline_keyboard = {
@@ -247,9 +248,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
-                    "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
-                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+                    "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n"
+                    "2️⃣ Copy your Account ID from your profile.\n"
+                    "3️⃣ Tap ✅ Check ID and send your ID here.\n\n"
                 ),
                 "reply_markup": keyboard
             }
@@ -430,9 +431,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
-                    "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
-                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
+                    "1️⃣ Tap 📌 Registration Link and sign up with a fresh email.\n"
+                    "2️⃣ Copy your Account ID from your profile.\n"
+                    "3️⃣ Tap ✅ Check ID and send your ID here.\n\n"
                 ),
                 "reply_markup": keyboard
             }
