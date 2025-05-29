@@ -125,7 +125,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         "text": (
             "✅ Your account has been registered!\n\n"
             "🔓 You're almost there — just one last step to unlock full access.\n\n"
-            f"💰 Current Deposit: **${dep}**\n"
+            f"💰 Current Deposit: ${dep}\n\n"
             "⛔️ To complete your verification, you need to fund your account with a **minimum total deposit of $20**.\n\n"
             "📌 Once your total deposit reaches $20 or more, click the button below to continue verification."
         ),
@@ -244,10 +244,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ **Create Your Account**\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
-                    "2️⃣ **Grab Your Account ID**\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
-                    "3️⃣ **Verify Your ID**\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
-                    "Let’s get started!"
+                    "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
+                    "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
+                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
                 ),
                 "reply_markup": keyboard
             }
@@ -350,8 +349,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             "text": f"Unknown command. \nClick this 👉 /start."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
-
-    
+##############################################################################################################################################
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -429,10 +427,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": (
                     f"👋 Welcome, {full_name}!\n\n"
                     "You're just a few simple steps away from getting started:\n\n"
-                    "1️⃣ **Create Your Account**\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
-                    "2️⃣ **Grab Your Account ID**\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
-                    "3️⃣ **Verify Your ID**\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
-                    "Let’s get started!"
+                    "1️⃣ Create Your Account\nTap the “📌 Registration Link” and sign up using a fresh, unused email address.\n\n"
+                    "2️⃣ Grab Your Account ID\nOnce you're registered, go to your profile and copy your Account ID (numbers only).\n\n"
+                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your Account ID to begin verification.\n\n"
                 ),
                 "reply_markup": keyboard
             }
