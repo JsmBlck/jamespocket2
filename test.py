@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
     yield
     await client.aclose()
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.9)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
@@ -123,10 +123,11 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     payload = {
         "chat_id": chat_id,
         "text": (
-            "✅ Your account is registered!\n\n"
-            "🔓 You're just one step away from full access.\n\n"
-            "💰 Final Step:\nTo get access, fund your account with a **minimum of $20**.\n\n"
-            "Once you've made the deposit, click the button below to continue verification."
+            "✅ Your account has been registered!\n\n"
+            "🔓 You're almost there — just one last step to unlock full access.\n\n"
+            f"💰 Current Deposit: **${dep}**\n"
+            "⛔️ To complete your verification, you need to fund your account with a **minimum total deposit of $20**.\n\n"
+            "📌 Once your total deposit reaches $20 or more, click the button below to continue verification."
         ),
         "reply_markup": keyboard
     }
@@ -268,9 +269,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
             checking_steps = [
-                f"☑️ {po_id}\n\n🔍 Checking account ID.",
-                f"☑️ {po_id}\n\n🔍 Checking account ID..",
-                f"☑️ {po_id}\n\n🔍 Checking account ID...",
+                f"🔍 Checking account ID.\n\n☑️ {po_id}",
+                f"🔍 Checking account ID..\n\n☑️ {po_id}",
+                f"🔍 Checking account ID...\n\n☑️ {po_id}",
+                f"🔍 Checking account ID.\n\n☑️ {po_id}",
+                f"🔍 Checking account ID..\n\n☑️ {po_id}",
+                f"🔍 Checking account ID...\n\n☑️ {po_id}",
+                f"🔍 Checking account ID.\n\n☑️ {po_id}",
+                f"🔍 Checking account ID..\n\n☑️ {po_id}",
+                f"🔍 Checking account ID...\n\n☑️ {po_id}",
                 "✅ Done Checking."
             ]
             # Send first message and store message_id
@@ -356,7 +363,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
+                "text": "Please send your Account ID (numbers only)."
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
@@ -380,7 +387,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if data_str == "check_deposit":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
+                "text": "Please send your Account ID (numbers only)."
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
