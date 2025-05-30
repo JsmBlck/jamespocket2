@@ -251,7 +251,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 background_tasks.add_task(client.post, send_video_url, json=payload)
                 return {"ok": True}
         
-        if text == "/start":
+        if text and text.startswith("/start"):
             parts = text.split(" ")
             start_payload = parts[1] if len(parts) > 1 else None
             message = data.get("message", {})  
