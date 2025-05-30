@@ -78,6 +78,7 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
+    load_authorized_users() 
 
 load_authorized_users()
 @asynccontextmanager
