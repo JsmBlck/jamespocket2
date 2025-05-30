@@ -54,6 +54,20 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
+
+def load_authorized_users():
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = set()
+    user_ids = sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {user_ids}")
+    for user_id in user_ids[1:]:
+        if user_id.strip():
+            try:
+                AUTHORIZED_USERS.add(int(user_id))
+            except ValueError:
+                print(f"Skipping invalid ID: {user_id}")
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
+    
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -334,6 +348,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
             username = user.get("username")
             username_display = f"@{username}" if username else "Not set"
+            
+            if str(user_id) not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(row, row + 3)]
