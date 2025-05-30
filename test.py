@@ -173,7 +173,6 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    print("Raw Telegram update:", data)
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
