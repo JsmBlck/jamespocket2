@@ -58,7 +58,7 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
-    user_ids = sheet.col_values(1)
+    user_ids = authorized_sheet.col_values(1)
     print(f"Fetched user IDs from GSheet: {user_ids}")
     for user_id in user_ids[1:]:
         if user_id.strip():
