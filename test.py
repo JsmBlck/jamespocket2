@@ -252,8 +252,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
         if text == "/start" or text.startswith("/start "):
-            parts = text.split(" ")
-            start_payload = parts[1] if len(parts) > 1 else None
+            args = text.split(" ")
+            if len(args) > 1:
+                param = args[1]  # this will be "start"
+            else:
+                param = None
             message = data.get("message", {})  
             from_user = message.get("from", {}) 
             full_name = from_user.get("first_name", "Trader")
