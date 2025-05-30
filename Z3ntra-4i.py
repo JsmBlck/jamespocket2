@@ -141,7 +141,7 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-await simulate_analysis(chat_id, pair, expiry, full_name, username, user_id):
+await simulate_analysis(chat_id, pair, expiry, full_name, username, user_id)
     analysis_steps = [
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
