@@ -233,11 +233,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "url": os.getenv("SUPPORT_LINK")  # You can set this in your .env or hardcode a t.me link
                 }
                 
+                # Each button in its own row
                 inline_keyboard = {
                     "inline_keyboard": [
-                        [chosen_button, contact_support_button]  # Both buttons in the same row
+                        [chosen_button],
+                        [contact_support_button]
                     ]
                 }
+
                 payload = {
                     "chat_id": -1002549064084,
                     "video": video_file_id,
