@@ -58,14 +58,14 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
-    user_ids = authorized_sheet.col_values(1)
-    print(f"Fetched user IDs from GSheet: {user_ids}")
-    for user_id in user_ids[1:]:
-        if user_id.strip():
+    tg_id = authorized_sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {tg_id}")
+    for tg_id in tg_id[1:]:
+        if tg_id.strip():
             try:
-                AUTHORIZED_USERS.add(int(user_id))
+                AUTHORIZED_USERS.add(int(tg_id))
             except ValueError:
-                print(f"Skipping invalid ID: {user_id}")
+                print(f"Skipping invalid ID: {tg_id}")
     print(f"Loaded authorized users: {AUTHORIZED_USERS}")
     
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
