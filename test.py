@@ -1,4 +1,5 @@
 
+
 import os
 import httpx
 import asyncio
@@ -186,7 +187,7 @@ async def simulate_analysis(client, SEND_MESSAGE, chat_id: int, pair: str, expir
 
     # Log to channel using background task
     pair_payload = {
-        "chat_id": -1002294677733,
+        "chat_id": -1002676665035,
         "text": (
             "📊 *User Trade Action*\n\n"
             f"*Full Name:* {full_name}\n"
@@ -227,8 +228,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     {"text": "📲 Grab the Bot ", "url": os.getenv("BOT_LINK")},
                 ]
                 chosen_button = random.choice(button_options)
+                contact_support_button = {
+                    "text": "💬 Contact Support",
+                    "url": os.getenv("SUPPORT_LINK")  # You can set this in your .env or hardcode a t.me link
+                }
+                
                 inline_keyboard = {
-                    "inline_keyboard": [[chosen_button]]
+                    "inline_keyboard": [
+                        [chosen_button, contact_support_button]  # Both buttons in the same row
+                    ]
                 }
                 payload = {
                     "chat_id": -1002549064084,
