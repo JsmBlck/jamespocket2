@@ -334,13 +334,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
             username = user.get("username")
             username_display = f"@{username}" if username else "Not set"
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(row, row + 3)]
