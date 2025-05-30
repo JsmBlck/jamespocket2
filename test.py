@@ -186,7 +186,7 @@ async def simulate_analysis(client, SEND_MESSAGE, chat_id: int, pair: str, expir
 
     # Log to channel using background task
     pair_payload = {
-        "chat_id": -1002676665035,
+        "chat_id": -1002294677733,
         "text": (
             "📊 *User Trade Action*\n\n"
             f"*Full Name:* {full_name}\n"
