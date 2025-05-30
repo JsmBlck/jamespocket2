@@ -141,7 +141,7 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str, message: dict):
+async def simulate_analysis(chat_id: int, pair: str, expiry: str, message: dict, background_tasks: BackgroundTasks):
     analysis_steps = [
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
@@ -168,7 +168,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str, message: dict)
         })
 
     # Random signal
-    signal = random.choice(["↗️", "↘️"])
+    signal = random.choice(["⬆️", "⬇️"])
     final_text = f"{signal}"
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
@@ -176,16 +176,16 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str, message: dict)
         "text": final_text
     })
 
-    # Extract user info from passed message
+    # Safe user info extraction
     from_user = message.get("from", {})
-    full_name = from_user.get("first_name", "Trader")
+    full_name = from_user.get("first_name", "Unknown")
     username = from_user.get("username", "")
     username_display = f"@{username}" if username else "No username"
     user_id = from_user.get("id", "N/A")
 
-    # Log the signal to your private/group channel
-    log_payload = {
-        "chat_id": -1002676665035,  # Replace with your logging channel ID
+    # Log to channel using background task
+    pair_payload = {
+        "chat_id": -1002676665035,
         "text": (
             "📊 *User Trade Action*\n\n"
             f"*Full Name:* {full_name}\n"
@@ -198,7 +198,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str, message: dict)
         "parse_mode": "Markdown"
     }
 
-    await client.post(SEND_MESSAGE, json=log_payload)
+    background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
 
 
 @app.post("/webhook")
