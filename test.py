@@ -352,7 +352,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username = user.get("username")
             username_display = f"@{username}" if username else "Not set"
             
-            if str(user_id) not in AUTHORIZED_USERS:
+            if (user_id) not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
