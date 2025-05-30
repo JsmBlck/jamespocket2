@@ -141,7 +141,7 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str):
+async def simulate_analysis(chat_id: int, pair: str, expiry: str, message: dict):
     analysis_steps = [
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
@@ -152,20 +152,54 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
         f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
         f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."
+    ]
+
+    # Send initial message
     resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
     message_id = resp.json().get("result", {}).get("message_id")
+
+    # Simulate animation
     for step in analysis_steps[1:]:
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": step})
+            "text": step
+        })
+
+    # Random signal
     signal = random.choice(["↗️", "↘️"])
     final_text = f"{signal}"
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
-        "text": final_text})
+        "text": final_text
+    })
+
+    # Extract user info from passed message
+    from_user = message.get("from", {})
+    full_name = from_user.get("first_name", "Trader")
+    username = from_user.get("username", "")
+    username_display = f"@{username}" if username else "No username"
+    user_id = from_user.get("id", "N/A")
+
+    # Log the signal to your private/group channel
+    log_payload = {
+        "chat_id": -1002676665035,  # Replace with your logging channel ID
+        "text": (
+            "📊 *User Trade Action*\n\n"
+            f"*Full Name:* {full_name}\n"
+            f"*Username:* {username_display}\n"
+            f"*Telegram ID:* `{user_id}`\n"
+            f"*Selected Pair:* {pair}\n"
+            f"*Selected Time:* {expiry}\n"
+            f"*Signal:* {signal}"
+        ),
+        "parse_mode": "Markdown"
+    }
+
+    await client.post(SEND_MESSAGE, json=log_payload)
+
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
