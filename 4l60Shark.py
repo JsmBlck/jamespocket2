@@ -103,15 +103,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-               "text": (
+                "text": (
                     "⚠️ Not financial advice. Trading’s risky — play smart, play sharp.\n"
                     "If you’re here to win, let’s make it worth it.\n\n"
-                    "👇 Pick an OTC pair and let’s go get it:")
+                    "👇 Pick an OTC pair and let’s go get it:"
+                ),
                 "parse_mode": "Markdown",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
