@@ -14,7 +14,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
+RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
 client = None
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
@@ -45,26 +45,41 @@ async def healthcheck(request: Request):
 
 
 
+import asyncio
+import random
+
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     loading_bars = [
+        "▯▯▯▯▯",
         "▮▯▯▯▯",
         "▮▮▯▯▯",
         "▮▮▮▯▯",
         "▮▮▮▮▯",
         "▮▮▮▮▮"
     ]
+
+    total_steps = len(loading_bars)
+    # Random start percent between 0 and 50
+    current_percent = random.randint(0, 50)
+
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔄 Processing... {loading_bars[0]}"
+        "text": f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔄 Processing... {loading_bars[0]} {current_percent}%"
     })
     message_id = resp.json().get("result", {}).get("message_id")
-    for bar in loading_bars[1:]:
+
+    # Calculate step increment so that it reaches 100 at the end
+    percent_increment = (100 - current_percent) / (total_steps - 1)
+
+    for i, bar in enumerate(loading_bars[1:], start=1):
         await asyncio.sleep(0.8)  # delay between steps
+        current_percent = min(100, int(current_percent + percent_increment))
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔄 Processing... {bar}"
+            "text": f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔄 Processing... {bar} {current_percent}%"
         })
+
     signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
