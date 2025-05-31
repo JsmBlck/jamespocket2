@@ -9,7 +9,6 @@ from contextlib import asynccontextmanager
 load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
-LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
 API_BASE = f"https://api.telegram.org/bot{BOT_TOKEN}"
 SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
@@ -21,7 +20,7 @@ tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
-expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
+expiry_options = ["S5", "S10", "S15", "S30", "Back to Pairs"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
@@ -47,31 +46,31 @@ async def healthcheck(request: Request):
 
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    analysis_steps = [
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing...",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📊 Gathering data..",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
-        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
-        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
-        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
-    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+    loading_bars = [
+        "▮▯▯▯▯",
+        "▮▮▯▯▯",
+        "▮▮▮▯▯",
+        "▮▮▮▮▯",
+        "▮▮▮▮▮"
+    ]
+    resp = await client.post(SEND_MESSAGE, json={
+        "chat_id": chat_id,
+        "text": f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔄 Processing... {loading_bars[0]}"
+    })
     message_id = resp.json().get("result", {}).get("message_id")
-    for step in analysis_steps[1:]:
+    for bar in loading_bars[1:]:
+        await asyncio.sleep(0.8)  # delay between steps
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": step})
-    signal = random.choice(["↗️", "↘️"])
-    final_text = f"{signal}"
+            "text": f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔄 Processing... {bar}"
+        })
+    signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
-        "text": final_text})
-
+        "text": f"{signal}"
+    })
 
 
 
