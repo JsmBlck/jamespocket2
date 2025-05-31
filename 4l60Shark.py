@@ -8,7 +8,6 @@ import gspread
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
-from oauth2client.service_account import ServiceAccountCredentials
 load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
