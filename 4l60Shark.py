@@ -87,6 +87,10 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
+    update = types.Update(**data)
+    background_tasks.add_task(bot.process_update, update)
+    return {"ok": True}
+
 
     # --- HANDLE NORMAL TEXT MESSAGES ---
     if msg := data.get("message"):
