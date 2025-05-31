@@ -46,7 +46,7 @@ async def healthcheck(request: Request):
 
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    bar_length = 20
+    bar_length = 10
     filled_blocks = random.randint(0, bar_length // 2)  # start somewhere from 0 to half full
     current_percent = random.randint(0, 50)
 
@@ -58,7 +58,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     message_id = resp.json().get("result", {}).get("message_id")
 
     while filled_blocks < bar_length or current_percent < 100:
-        await asyncio.sleep(0.8)
+        await asyncio.sleep(0.7)
 
         # Randomly increase filled blocks by 1 to 3, capped to bar_length
         filled_blocks = min(bar_length, filled_blocks + random.randint(1, 3))
@@ -76,7 +76,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         if filled_blocks == bar_length and current_percent == 100:
             break
 
-    signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
+    signal = random.choice(["⬆️⬆️", "⬇️⬇️"])
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
