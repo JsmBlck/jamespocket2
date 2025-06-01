@@ -185,19 +185,19 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
         if text.startswith("/start register"):
-        instructions = (
-            "📝 How to Register:\n\n"
-            "1. Click your referral link: [your-link-here]\n"
-            "2. Sign up and deposit at least $30\n"
-            "3. Send your Pocket Option ID here to get verified.\n\n"
-            "Need help? Message @YourSupportBot"
-        )
-        await client.post(SEND_MESSAGE, json={
-            "chat_id": chat_id,
-            "text": instructions,
-            "parse_mode": "Markdown"
-        })
-        return {"ok": True}
+            instructions = (
+                "📝 How to Register:\n\n"
+                "1. Click your referral link: [your-link-here]\n"
+                "2. Sign up and deposit at least $30\n"
+                "3. Send your Pocket Option ID here to get verified.\n\n"
+                "Need help? Message @YourSupportBot"
+            )
+            await client.post(SEND_MESSAGE, json={
+                "chat_id": chat_id,
+                "text": instructions,
+                "parse_mode": "Markdown"
+            })
+            return {"ok": True}
     return {"ok": True}
 if __name__ == "__main__":
     import uvicorn
