@@ -14,8 +14,11 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
+
 RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
+pocketlink = os.getenv("POCKET_LINK")
+
 client = None
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
@@ -135,15 +138,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": (
                         "🎉 Welcome to the bot!\n\n"
                         "👉 To get started, follow these steps:\n"
-                        "1️⃣ Register using my referral link: https://pocketoption.com/ref/YourLink\n"
-                        "2️⃣ Deposit at least $30\n"
-                        "3️⃣ Then come back and type /verify to unlock full access.\n\n"
-                        "Need help? Tap the support button below."
+                        f"Register using my referral link: {pocketlink}\n\n"
+                        "Copy your Account ID and Send it to support to start activation."
+                        
                     ),
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [[
-                            {"text": "💬 Support", "url": os.getenv("SUPPORT", "https://t.me/your_support")}
+                            {"text": "💬 Support", "url": os.getenv("SUPPORT")}
                         ]]
                     }
                 }
