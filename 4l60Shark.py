@@ -42,25 +42,23 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-
-
-
-import asyncio
-import random
-
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Random initial percent (0-30)
+    # Send initial static message
+    await client.post(SEND_MESSAGE, json={
+        "chat_id": chat_id,
+        "text": f"Pair Selected: {pair}\nTime Frame: {expiry}"
+    })
+
+    # Start from random percent
     current_percent = random.randint(0, 30)
 
-    # Initial progress bar message
+    # Initial loading bar message
     filled_blocks = int(current_percent / 10)
     progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": (f"🤖 You selected {pair} ☑️\n\n"
-                 f"⏳ Time: {expiry}\n\n"
-                 f"🔄 Processing...\n{progress_bar} {current_percent}%")
+        "text": f"🔄 Processing...\n{progress_bar} {current_percent}%"
     })
     message_id = resp.json().get("result", {}).get("message_id")
 
@@ -76,12 +74,10 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": (f"🤖 You selected {pair} ☑️\n\n"
-                     f"⏳ Time: {expiry}\n\n"
-                     f"🔄 Processing...\n{progress_bar} {current_percent}%")
+            "text": f"🔄 Processing...\n{progress_bar} {current_percent}%"
         })
 
-    # Final signal output
+    # Final signal
     signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
     await asyncio.sleep(0.5)
     await client.post(EDIT_MESSAGE, json={
