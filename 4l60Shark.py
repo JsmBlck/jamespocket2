@@ -89,9 +89,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
         # Handle /start
         if text == "/start":
-            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-            username = user.get("username")
-            username_display = f"@{username}" if username else "Not set"
+            if user_id not in ADMIN_IDS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
             payload = {
                 "chat_id": chat_id,
@@ -109,22 +117,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if user_id not in ADMIN_IDS:
                 keyboard = {
                     "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],
-                    ]
-                }
+                        [{"text": "Join Channel", "url": channel_link}],]}
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "❌ You are not authorized to use this command yet.\nPlease Join my Channel to get access, just click the button below."
-                    ),
-                    "reply_markup": keyboard
-                }
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]
-            ]
+                 for i in range(len(expiry_options))]]
             payload = {
                 "chat_id": chat_id,
                 "text": f"Pair selected {text}\nTime Frame: ❔ ",
@@ -144,7 +147,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
     return {"ok": True}
-
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
