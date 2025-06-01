@@ -100,16 +100,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 media_file_id = msg["video"]["file_id"]
                 caption = msg["caption"]
             if media_type and media_file_id and caption:
-                button_options = [
-                    {"text": "🚀 Start Using the Bot", "url": os.getenv("SUPPORT")},
-                    {"text": "✅ Get the Bot for Free", "url": os.getenv("SUPPORT")}
-                ]
-                chosen_button = random.choice(button_options)
                 inline_keyboard = {
-                    "inline_keyboard": [[chosen_button]]
+                    "inline_keyboard": [[
+                        {
+                            "text": "🚀 Get Started for Free",
+                            "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
+                        }
+                    ]]
                 }
                 payload = {
-                    "chat_id": -1002614452363, #channel hub
+                    "chat_id": -1002614452363,  # channel hub
                     "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
@@ -123,6 +123,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 send_url = f"{API_BASE}/{send_method}"
                 background_tasks.add_task(client.post, send_url, json=payload)
                 return {"ok": True}
+
 
         # Handle /start
         if text == "/start":
@@ -182,6 +183,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
         _, pair, expiry = data_str.split("|", 2)
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
+        return {"ok": True}
+        if text.startswith("/start register"):
+        instructions = (
+            "📝 How to Register:\n\n"
+            "1. Click your referral link: [your-link-here]\n"
+            "2. Sign up and deposit at least $30\n"
+            "3. Send your Pocket Option ID here to get verified.\n\n"
+            "Need help? Message @YourSupportBot"
+        )
+        await client.post(SEND_MESSAGE, json={
+            "chat_id": chat_id,
+            "text": instructions,
+            "parse_mode": "Markdown"
+        })
         return {"ok": True}
     return {"ok": True}
 if __name__ == "__main__":
