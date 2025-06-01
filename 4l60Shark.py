@@ -138,9 +138,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": (
                         "🎉 Welcome to the bot!\n\n"
                         "👉 To get started, follow these steps:\n"
-                        f"Register using my referral link: {pocketlink}\n\n"
-                        "Copy your Account ID and Send it to support to start activation."
-                        
+                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                        "Copy your Account ID and send it to support to start activation."
                     ),
                     "parse_mode": "HTML",
                     "reply_markup": {
@@ -159,9 +158,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": (
                         "🎉 Welcome to the bot!\n\n"
                         "👉 To get started, follow these steps:\n"
-                        f"Register using my referral link: {pocketlink}\n\n"
-                        "Copy your Account ID and Send it to support to start activation."
-                        
+                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                        "Copy your Account ID and send it to support to start activation."
                     ),
                     "parse_mode": "HTML",
                     "reply_markup": {
