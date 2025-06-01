@@ -18,8 +18,8 @@ RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
 client = None
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
-    "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
-    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
+    "EUR/USD OTC", "CAD/JPY OTC", "AUD/CAD OTC", "EUR/JPY OTC",
+    "NZD/USD OTC", "BHD/CNY OTC", "AUD/USD OTC", "AED/CNY OTC"]
 expiry_options = ["S5", "S10", "S15"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -48,14 +48,9 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         "chat_id": chat_id,
         "text": f"Pair Selected: {pair}\nTime Frame: {expiry}"
     })
-
-    # Start from random percent
     current_percent = random.randint(0, 30)
-
-    # Initial loading bar message
     filled_blocks = int(current_percent / 10)
     progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"🔄 Processing...\n{progress_bar} {current_percent}%"
@@ -64,7 +59,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 
     # Progress loop
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.05, 0.07))
+        await asyncio.sleep(random.uniform(0.05, 0.1))
         current_percent += random.randint(3, 17)
         current_percent = min(current_percent, 100)
 
@@ -76,8 +71,6 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "message_id": message_id,
             "text": f"🔄 Processing...\n{progress_bar} {current_percent}%"
         })
-
-    # Final signal
     signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
     await asyncio.sleep(0.5)
     await client.post(EDIT_MESSAGE, json={
@@ -101,7 +94,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
             username = user.get("username")
             username_display = f"@{username}" if username else "Not set"
-            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
             payload = {
                 "chat_id": chat_id,
                 "text": (
@@ -132,29 +125,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             ]
             payload = {
                 "chat_id": chat_id,
-                "text": f"Pair selected {text} ☑️\nTime Frame: ❔ ",
+                "text": f"Pair selected {text}\nTime Frame: ❔ ",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            pair_payload = {
-                "chat_id": -1002294677733, 
-                "text": (
-                    "📊 *User Trade Action*\n\n"
-                    f"*Full Name:* {full_name}\n"
-                    f"*Username:* {username_display}\n"
-                    f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* {text}"
-                ),
-                "parse_mode": "Markdown"}
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
-
             return {"ok": True}
-
-        # Fallback for any other message
-        payload = {
-            "chat_id": chat_id,
-            "text": f"Unknown command. \nClick this 👉 /start."}
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        return {"ok": True}
 
     # --- HANDLE CALLBACKS ---
     if cq := data.get("callback_query"):
