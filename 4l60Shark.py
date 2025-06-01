@@ -105,7 +105,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
-            if user.id not in ADMIN_IDS:
+            if user_id not in ADMIN_IDS:
                 await update.message.reply_text("❌ You are not authorized to use this command.")
                 return
             inline_kb = [
