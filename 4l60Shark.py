@@ -18,8 +18,8 @@ RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
 client = None
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
-    "EUR/USD OTC", "CAD/JPY OTC", "AUD/CAD OTC", "EUR/JPY OTC",
-    "NZD/USD OTC", "BHD/CNY OTC", "AUD/USD OTC", "AED/CNY OTC"]
+    "💸 EUR/USD OTC", "💸 CAD/JPY OTC", "💸 AUD/CAD OTC", "💸 EUR/JPY OTC",
+    "💸 NZD/USD OTC", "💸 BHD/CNY OTC", "💸 AUD/USD OTC", "💸 AED/CNY OTC"]
 expiry_options = ["S5", "S10", "S15"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,7 +46,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     # Send initial message with pair and expiry
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"Pair Selected: {pair}\nTime Frame: {expiry}"
+        "text": f"{pair}\nTime Frame: {expiry}"
     })
     current_percent = random.randint(0, 30)
     filled_blocks = int(current_percent / 10)
@@ -149,4 +149,4 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("app:app", host="0.0.0.0", port=port)
+    uvicorn.run("4l60Shark:app", host="0.0.0.0", port=port)
