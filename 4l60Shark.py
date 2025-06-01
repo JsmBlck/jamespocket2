@@ -101,8 +101,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 caption = msg["caption"]
             if media_type and media_file_id and caption:
                 button_options = [
-                    {"text": "🚀 Start Using the Bot", "url": os.getenv("BOT_LINK")},
-                    {"text": "✅ Get the Bot for Free", "url": os.getenv("BOT_LINK")}
+                    {"text": "🚀 Start Using the Bot", "url": os.getenv("SUPPORT")},
+                    {"text": "✅ Get the Bot for Free", "url": os.getenv("SUPPORT")}
                 ]
                 chosen_button = random.choice(button_options)
                 inline_keyboard = {
