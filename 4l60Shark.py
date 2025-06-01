@@ -18,8 +18,8 @@ RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
 client = None
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
-    "💸 EUR/USD OTC", "💸 CAD/JPY OTC", "💸 AUD/CAD OTC", "💸 EUR/JPY OTC",
-    "💸 NZD/USD OTC", "💸 BHD/CNY OTC", "💸 AUD/USD OTC", "💸 AED/CNY OTC"]
+    "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
+    "💸 NZD/USD OTC 🚀", "💸 BHD/CNY OTC 🚀", "💸 AUD/USD OTC 🚀", "💸 AED/CNY OTC 🚀"]
 expiry_options = ["S5", "S10", "S15"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
