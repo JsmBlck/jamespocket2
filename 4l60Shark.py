@@ -87,6 +87,59 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
+        if user_id in ADMIN_IDS:
+    media_type = None
+    media_file_id = None
+
+    # Check if message has photo or video
+    if "photo" in msg and "caption" in msg:
+        media_type = "photo"
+        media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
+        caption = msg["caption"]
+
+    elif "video" in msg and "caption" in msg:
+        media_type = "video"
+        media_file_id = msg["video"]["file_id"]
+        caption = msg["caption"]
+
+    if media_type and media_file_id and caption:
+        button_options = [
+            {"text": "🚀 Start Using the Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "✅ Get the Bot for Free", "url": os.getenv("BOT_LINK")},
+            {"text": "🔥 Claim Your Free Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "⚡ Launch the Bot Now", "url": os.getenv("BOT_LINK")},
+            {"text": "📈 Boost Trades with the Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "🤖 Try the Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "💼 Use the Bot Today", "url": os.getenv("BOT_LINK")},
+            {"text": "🆓 Start Trading with the Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "👆 Tap Here to Get the Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "✨ Use the Bot", "url": os.getenv("BOT_LINK")},
+            {"text": "📲 Grab the Bot ", "url": os.getenv("BOT_LINK")},
+        ]
+        chosen_button = random.choice(button_options)
+        inline_keyboard = {
+            "inline_keyboard": [[chosen_button]]
+        }
+
+        payload = {
+            "chat_id": -1002567612473,
+            "caption": caption,
+            "reply_markup": inline_keyboard,
+            "parse_mode": "HTML"
+        }
+
+        if media_type == "photo":
+            payload["photo"] = media_file_id
+            send_method = "sendPhoto"
+        else:  # video
+            payload["video"] = media_file_id
+            send_method = "sendVideo"
+
+        send_url = f"{API_BASE}/{send_method}"
+        background_tasks.add_task(client.post, send_url, json=payload)
+
+        return {"ok": True}
+
         # Handle /start
         if text == "/start":
             if user_id not in ADMIN_IDS:
