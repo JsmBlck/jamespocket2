@@ -15,6 +15,7 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
+channel_link = os.getenv("CHANNEL_LINK")
 client = None
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
@@ -106,8 +107,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # Handle OTC Pair Selection
         if text in otc_pairs:
             if user_id not in ADMIN_IDS:
-                await update.message.reply_text("❌ You are not authorized to use this command.")
-                return
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],
+                    ]
+                }
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "text": "❌ You are not authorized to use this command yet.\nPlease Join my Channel to get access, just click the button below."
+                    ),
+                    "reply_markup": keyboard
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(len(expiry_options))]
