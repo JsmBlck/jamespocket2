@@ -128,11 +128,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username_display = f"@{username}" if username else "Not set"
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(row, row + 3)]
-                for row in range(0, len(expiry_options), 3)]
+                 for i in range(len(expiry_options))]
+            ]
             payload = {
                 "chat_id": chat_id,
-                "text": f"🤖 You selected {text} ☑️\n\n⌛ Select Time:",
+                "text": f"Pair selected {text} ☑️\n\nTime Frame: ❔ ",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             pair_payload = {
