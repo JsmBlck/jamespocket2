@@ -115,7 +115,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "text": "❌ You are not authorized to use this command yet.\nPlease Join my Channel to get access, just click the button below."
+                        "❌ You are not authorized to use this command yet.\nPlease Join my Channel to get access, just click the button below."
                     ),
                     "reply_markup": keyboard
                 }
