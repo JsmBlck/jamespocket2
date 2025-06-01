@@ -45,43 +45,51 @@ async def healthcheck(request: Request):
 
 
 
+import asyncio
+import random
+
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    bar_length = 10
-    filled_blocks = random.randint(0, bar_length // 2)  # start somewhere from 0 to half full
-    current_percent = random.randint(0, 50)
+    # Random initial percent (0-30)
+    current_percent = random.randint(0, 30)
+
+    # Initial progress bar message
+    filled_blocks = int(current_percent / 10)
+    progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": (f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n"
-                 f"🔄 Processing... [{'▮' * filled_blocks}{'▯' * (bar_length - filled_blocks)}] {current_percent}%")
+        "text": (f"🤖 You selected {pair} ☑️\n\n"
+                 f"⏳ Time: {expiry}\n\n"
+                 f"🔄 Processing...\n{progress_bar} {current_percent}%")
     })
     message_id = resp.json().get("result", {}).get("message_id")
 
-    while filled_blocks < bar_length or current_percent < 100:
-        await asyncio.sleep(0.7)
+    # Progress loop
+    while current_percent < 100:
+        await asyncio.sleep(random.uniform(0.05, 0.07))
+        current_percent += random.randint(3, 17)
+        current_percent = min(current_percent, 100)
 
-        # Randomly increase filled blocks by 1 to 3, capped to bar_length
-        filled_blocks = min(bar_length, filled_blocks + random.randint(1, 3))
-        # Randomly increment percent by 3 to 8, capped to 100
-        current_percent = min(100, current_percent + random.randint(3, 8))
+        filled_blocks = int(current_percent / 10)
+        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": (f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n"
-                     f"🔄 Processing... [{'▮' * filled_blocks}{'▯' * (bar_length - filled_blocks)}] {current_percent}%")
+            "text": (f"🤖 You selected {pair} ☑️\n\n"
+                     f"⏳ Time: {expiry}\n\n"
+                     f"🔄 Processing...\n{progress_bar} {current_percent}%")
         })
 
-        # Stop early if bar and percent both reach max
-        if filled_blocks == bar_length and current_percent == 100:
-            break
-
-    signal = random.choice(["⬆️⬆️", "⬇️⬇️"])
+    # Final signal output
+    signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
+    await asyncio.sleep(0.5)
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
         "text": f"{signal}"
     })
+
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
