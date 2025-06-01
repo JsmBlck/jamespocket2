@@ -90,18 +90,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if user_id in ADMIN_IDS:
             media_type = None
             media_file_id = None
-        
             # Check if message has photo or video
             if "photo" in msg and "caption" in msg:
                 media_type = "photo"
                 media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
                 caption = msg["caption"]
-        
             elif "video" in msg and "caption" in msg:
                 media_type = "video"
                 media_file_id = msg["video"]["file_id"]
                 caption = msg["caption"]
-        
             if media_type and media_file_id and caption:
                 button_options = [
                     {"text": "🚀 Start Using the Bot", "url": os.getenv("BOT_LINK")},
