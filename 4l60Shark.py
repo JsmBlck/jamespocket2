@@ -20,7 +20,7 @@ tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
-expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
+expiry_options = ["S5", "S10", "S15"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
@@ -132,7 +132,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             ]
             payload = {
                 "chat_id": chat_id,
-                "text": f"Pair selected {text} ☑️\n\nTime Frame: ❔ ",
+                "text": f"Pair selected {text} ☑️\nTime Frame: ❔ ",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             pair_payload = {
