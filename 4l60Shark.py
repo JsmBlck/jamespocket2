@@ -43,7 +43,7 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Send initial static message
+    # Send initial message with pair and expiry
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"Pair Selected: {pair}\nTime Frame: {expiry}"
@@ -53,23 +53,26 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"🔄 Processing...\n{progress_bar} {current_percent}%"
+        "text": f"🔄 Analyzing.\n{progress_bar} {current_percent}%"
     })
     message_id = resp.json().get("result", {}).get("message_id")
-
-    # Progress loop
+    dot_states = [".", "..", "..."]
+    dot_index = 0
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.05, 0.1))
+        await asyncio.sleep(random.uniform(0.3, 0.5))
         current_percent += random.randint(3, 17)
         current_percent = min(current_percent, 100)
 
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
 
+        dots = dot_states[dot_index % len(dot_states)]
+        dot_index += 1
+
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": f"🔄 Processing...\n{progress_bar} {current_percent}%"
+            "text": f"🔄 Analyzing{dots}\n{progress_bar} {current_percent}%"
         })
     signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
     await asyncio.sleep(0.5)
