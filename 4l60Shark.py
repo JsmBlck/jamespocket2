@@ -154,17 +154,21 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
             # Default /start behavior
             if user_id not in ADMIN_IDS:
-                keyboard = {
-                    "inline_keyboard": [[
-                        {"text": "Join Channel", "url": channel_link}
-                    ]]
-                }
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "❌ You are not authorized to use this command yet.\n\n"
-                        "Please join my channel to get access. Just click the button below."),
-                    "reply_markup": keyboard
+                        "🎉 Welcome to the bot!\n\n"
+                        "👉 To get started, follow these steps:\n"
+                        f"Register using my referral link: {pocketlink}\n\n"
+                        "Copy your Account ID and Send it to support to start activation."
+                        
+                    ),
+                    "parse_mode": "HTML",
+                    "reply_markup": {
+                        "inline_keyboard": [[
+                            {"text": "💬 Support", "url": os.getenv("SUPPORT")}
+                        ]]
+                    }
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
