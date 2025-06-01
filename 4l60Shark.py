@@ -43,7 +43,6 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Send initial message with pair and expiry
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"{pair}\nTime Frame: {expiry}"
@@ -62,13 +61,10 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         await asyncio.sleep(random.uniform(0.3, 0.5))
         current_percent += random.randint(3, 17)
         current_percent = min(current_percent, 100)
-
         filled_blocks = int(current_percent / 10)
         progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-
         dots = dot_states[dot_index % len(dot_states)]
         dot_index += 1
-
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
@@ -81,8 +77,6 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         "message_id": message_id,
         "text": f"{signal}"
     })
-
-
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
@@ -107,21 +101,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "parse_mode": "Markdown",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            admin_payload = {
-                "chat_id": -1002294677733, 
-                "text": f"✅ User Started\n\n"
-                        f"*Full Name:* {full_name}\n"
-                        f"*Username:* {username_display}\n"
-                        f"*Telegram ID:* `{user_id}`",
-                "parse_mode": "Markdown"}
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=admin_payload)
             return {"ok": True}
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
-            full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-            username = user.get("username")
-            username_display = f"@{username}" if username else "Not set"
+            if user.id not in ADMIN_IDS:
+                await update.message.reply_text("❌ You are not authorized to use this command.")
+                return
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
                  for i in range(len(expiry_options))]
