@@ -23,7 +23,7 @@ pocketlink = os.getenv("POCKET_LINK")
 
 client = None
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS2"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
