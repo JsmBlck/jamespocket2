@@ -227,15 +227,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         # Handle OTC Pair Selection
         if text in otc_pairs:
-            if user_id not in ADMIN_IDS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
+                    "text": "⚠️ You need to get verified to use this bot.\nMessage my support to gain access!"}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             inline_kb = [
