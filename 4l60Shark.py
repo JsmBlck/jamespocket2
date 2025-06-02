@@ -186,7 +186,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                         "parse_mode": "HTML",
                         "reply_markup": {
                             "inline_keyboard": [[
-                                {"text": "💬 Support", "url": os.getenv("SUPPORT")}
+                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
                             ]]
                         }
                     }
