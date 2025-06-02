@@ -193,7 +193,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
             # Default /start behavior
-            if user_id not in ADMIN_IDS:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": (
@@ -205,7 +205,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [[
-                            {"text": "💬 Send Account to Support", "url": os.getenv("SUPPORT")}
+                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
                         ]]
                     }
                 }
@@ -331,7 +331,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [[
-                            {"text": "💬 Send Account to Support", "url": os.getenv("SUPPORT")}
+                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
                         ]]
                     }
                 }
