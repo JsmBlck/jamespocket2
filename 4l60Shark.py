@@ -198,14 +198,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "chat_id": chat_id,
                     "text": (
                         "🎉 Welcome to the bot!\n\n"
-                        "👉 To get started, follow these steps:\n"
+                        "👉 To get started,\nFollow these steps:\n\n"
                         f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
                         "Copy your Account ID and send it to support to start activation."
                     ),
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [[
-                            {"text": "💬 Support", "url": os.getenv("SUPPORT")}
+                            {"text": "💬 Send Account to Support", "url": os.getenv("SUPPORT")}
                         ]]
                     }
                 }
@@ -262,18 +262,35 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
         return {"ok": True}
         if text.startswith("/start register"):
-            instructions = (
-                "📝 How to Register:\n\n"
-                "1. Click your referral link: [your-link-here]\n"
-                "2. Sign up and deposit at least $30\n"
-                "3. Send your Pocket Option ID here to get verified.\n\n"
-                "Need help? Message @YourSupportBot"
-            )
-            await client.post(SEND_MESSAGE, json={
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "🎉 Welcome to the bot!\n\n"
+                        "👉 To get started,\nFollow these steps:\n\n"
+                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                        "Copy your Account ID and send it to support to start activation."
+                    ),
+                    "parse_mode": "HTML",
+                    "reply_markup": {
+                        "inline_keyboard": [[
+                            {"text": "💬 Send Account to Support", "url": os.getenv("SUPPORT")}
+                        ]]
+                    }
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
+            payload = {
                 "chat_id": chat_id,
-                "text": instructions,
-                "parse_mode": "Markdown"
-            })
+                "text": (
+                    "⚠️ Not financial advice. ⚠️\n\n"
+                    "Trading is risky - play smart, play sharp.\n"
+                    "If you’re here to win, let’s make it worth it.\n\n"
+                    "👇 Pick an OTC pair and let’s go get it:"),
+                "parse_mode": "Markdown",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
     return {"ok": True}
 if __name__ == "__main__":
