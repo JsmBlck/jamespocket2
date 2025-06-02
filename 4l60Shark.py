@@ -310,7 +310,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": "⚠️ Invalid user ID. Please enter a valid number."}
                 await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
-
+        payload = {
+            "chat_id": chat_id,
+            "text": f"Unknown command. \nUse /start to get started."}
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
 
     # --- HANDLE CALLBACKS ---
     if cq := data.get("callback_query"):
