@@ -314,7 +314,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             
                 payload = {
                     "chat_id": chat_id,
-                    "text": f"✅ Added Successful!\n\n{full_name} | {username_display} | {new_user_id} \n added with Pocket Option ID: {pocket_option_id}"
+                    "text": f"✅ Added Successful!\n\n{full_name} | {username_display} | {new_user_id} \nPocket Option ID: {pocket_option_id}"
                 }
                 await client.post(SEND_MESSAGE, json=payload)
 
