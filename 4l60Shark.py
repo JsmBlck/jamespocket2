@@ -167,8 +167,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 send_url = f"{API_BASE}/{send_method}"
                 background_tasks.add_task(client.post, send_url, json=payload)
                 return {"ok": True}
-
-
         if text.startswith("/start"):
             parts = text.split()
             param = parts[1] if len(parts) > 1 else None
@@ -181,14 +179,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                             "🎉 Welcome to the bot!\n\n"
                             "👉 To get started, follow these steps:\n"
                             f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                            "Copy your Account ID and send it to support to start activation."
-                        ),
+                            "Copy your Account ID and send it to support to start activation."),
                         "parse_mode": "HTML",
                         "reply_markup": {
                             "inline_keyboard": [[
                                 {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                            ]]
-                        }
+                            ]]}
                     }
                     background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             
@@ -198,19 +194,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "⚠️ Not financial advice. ⚠️\n\n"
-                            "Trading is risky - play smart, play sharp.\n"
-                            "If you’re here to win, let’s make it worth it.\n\n"
-                            "👇 Pick an OTC pair and let’s go get it:"
+                            "Select an OTC pair:"
                         ),
                         "parse_mode": "Markdown",
                         "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                     }
                     background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            
                 return {"ok": True}
-
-        
             # Default /start behavior
             if user_id not in AUTHORIZED_USERS:
                 payload = {
@@ -230,15 +220,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-        
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "⚠️ Not financial advice. ⚠️\n\n"
-                    "Trading is risky - play smart, play sharp.\n"
-                    "If you’re here to win, let’s make it worth it.\n\n"
-                    "👇 Pick an OTC pair and let’s go get it:"),
+                    "Select an OTC pair:"),
                 "parse_mode": "Markdown",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
@@ -264,7 +250,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                  for i in range(len(expiry_options))]]
             payload = {
                 "chat_id": chat_id,
-                "text": f"Pair selected {text}\nTime Frame: ❔ ",
+                "text": f"{text}\nTime Frame: ❔ ",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
