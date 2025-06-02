@@ -3,9 +3,11 @@ import httpx
 import asyncio
 import random
 import json
+import gspread
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
+from oauth2client.service_account import ServiceAccountCredentials
 load_dotenv()
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
@@ -20,11 +22,48 @@ channel_link = os.getenv("CHANNEL_LINK")
 pocketlink = os.getenv("POCKET_LINK")
 
 client = None
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+client = gspread.authorize(creds)
+spreadsheet = client.open("LyraExclusiveAccess")
+sheet = spreadsheet.worksheet("Sheet1")
 tg_channel = "t.me/ZentraAiRegister"
 otc_pairs = [
     "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
     "💸 NZD/USD OTC 🚀", "💸 BHD/CNY OTC 🚀", "💸 AUD/USD OTC 🚀", "💸 AED/CNY OTC 🚀"]
 expiry_options = ["S5", "S10", "S15"]
+def load_authorized_users():
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = set()
+    user_ids = sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {user_ids}")
+    for user_id in user_ids[1:]:
+        if user_id.strip():
+            try:
+                AUTHORIZED_USERS.add(int(user_id))
+            except ValueError:
+                print(f"Skipping invalid ID: {user_id}")
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
+def save_users():
+    user_ids = sheet.col_values(1)
+    if not user_ids:
+        sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
+        user_ids = sheet.col_values(1) 
+    for user_id in AUTHORIZED_USERS:
+        user_info = user_data.get(user_id, {})
+        tg_username = user_info.get("username", "Unknown")
+        tg_name = user_info.get("first_name", "Trader")
+        pocket_option_id = user_info.get("pocket_option_id", "N/A")
+        user_id_str = str(user_id)
+        if user_id_str in user_ids:
+            row_number = user_ids.index(user_id_str) + 1  
+            sheet.update(f"B{row_number}", [[tg_username]])  
+            sheet.update(f"C{row_number}", [[tg_name]])
+            sheet.update(f"D{row_number}", [[pocket_option_id]])
+        else:
+            sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
+    print("✅ Users saved successfully!")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
