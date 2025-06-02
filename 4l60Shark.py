@@ -250,6 +250,63 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
+        if text.startswith(("/addmember", "/add")):
+            parts = text.strip().split()
+            if len(parts) < 3:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ Usage: /addmember <user_id> <pocket_option_id>"}
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            if user_id not in ADMIN_IDS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "❌ You are not authorized to use this command."}
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            try:
+                new_user_id = int(parts[1])
+                pocket_option_id = parts[2]
+                AUTHORIZED_USERS.add(new_user_id)
+            
+                try:
+                    resp = await client.get(f"{API_BASE}/getChat", params={"chat_id": new_user_id})
+                    user_info = resp.json().get("result", {})
+                    username = user_info.get("username", "Unknown")
+                    first_name = user_info.get("first_name", "Trader")
+                except Exception as e:
+                    print(f"⚠️ Failed to fetch user info: {e}")
+                    username = "Unknown"
+                    first_name = "Trader"
+            
+                # Prepare full name and username display
+                full_name = first_name
+                username_display = f"@{username}" if username != "Unknown" else "No username"
+            
+                user_ids = sheet.col_values(1)
+                user_id_str = str(new_user_id)
+                if user_id_str in user_ids:
+                    row_number = user_ids.index(user_id_str) + 1
+                    sheet.update(f"B{row_number}", [[username]])
+                    sheet.update(f"C{row_number}", [[first_name]])
+                    sheet.update(f"D{row_number}", [[pocket_option_id]])
+                else:
+                    sheet.append_row([new_user_id, username, first_name, pocket_option_id])
+            
+                payload = {
+                    "chat_id": chat_id,
+                    "text": f"✅ {full_name} | {username_display} | {new_user_id} \n added with Pocket Option ID: {pocket_option_id}"
+                }
+                await client.post(SEND_MESSAGE, json=payload)
+
+            except ValueError:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ Invalid user ID. Please enter a valid number."}
+                await client.post(SEND_MESSAGE, json=payload)
+            return {"ok": True}
+
+
     # --- HANDLE CALLBACKS ---
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
