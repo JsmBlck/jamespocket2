@@ -29,6 +29,7 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet1")
 tg_channel = "t.me/ZentraAiRegister"
+
 otc_pairs = [
     "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
     "💸 NZD/USD OTC 🚀", "💸 BHD/CNY OTC 🚀", "💸 AUD/USD OTC 🚀", "💸 AED/CNY OTC 🚀"]
@@ -64,6 +65,7 @@ def save_users():
         else:
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
     print("✅ Users saved successfully!")
+load_authorized_users()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
