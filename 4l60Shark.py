@@ -173,8 +173,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             parts = text.split()
             param = parts[1] if len(parts) > 1 else None
             if param == "register":
-                # Handle /start register
                 if user_id not in AUTHORIZED_USERS:
+                    # User not authorized - send welcome/register instructions
                     payload = {
                         "chat_id": chat_id,
                         "text": (
@@ -191,19 +191,25 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                         }
                     }
                     background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "⚠️ Not financial advice. ⚠️\n\n"
-                        "Trading is risky - play smart, play sharp.\n"
-                        "If you’re here to win, let’s make it worth it.\n\n"
-                        "👇 Pick an OTC pair and let’s go get it:"),
-                    "parse_mode": "Markdown",
-                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            
+                elif user_id in AUTHORIZED_USERS:
+                    # Authorized user - show OTC pair keyboard
+                    keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
+                    payload = {
+                        "chat_id": chat_id,
+                        "text": (
+                            "⚠️ Not financial advice. ⚠️\n\n"
+                            "Trading is risky - play smart, play sharp.\n"
+                            "If you’re here to win, let’s make it worth it.\n\n"
+                            "👇 Pick an OTC pair and let’s go get it:"
+                        ),
+                        "parse_mode": "Markdown",
+                        "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+                    }
+                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            
                 return {"ok": True}
+
         
             # Default /start behavior
             if user_id not in AUTHORIZED_USERS:
