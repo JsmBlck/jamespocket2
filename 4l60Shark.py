@@ -174,20 +174,33 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             param = parts[1] if len(parts) > 1 else None
             if param == "register":
                 # Handle /start register
+                if user_id not in AUTHORIZED_USERS:
+                    payload = {
+                        "chat_id": chat_id,
+                        "text": (
+                            "🎉 Welcome to the bot!\n\n"
+                            "👉 To get started, follow these steps:\n"
+                            f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                            "Copy your Account ID and send it to support to start activation."
+                        ),
+                        "parse_mode": "HTML",
+                        "reply_markup": {
+                            "inline_keyboard": [[
+                                {"text": "💬 Support", "url": os.getenv("SUPPORT")}
+                            ]]
+                        }
+                    }
+                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "🎉 Welcome to the bot!\n\n"
-                        "👉 To get started, follow these steps:\n"
-                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                        "Copy your Account ID and send it to support to start activation."
-                    ),
-                    "parse_mode": "HTML",
-                    "reply_markup": {
-                        "inline_keyboard": [[
-                            {"text": "💬 Support", "url": os.getenv("SUPPORT")}
-                        ]]
-                    }
+                        "⚠️ Not financial advice. ⚠️\n\n"
+                        "Trading is risky - play smart, play sharp.\n"
+                        "If you’re here to win, let’s make it worth it.\n\n"
+                        "👇 Pick an OTC pair and let’s go get it:"),
+                    "parse_mode": "Markdown",
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -336,6 +349,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     }
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
             payload = {
                 "chat_id": chat_id,
