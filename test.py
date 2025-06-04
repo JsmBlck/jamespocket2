@@ -66,16 +66,25 @@ def load_authorized_users():
             except ValueError:
                 print(f"Skipping invalid ID: {user_id}")
 
-def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
-    tg_ids = authorized_sheet.col_values(1)
-    if str(tg_id) in tg_ids:
-        row = tg_ids.index(str(tg_id)) + 1
-        authorized_sheet.update(f"B{row}", [[username or "Unknown"]])
-        authorized_sheet.update(f"C{row}", [[first_name or "Trader"]])
-        authorized_sheet.update(f"D{row}", [[po_id]])
-    else:
-        authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
-    print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
+def save_users():
+    user_ids = sheet.col_values(1)
+    if not user_ids:
+        sheet.append_row(["TG ID", "TG Username", "TG Name", "PocketOption ID"])
+        user_ids = sheet.col_values(1) 
+    for user_id in AUTHORIZED_USERS:
+        user_info = user_data.get(user_id, {})
+        tg_username = user_info.get("username", "Unknown")
+        tg_name = user_info.get("first_name", "Trader")
+        pocket_option_id = user_info.get("pocket_option_id", "N/A")
+        user_id_str = str(user_id)
+        if user_id_str in user_ids:
+            row_number = user_ids.index(user_id_str) + 1  
+            sheet.update(f"B{row_number}", [[tg_username]])  
+            sheet.update(f"C{row_number}", [[tg_name]])
+            sheet.update(f"D{row_number}", [[pocket_option_id]])
+        else:
+            sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
+    print("✅ Users saved successfully!")
 
 load_authorized_users()
 @asynccontextmanager
