@@ -1,6 +1,3 @@
-
-
-
 import os
 import httpx
 import asyncio
@@ -43,21 +40,20 @@ quotexlink = os.getenv("QUOTEX_LINK")
 botlink = os.getenv("BOT_LINK")
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
-    "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
-    "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
-    "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
-    "🔄 Change Category"
+    "S5 AUD/CHF OTC", "S5 GBP/JPY OTC", "S5 QAR/CNY OTC", "S5 CAD/JPY OTC", "S5 AED/CNY OTC", "S5 AUD/NZD OTC",
+    "S5 EUR/USD OTC", "S5 BHD/CNY OTC", "S5 EUR/GBP OTC", "S5 NZD/USD OTC", "S5 LBP/USD OTC", "S5 GBP/USD OTC",
+    "Change Time Expiry"
 ]
 crypto_pairs = [
-    "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC",
-    "Chainlink OTC", "Dogecoin OTC", "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC",
-    "Bitcoin Cash OTC", "Bonk OTC", "Litecoin OTC", "Pepe OTC", "Ripple OTC", "Shiba Inu OTC",
-    "🔄 Change Category"
+    "S10 AUD/CHF OTC", "S10 GBP/JPY OTC", "S10 QAR/CNY OTC", "S10 CAD/JPY OTC", "S10 AED/CNY OTC", "S10 AUD/NZD OTC",
+    "S10 EUR/USD OTC", "S10 BHD/CNY OTC", "S10 EUR/GBP OTC", "S10 NZD/USD OTC", "S10 LBP/USD OTC", "S10 GBP/USD OTC",
+    "Change Time Expiry"
 ]
 stocks = [
-    "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
-    "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
-user_data = {}
+    "S15 AUD/CHF OTC", "S15 GBP/JPY OTC", "S15 QAR/CNY OTC", "S15 CAD/JPY OTC", "S15 AED/CNY OTC", "S15 AUD/NZD OTC",
+    "S15 EUR/USD OTC", "S15 BHD/CNY OTC", "S15 EUR/GBP OTC", "S15 NZD/USD OTC", "S15 LBP/USD OTC", "S15 GBP/USD OTC",
+    "Change Time Expiry"
+]
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -274,7 +270,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 
 ##############################################################################################################################################
-        if text == "🔄 Change Category":
+        if text == "Change Time Expiry":
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
@@ -283,7 +279,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            keyboard = [["Currencies", "Stocks", "Crypto"]]
+            keyboard = [["S5", "S10", "S15"]]
             payload = {
                 "chat_id": chat_id,
                 "text": "🔄 Select a Category you prefer:",
@@ -291,7 +287,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        elif text == "Currencies":
+        elif text == "S5":
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
@@ -303,12 +299,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "You chose the Currencies category. 🕒 Choose an OTC pair to trade:",
+                "text": "You’ve successfully changed the Time Expiry to S5!",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        elif text == "Stocks":
+        elif text == "S10":
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
@@ -320,12 +316,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [stocks[i:i+3] for i in range(0, len(stocks), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "You chose the Stocks category. 🕒 Choose a stock to trade:",
+                "text": "You’ve successfully changed the Time Expiry to S10!",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        elif text == "Crypto":
+        elif text == "S15":
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
@@ -337,7 +333,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
-                "text": "You chose the Cryptocurrencies category. 💰 Choose a crypto currency to trade:",
+                "text": "You’ve successfully changed the Time Expiry to S15!",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
