@@ -313,7 +313,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            keyboard = [stocks[i:i+3] for i in range(0, len(stocks), 3)]
+            keyboard = [crypto_pairs[i:i+3] for i in range(0, len(stocks), 3)]
             payload = {
                 "chat_id": chat_id,
                 "text": "You’ve successfully changed the Time Expiry to S10!",
@@ -330,7 +330,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            keyboard = [crypto_pairs[i:i+3] for i in range(0, len(crypto_pairs), 3)]
+            keyboard = [stocks[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
                 "text": "You’ve successfully changed the Time Expiry to S15!",
