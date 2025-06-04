@@ -98,41 +98,7 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    await client.post(SEND_MESSAGE, json={
-        "chat_id": chat_id,
-        "text": f"{pair}\nTime Frame: {expiry}"
-    })
-    current_percent = random.randint(0, 30)
-    filled_blocks = int(current_percent / 10)
-    progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-    resp = await client.post(SEND_MESSAGE, json={
-        "chat_id": chat_id,
-        "text": f"🔄 Analyzing.\n{progress_bar} {current_percent}%"
-    })
-    message_id = resp.json().get("result", {}).get("message_id")
-    dot_states = [".", "..", "..."]
-    dot_index = 0
-    while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.3, 0.5))
-        current_percent += random.randint(3, 17)
-        current_percent = min(current_percent, 100)
-        filled_blocks = int(current_percent / 10)
-        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-        dots = dot_states[dot_index % len(dot_states)]
-        dot_index += 1
-        await client.post(EDIT_MESSAGE, json={
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "text": f"🔄 Analyzing{dots}\n{progress_bar} {current_percent}%"
-        })
-    signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
-    await asyncio.sleep(0.5)
-    await client.post(EDIT_MESSAGE, json={
-        "chat_id": chat_id,
-        "message_id": message_id,
-        "text": f"{signal}"
-    })
+
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
@@ -142,104 +108,65 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-        if user_id in ADMIN_IDS:
-            media_type = None
-            media_file_id = None
-            # Check if message has photo or video
-            if "photo" in msg and "caption" in msg:
-                media_type = "photo"
-                media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
-                caption = msg["caption"]
-            elif "video" in msg and "caption" in msg:
-                media_type = "video"
-                media_file_id = msg["video"]["file_id"]
-                caption = msg["caption"]
-            if media_type and media_file_id and caption:
-                inline_keyboard = {
-                    "inline_keyboard": [[
-                        {
-                            "text": "🚀 Get Started for Free",
-                            "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-                        }
-                    ]]
-                }
-                payload = {
-                    "chat_id": -1002614452363,  # channel hub
-                    "caption": caption,
-                    "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"
-                }
-                if media_type == "photo":
-                    payload["photo"] = media_file_id
-                    send_method = "sendPhoto"
-                else:  # video
-                    payload["video"] = media_file_id
-                    send_method = "sendVideo"
-                send_url = f"{API_BASE}/{send_method}"
-                background_tasks.add_task(client.post, send_url, json=payload)
-                return {"ok": True}
-        if text.startswith("/start"):
-            parts = text.split()
-            param = parts[1] if len(parts) > 1 else None
-            if param == "register":
-                if user_id not in AUTHORIZED_USERS:
-                    # User not authorized - send welcome/register instructions
-                    payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "🎉 Welcome to the bot!\n\n"
-                            "👉 To get started, follow these steps:\n"
-                            f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                            "Copy your Account ID and send it to support to start activation."),
-                        "parse_mode": "HTML",
-                        "reply_markup": {
-                            "inline_keyboard": [[
-                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                            ]]}
-                    }
-                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            
-                elif user_id in AUTHORIZED_USERS:
-                    # Authorized user - show OTC pair keyboard
-                    keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
-                    payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "Select an OTC pair:"
-                        ),
-                        "parse_mode": "Markdown",
-                        "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-                    }
-                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            # Default /start behavior
-            if user_id not in AUTHORIZED_USERS:
+        
+        if text == "/start":
+            message = data.get("message", {})  
+            from_user = message.get("from", {}) 
+            full_name = from_user.get("first_name", "Trader")
+            username = from_user.get("username", "")
+            username_display = f"@{username}" if username else "No username"
+            user_id = from_user.get("id", "N/A")
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) in tg_ids:
+                keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "🎉 Welcome to the bot!\n\n"
-                        "👉 To get started,\nFollow these steps:\n\n"
-                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                        "Copy your Account ID and send it to support to start activation."
+                        "👇 Please choose a pair to get signal:"
                     ),
-                    "parse_mode": "HTML",
-                    "reply_markup": {
-                        "inline_keyboard": [[
-                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                        ]]
-                    }
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                pair_payload = {
+                    "chat_id": -1002676665035,
+                    "text": (
+                        f"✅ User Started\n\n"
+                        f"*Full Name:* {full_name}\n"
+                        f"*Username:* {username_display}\n"
+                        f"*Telegram ID:* `{user_id}`"
+                    ),
+                    "parse_mode": "Markdown"
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
                 return {"ok": True}
-            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
+
+    
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
+                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
+                ]
+            }
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    "Select an OTC pair:"),
-                "parse_mode": "Markdown",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+                    f"Hey {full_name}, welcome! 🙌\n\n"
+                    "Which broker do you want to use?"
+                ),
+                "reply_markup": keyboard
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            pair_payload = {
+                "chat_id": -1002676665035,
+                "text": (
+                    f"✅ User Started\n\n"
+                    f"*Full Name:* {full_name}\n"
+                    f"*Username:* {username_display}\n"
+                    f"*Telegram ID:* `{user_id}`"
+                ),
+                "parse_mode": "Markdown"
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
         
 
