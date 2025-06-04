@@ -448,41 +448,23 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
-        if data_str.startswith("expiry|"):
-            _, pair, expiry = data_str.split("|", 2)
-            signals = ["⬆️", "⬇️"]
-            signal = random.choice(signals)
             
-            # Send signal to user
-            signal_message = f"{signal}"
-            payload = {
-                "chat_id": chat_id,
-                "text": signal_message
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        # Combine all your options into one list
+        all_pairs = otc_pairs + crypto_pairs + stocks
         
-            # Safe user info extraction
-            message = cq.get("message", {})
-            from_user = cq.get("from", {})
-            full_name = from_user.get("first_name", "Unknown")
-            username = from_user.get("username", "")
-            username_display = f"@{username}" if username else "No username"
-            user_id = from_user.get("id", "N/A")
+        if data_str in all_pairs:
+            # Split into timeframe and pair
+            parts = data_str.split(" ", 1)
+            if len(parts) == 2:
+                expiry, pair = parts
+                signals = ["⬆️", "⬇️"]
+                signal = random.choice(signals)
         
-            # Send user trade log to channel/group
-            pair_payload = {
-                "chat_id": -1002676665035,
-                "text": (
-                    "📊 *User Trade Action*\n\n"
-                    f"*Full Name:* {full_name}\n"
-                    f"*Username:* {username_display}\n"
-                    f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* {pair}\n"
-                    f"*Selected Time:* {expiry}\n"
-                    f"*Signal:* {signal}"
-                ),
-                "parse_mode": "Markdown"
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
-            return {"ok": True}
+                # Build and send signal message
+                signal_message = f"{signal}"
+                payload = {
+                    "chat_id": chat_id,
+                    "text": signal_message
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
