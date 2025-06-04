@@ -321,7 +321,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 ##############################################################################################################################################
-       if text in crypto_pairs or text in otc_pairs or text in stocks:
+        if text in crypto_pairs or text in otc_pairs or text in stocks:
             tg_ids = authorized_sheet.col_values(1)
             if str(user_id) not in tg_ids:
                 payload = {
@@ -332,7 +332,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
             signals = ["⬆️", "⬇️"]
             signal = random.choice(signals)
-    
+        
             signal_message = f"{signal}"
             payload = {
                 "chat_id": chat_id,
@@ -340,6 +340,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
 
 
         payload = {
