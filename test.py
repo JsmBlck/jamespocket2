@@ -251,24 +251,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
-
-        if text.isdigit() and len(text) > 5:
-            po_id = text.strip()
-        
-            payload = {
-                "chat_id": chat_id,
-                "text": "Thanks! We're checking your account. Please wait around 5 minutes..."
-            }
-            await client.post(SEND_MESSAGE, json=payload)
-        
-            # Schedule delayed check
-            background_tasks.add_task(
-                delayed_verification_check,
-                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
-            )
-        
-            return {"ok": True}
-
 ##############################################################################################################################################
         if text == "Change Time Expiry":
             tg_ids = authorized_sheet.col_values(1)
@@ -339,120 +321,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 ##############################################################################################################################################
-        if text in crypto_pairs or text in otc_pairs or text in stocks:
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]
-            ]
-            payload = {
-                "chat_id": chat_id,
-                "text": f"Choose your expiry time.",
-                "reply_markup": {"inline_keyboard": inline_kb}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-##############################################################################################################################################
-        payload = {
-            "chat_id": chat_id,
-            "text": "Unknown command. Please press /start to begin."}
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        return {"ok": True}
-
-    
-    if cq := data.get("callback_query"):
-        data_str = cq.get("data", "")
-        chat_id = cq["message"]["chat"]["id"]
-        message_id = cq["message"]["message_id"]
-        cq_id = cq.get("id")
-        background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
-        background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-
-        if data_str in ["broker_pocket", "broker_quotex"]:
-            broker_name = "Pocket Broker" if data_str == "broker_pocket" else "Quotex"
-            register_link = pocketlink if data_str == "broker_pocket" else quotexlink
-        
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "📌 Registration Link", "url": register_link}],
-                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
-                ]
-            }
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    f"Great choice! Let's set you up with {broker_name} 🛠️\n\n"
-                    "Just follow these 4 quick steps:\n\n"
-                    "1️⃣ Create an Account\nTap the “📌 Registration Link” and sign up with a new, unused email.\n\n"
-                    "2️⃣ Copy Your Account ID\nAfter registration, head to your profile and copy your account ID.\n\n"
-                    "3️⃣ Verify Your ID\nClick the “✅ Check ID” button and send your account ID (numbers only).\n\n"
-                    "4️⃣ Fund Your Account\nDeposit any amount to unlock full access to the bot features.\n\n"
-                ),
-                "reply_markup": keyboard
-            }
-        
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-
-        
-        
-        if data_str == "check_id":
-            payload = {
-                "chat_id": chat_id,
-                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-        
-            from_user = cq.get("from", {})
-            tg_id = from_user.get("id")
-            username = from_user.get("username")
-            first_name = from_user.get("first_name")
-            save_authorized_user(tg_id, po_id, username, first_name)
-            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-            payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "✅ You are now verified and can access the bot fully.\n\n"
-                        "👇 Please choose a pair to get signal:"
-                    ),
-                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-
-        if data_str == "restart_process":
-            message = cq.get("message", {})
-            from_user = cq.get("from", {})
-            full_name = from_user.get("first_name", "Trader")
-            keyboard = {
-                "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
-                ]
-            }
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    f"Hey {full_name}, welcome back! 🙌\n\n"
-                    "Which broker do you want to use?"
-                ),
-                "reply_markup": keyboard
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
-            
-        # Combine all your options into one list
         all_pairs = otc_pairs + crypto_pairs + stocks
-        
-        if data_str in all_pairs:
+        if text == all_pairs:
             # Split into timeframe and pair
             parts = data_str.split(" ", 1)
             if len(parts) == 2:
@@ -468,3 +338,18 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
+
+        payload = {
+            "chat_id": chat_id,
+            "text": "Unknown command. Please press /start to begin."}
+        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        return {"ok": True}
+
+    
+    if cq := data.get("callback_query"):
+        data_str = cq.get("data", "")
+        chat_id = cq["message"]["chat"]["id"]
+        message_id = cq["message"]["message_id"]
+        cq_id = cq.get("id")
+        background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
+        background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
