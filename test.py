@@ -321,21 +321,25 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 ##############################################################################################################################################
-        all_pairs = otc_pairs + crypto_pairs + stocks
-        parts = text.split(" ", 1)
-        if len(parts) == 2:
-            expiry, pair = parts
-            if pair in all_pairs and expiry in expiry_options:
-                signals = ["⬆️", "⬇️"]
-                signal = random.choice(signals)
-        
-                signal_message = f"{signal}"
+       if text in crypto_pairs or text in otc_pairs or text in stocks:
+            tg_ids = authorized_sheet.col_values(1)
+            if str(user_id) not in tg_ids:
                 payload = {
                     "chat_id": chat_id,
-                    "text": signal_message
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
+            signals = ["⬆️", "⬇️"]
+            signal = random.choice(signals)
+    
+            signal_message = f"{signal}"
+            payload = {
+                "chat_id": chat_id,
+                "text": signal_message
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
 
 
         payload = {
