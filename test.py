@@ -19,7 +19,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-n04b.onrender.com"
+RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
 
 client = None
 
@@ -32,9 +32,8 @@ scope = [
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
-spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet7")        # Trader data sheet (read-only for deposit)
-authorized_sheet = spreadsheet.worksheet("Sheet8")  # Authorized users sheet
+spreadsheet = client.open("LyraExclusiveAccess")
+sheet = spreadsheet.worksheet("Sheet2")        # Trader data sheet (read-only for deposit)
 pocketlink = os.getenv("POCKET_LINK")
 quotexlink = os.getenv("QUOTEX_LINK")
 botlink = os.getenv("BOT_LINK")
@@ -54,17 +53,18 @@ stocks = [
     "S15 EUR/USD OTC", "S15 BHD/CNY OTC", "S15 EUR/GBP OTC", "S15 NZD/USD OTC", "S15 LBP/USD OTC", "S15 GBP/USD OTC",
     "Change Time Expiry"
 ]
-def get_deposit_for_trader(trader_id: str) -> float | None:
-    trader_ids = sheet.col_values(1)
-    deposits = sheet.col_values(2)
-    for idx, tid in enumerate(trader_ids[1:], start=1):
-        if tid.strip() == trader_id:
-            try:
-                return float(deposits[idx])
-            except (ValueError, IndexError):
-                return None
-    return None
 
+def load_authorized_users():
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = set()
+    user_ids = sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {user_ids}")
+    for user_id in user_ids[1:]:
+        if user_id.strip():
+            try:
+                AUTHORIZED_USERS.add(int(user_id))
+            except ValueError:
+                print(f"Skipping invalid ID: {user_id}")
 
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
@@ -76,6 +76,8 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
+
+load_authorized_users()
 @asynccontextmanager
 
 
@@ -95,54 +97,6 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
-
-async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(300)
-    dep = get_deposit_for_trader(po_id)
-    if dep is None:
-        keyboard = {
-            "inline_keyboard": [
-                [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
-            ]
-        }
-        payload = {
-            "chat_id": chat_id,
-            "text": (
-                "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
-                "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
-                "Tap below to start over 👇"
-            ),
-            "reply_markup": keyboard
-        }
-        await client.post(SEND_MESSAGE, json=payload)
-        return
-    if dep >= 5:
-        tg_id = user_id
-        username = user.get("username")
-        first_name = user.get("first_name")
-        save_authorized_user(tg_id, po_id, username, first_name)
-
-        keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-        payload = {
-            "chat_id": chat_id,
-            "text": (
-                "✅ You are now verified and can access the bot fully.\n\n"
-                "👇 Please choose a pair to get signal:"
-            ),
-            "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-        }
-        await client.post(SEND_MESSAGE, json=payload)
-        return
-    payload = {
-        "chat_id": chat_id,
-        "text": (
-            "✅ Your account is registered!\n\n"
-            "🔓 You're just one step away from full access.\n\n"
-            "💰 Final Step:\nFund your account with any amount.\n\n"
-            "Once you’ve made the deposit, simply send your Account ID again to complete verification."
-        )
-    }
-    await client.post(SEND_MESSAGE, json=payload)
 
 
 app = FastAPI(lifespan=lifespan)
@@ -339,6 +293,62 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": signal_message
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+
+        if text.startswith(("/addmember", "/add")):
+            parts = text.strip().split()
+            if len(parts) < 3:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ Usage: /addmember <user_id> <pocket_option_id>"}
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            if user_id not in ADMIN_IDS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "❌ You are not authorized to use this command."}
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            try:
+                new_user_id = int(parts[1])
+                pocket_option_id = parts[2]
+                AUTHORIZED_USERS.add(new_user_id)
+            
+                try:
+                    resp = await client.get(f"{API_BASE}/getChat", params={"chat_id": new_user_id})
+                    user_info = resp.json().get("result", {})
+                    username = user_info.get("username", "Unknown")
+                    first_name = user_info.get("first_name", "Trader")
+                except Exception as e:
+                    print(f"⚠️ Failed to fetch user info: {e}")
+                    username = "Unknown"
+                    first_name = "Trader"
+            
+                # Prepare full name and username display
+                full_name = first_name
+                username_display = f"@{username}" if username != "Unknown" else "No username"
+            
+                user_ids = sheet.col_values(1)
+                user_id_str = str(new_user_id)
+                if user_id_str in user_ids:
+                    row_number = user_ids.index(user_id_str) + 1
+                    sheet.update(f"B{row_number}", [[username]])
+                    sheet.update(f"C{row_number}", [[first_name]])
+                    sheet.update(f"D{row_number}", [[pocket_option_id]])
+                else:
+                    sheet.append_row([new_user_id, username, first_name, pocket_option_id])
+            
+                payload = {
+                    "chat_id": chat_id,
+                    "text": f"✅ Added Successful!\n\n{full_name} | {username_display} | {new_user_id} \nPocket Option ID: {pocket_option_id}"
+                }
+                await client.post(SEND_MESSAGE, json=payload)
+
+            except ValueError:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ Invalid user ID. Please enter a valid number."}
+                await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
 
 
