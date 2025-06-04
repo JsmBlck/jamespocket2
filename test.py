@@ -322,15 +322,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 ##############################################################################################################################################
         all_pairs = otc_pairs + crypto_pairs + stocks
-        if text == all_pairs:
-            # Split into timeframe and pair
-            parts = data_str.split(" ", 1)
-            if len(parts) == 2:
-                expiry, pair = parts
+        parts = text.split(" ", 1)
+        if len(parts) == 2:
+            expiry, pair = parts
+            if pair in all_pairs and expiry in expiry_options:
                 signals = ["⬆️", "⬇️"]
                 signal = random.choice(signals)
         
-                # Build and send signal message
                 signal_message = f"{signal}"
                 payload = {
                     "chat_id": chat_id,
@@ -338,6 +336,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
+
 
         payload = {
             "chat_id": chat_id,
