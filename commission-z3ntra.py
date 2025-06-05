@@ -9,7 +9,7 @@ import os
 from datetime import datetime
 
 # Constants
-RENDER_URL = "https://z3ntra-postback.onrender.com"
+RENDER_URL = "https://jamespocket2-xce2.onrender.com"
 SPREADSHEET_NAME = "TelegramBotMembers"
 WORKSHEET_NAME = "Sheet12"
 
