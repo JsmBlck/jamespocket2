@@ -148,7 +148,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             keyboard = [["S5", "S10", "S15"]]
             payload = {
                 "chat_id": chat_id,
-                "text": "🔄 Select a Category you prefer:",
+                "text": "What Time Expiry you want to use?",
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
