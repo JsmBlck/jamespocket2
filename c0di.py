@@ -31,9 +31,20 @@ sheet = spreadsheet.worksheet("Sheet1")
 tg_channel = "t.me/ZentraAiRegister"
 
 otc_pairs = [
-    "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
-    "💸 NZD/USD OTC 🚀", "💸 BHD/CNY OTC 🚀", "💸 AUD/USD OTC 🚀", "💸 AED/CNY OTC 🚀"]
-expiry_options = ["S5", "S10", "S15"]
+    "S5 AUD/CHF OTC", "S5 GBP/JPY OTC", "S5 QAR/CNY OTC", "S5 CAD/JPY OTC", "S5 AED/CNY OTC", "S5 AUD/NZD OTC",
+    "S5 EUR/USD OTC", "S5 BHD/CNY OTC", "S5 EUR/GBP OTC", "S5 NZD/USD OTC", "S5 LBP/USD OTC", "S5 GBP/USD OTC",
+    "Change Time Expiry"
+]
+crypto_pairs = [
+    "S10 AUD/CHF OTC", "S10 GBP/JPY OTC", "S10 QAR/CNY OTC", "S10 CAD/JPY OTC", "S10 AED/CNY OTC", "S10 AUD/NZD OTC",
+    "S10 EUR/USD OTC", "S10 BHD/CNY OTC", "S10 EUR/GBP OTC", "S10 NZD/USD OTC", "S10 LBP/USD OTC", "S10 GBP/USD OTC",
+    "Change Time Expiry"
+]
+stocks = [
+    "S15 AUD/CHF OTC", "S15 GBP/JPY OTC", "S15 QAR/CNY OTC", "S15 CAD/JPY OTC", "S15 AED/CNY OTC", "S15 AUD/NZD OTC",
+    "S15 EUR/USD OTC", "S15 BHD/CNY OTC", "S15 EUR/GBP OTC", "S15 NZD/USD OTC", "S15 LBP/USD OTC", "S15 GBP/USD OTC",
+    "Change Time Expiry"
+]
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -87,153 +98,55 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    await client.post(SEND_MESSAGE, json={
-        "chat_id": chat_id,
-        "text": f"{pair}\nTime Frame: {expiry}"
-    })
-    current_percent = random.randint(0, 30)
-    filled_blocks = int(current_percent / 10)
-    progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-    resp = await client.post(SEND_MESSAGE, json={
-        "chat_id": chat_id,
-        "text": f"🔄 Analyzing.\n{progress_bar} {current_percent}%"
-    })
-    message_id = resp.json().get("result", {}).get("message_id")
-    dot_states = [".", "..", "..."]
-    dot_index = 0
-    while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.3, 0.5))
-        current_percent += random.randint(3, 17)
-        current_percent = min(current_percent, 100)
-        filled_blocks = int(current_percent / 10)
-        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-        dots = dot_states[dot_index % len(dot_states)]
-        dot_index += 1
-        await client.post(EDIT_MESSAGE, json={
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "text": f"🔄 Analyzing{dots}\n{progress_bar} {current_percent}%"
-        })
-    signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
-    await asyncio.sleep(0.5)
-    await client.post(EDIT_MESSAGE, json={
-        "chat_id": chat_id,
-        "message_id": message_id,
-        "text": f"{signal}"
-    })
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    # --- HANDLE NORMAL TEXT MESSAGES ---
+
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
+
         if user_id in ADMIN_IDS:
-            media_type = None
-            media_file_id = None
-            # Check if message has photo or video
-            if "photo" in msg and "caption" in msg:
-                media_type = "photo"
-                media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
+            # Check if message contains video and caption
+            if "video" in msg and "caption" in msg:
+                video_file_id = msg["video"]["file_id"]
                 caption = msg["caption"]
-            elif "video" in msg and "caption" in msg:
-                media_type = "video"
-                media_file_id = msg["video"]["file_id"]
-                caption = msg["caption"]
-            if media_type and media_file_id and caption:
+                button_options = [
+                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
+                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
+                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
+                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
+                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
+                ]
+                chosen_button = random.choice(button_options)
                 inline_keyboard = {
-                    "inline_keyboard": [[
-                        {
-                            "text": "🚀 Get Started for Free",
-                            "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-                        }
-                    ]]
+                    "inline_keyboard": [[chosen_button]]
                 }
                 payload = {
-                    "chat_id": -1002614452363,  # channel hub
+                    "chat_id": -1002549064084,
+                    "video": video_file_id,
                     "caption": caption,
                     "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"
-                }
-                if media_type == "photo":
-                    payload["photo"] = media_file_id
-                    send_method = "sendPhoto"
-                else:  # video
-                    payload["video"] = media_file_id
-                    send_method = "sendVideo"
-                send_url = f"{API_BASE}/{send_method}"
-                background_tasks.add_task(client.post, send_url, json=payload)
+                    "parse_mode": "HTML"}
+                send_video_url = f"{API_BASE}/sendVideo"
+                background_tasks.add_task(client.post, send_video_url, json=payload)
                 return {"ok": True}
-        if text.startswith("/start"):
-            parts = text.split()
-            param = parts[1] if len(parts) > 1 else None
-            if param == "register":
-                if user_id not in AUTHORIZED_USERS:
-                    # User not authorized - send welcome/register instructions
-                    payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "🎉 Welcome to the bot!\n\n"
-                            "👉 To get started, follow these steps:\n"
-                            f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                            "Copy your Account ID and send it to support to start activation."),
-                        "parse_mode": "HTML",
-                        "reply_markup": {
-                            "inline_keyboard": [[
-                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                            ]]}
-                    }
-                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            
-                elif user_id in AUTHORIZED_USERS:
-                    # Authorized user - show OTC pair keyboard
-                    keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
-                    payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "Select an OTC pair:"
-                        ),
-                        "parse_mode": "Markdown",
-                        "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-                    }
-                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            # Default /start behavior
-            if user_id not in AUTHORIZED_USERS:
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "🎉 Welcome to the bot!\n\n"
-                        "👉 To get started,\nFollow these steps:\n\n"
-                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                        "Copy your Account ID and send it to support to start activation."
-                    ),
-                    "parse_mode": "HTML",
-                    "reply_markup": {
-                        "inline_keyboard": [[
-                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                        ]]
-                    }
-                }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
-            payload = {
-                "chat_id": chat_id,
-                "text": (
-                    "Select an OTC pair:"),
-                "parse_mode": "Markdown",
-                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            return {"ok": True}
         
-
-        # Handle OTC Pair Selection
-        if text in otc_pairs:
+        if text == "/start":
+            message = data.get("message", {})  
+            from_user = message.get("from", {}) 
+            full_name = from_user.get("first_name", "Trader")
+            username = from_user.get("username", "")
+            username_display = f"@{username}" if username else "No username"
+            user_id = from_user.get("id", "N/A")
+            tg_ids = authorized_sheet.col_values(1)
             if user_id not in AUTHORIZED_USERS:
                 keyboard = {
                     "inline_keyboard": [
@@ -245,13 +158,111 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]]
+
+    
+        
+##############################################################################################################################################
+        if text == "Change Time Expiry":
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            keyboard = [["S5", "S10", "S15"]]
             payload = {
                 "chat_id": chat_id,
-                "text": f"{text}\nTime Frame: ❔ ",
-                "reply_markup": {"inline_keyboard": inline_kb}}
+                "text": "🔄 Select a Category you prefer:",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+        elif text == "S5":
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "You’ve successfully changed the Time Expiry to S5!",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+        elif text == "S10":
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            keyboard = [crypto_pairs[i:i+3] for i in range(0, len(stocks), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "You’ve successfully changed the Time Expiry to S10!",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+        elif text == "S15":
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            keyboard = [stocks[i:i+3] for i in range(0, len(crypto_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "You’ve successfully changed the Time Expiry to S15!",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+##############################################################################################################################################
+        if text in crypto_pairs or text in otc_pairs or text in stocks:
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            signals = ["⬆️", "⬇️"]
+            signal = random.choice(signals)
+        
+            signal_message = f"{signal}"
+            payload = {
+                "chat_id": chat_id,
+                "text": signal_message
+            }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
@@ -310,13 +321,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": "⚠️ Invalid user ID. Please enter a valid number."}
                 await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+
+
         payload = {
             "chat_id": chat_id,
-            "text": f"Unknown command. \nUse /start to get started."}
+            "text": "Unknown command. Please press /start to begin."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
-    # --- HANDLE CALLBACKS ---
+    
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -324,11 +338,3 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         cq_id = cq.get("id")
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-        _, pair, expiry = data_str.split("|", 2)
-        background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
-        return {"ok": True}
-    return {"ok": True}
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("4l60Shark:app", host="0.0.0.0", port=port)
