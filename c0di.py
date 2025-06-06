@@ -8,52 +8,32 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 from oauth2client.service_account import ServiceAccountCredentials
-
 load_dotenv()
-
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
-LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
 API_BASE = f"https://api.telegram.org/bot{BOT_TOKEN}"
 SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-x6nh.onrender.com"
+
+RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
+channel_link = os.getenv("CHANNEL_LINK")
+pocketlink = os.getenv("POCKET_LINK")
 
 client = None
-
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
-
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS2"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
-sheet = spreadsheet.worksheet("Sheet2")        # Trader data sheet (read-only for deposit)
-pocketlink = os.getenv("POCKET_LINK")
-quotexlink = os.getenv("QUOTEX_LINK")
-botlink = os.getenv("BOT_LINK")
-expiry_options = ["S5", "S10", "S15"]
-otc_pairs = [
-    "S5 AUD/CHF OTC", "S5 GBP/JPY OTC", "S5 QAR/CNY OTC", "S5 CAD/JPY OTC", "S5 AED/CNY OTC", "S5 AUD/NZD OTC",
-    "S5 EUR/USD OTC", "S5 BHD/CNY OTC", "S5 EUR/GBP OTC", "S5 NZD/USD OTC", "S5 LBP/USD OTC", "S5 GBP/USD OTC",
-    "Change Time Expiry"
-]
-crypto_pairs = [
-    "S10 AUD/CHF OTC", "S10 GBP/JPY OTC", "S10 QAR/CNY OTC", "S10 CAD/JPY OTC", "S10 AED/CNY OTC", "S10 AUD/NZD OTC",
-    "S10 EUR/USD OTC", "S10 BHD/CNY OTC", "S10 EUR/GBP OTC", "S10 NZD/USD OTC", "S10 LBP/USD OTC", "S10 GBP/USD OTC",
-    "Change Time Expiry"
-]
-stocks = [
-    "S15 AUD/CHF OTC", "S15 GBP/JPY OTC", "S15 QAR/CNY OTC", "S15 CAD/JPY OTC", "S15 AED/CNY OTC", "S15 AUD/NZD OTC",
-    "S15 EUR/USD OTC", "S15 BHD/CNY OTC", "S15 EUR/GBP OTC", "S15 NZD/USD OTC", "S15 LBP/USD OTC", "S15 GBP/USD OTC",
-    "Change Time Expiry"
-]
+sheet = spreadsheet.worksheet("Sheet1")
+tg_channel = "t.me/ZentraAiRegister"
 
+otc_pairs = [
+    "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
+    "💸 NZD/USD OTC 🚀", "💸 BHD/CNY OTC 🚀", "💸 AUD/USD OTC 🚀", "💸 AED/CNY OTC 🚀"]
+expiry_options = ["S5", "S10", "S15"]
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -65,7 +45,7 @@ def load_authorized_users():
                 AUTHORIZED_USERS.add(int(user_id))
             except ValueError:
                 print(f"Skipping invalid ID: {user_id}")
-
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
 def save_users():
     user_ids = sheet.col_values(1)
     if not user_ids:
@@ -85,11 +65,8 @@ def save_users():
         else:
             sheet.append_row([user_id, tg_username, tg_name, pocket_option_id])
     print("✅ Users saved successfully!")
-
 load_authorized_users()
 @asynccontextmanager
-
-
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
@@ -101,13 +78,10 @@ async def lifespan(app: FastAPI):
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)  # Every 4 minutes
-
+            await asyncio.sleep(300)
     asyncio.create_task(self_ping_loop())
     yield
-    await client.aclose()
-
-
+    await client.aclose()  # Clean up
 app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
@@ -357,4 +331,4 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("c0di:app", host="0.0.0.0", port=port)
+    uvicorn.run("4l60Shark:app", host="0.0.0.0", port=port)
