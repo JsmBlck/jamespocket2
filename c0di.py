@@ -106,7 +106,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-        
+                
         if text == "/start":
             if user_id not in AUTHORIZED_USERS:
                 payload = {
@@ -124,12 +124,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
-
-
-
-
-
-            
+                
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -205,8 +200,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
+                }
                 await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}  # Stop processing here if not authorized
+        
+            # Authorized user logic
             signals = ["⬆️", "⬇️"]
             signal = random.choice(signals)
         
@@ -217,6 +216,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+
 
         if text.startswith(("/addmember", "/add")):
             parts = text.strip().split()
