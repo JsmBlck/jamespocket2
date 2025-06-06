@@ -27,7 +27,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS2"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
-sheet = spreadsheet.worksheet("Sheet1")
+sheet = spreadsheet.worksheet("Sheet2")
 tg_channel = "t.me/ZentraAiRegister"
 
 otc_pairs = [
@@ -140,18 +140,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
         if text == "/start":
-            if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -167,17 +155,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
 ##############################################################################################################################################
         if text == "Change Time Expiry":
-            if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
             keyboard = [["S5", "S10", "S15"]]
             payload = {
                 "chat_id": chat_id,
@@ -187,17 +164,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "S5":
-            if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -207,17 +173,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "S10":
-            if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(stocks), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -227,17 +182,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "S15":
-            if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
             keyboard = [stocks[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -248,17 +192,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 ##############################################################################################################################################
         if text in crypto_pairs or text in otc_pairs or text in stocks:
-            if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
             signals = ["⬆️", "⬇️"]
             signal = random.choice(signals)
         
