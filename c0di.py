@@ -28,7 +28,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet2")
-tg_channel = "t.me/ZentraAiRegister"
+
 
 otc_pairs = [
     "S5 AUD/CHF OTC", "S5 GBP/JPY OTC", "S5 QAR/CNY OTC", "S5 CAD/JPY OTC", "S5 AED/CNY OTC", "S5 AUD/NZD OTC",
@@ -101,51 +101,35 @@ async def healthcheck(request: Request):
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-
-        if user_id in ADMIN_IDS:
-            # Check if message contains video and caption
-            if "video" in msg and "caption" in msg:
-                video_file_id = msg["video"]["file_id"]
-                caption = msg["caption"]
-                button_options = [
-                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
-                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
-                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
-                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
-                ]
-                chosen_button = random.choice(button_options)
-                inline_keyboard = {
-                    "inline_keyboard": [[chosen_button]]
-                }
-                payload = {
-                    "chat_id": -1002549064084,
-                    "video": video_file_id,
-                    "caption": caption,
-                    "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"}
-                send_video_url = f"{API_BASE}/sendVideo"
-                background_tasks.add_task(client.post, send_video_url, json=payload)
-                return {"ok": True}
         
         if text == "/start":
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
-                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                    "text": (
+                        "🚫 You’re not verified yet!\n\n"
+                        "✅ To get access, join my channel and tap the pinned message 📌\n"
+                        "Follow the simple steps there to get started 💼"
+                    ),
+                    "reply_markup": {
+                        "inline_keyboard": [[
+                            {"text": "📢 Join Channel", "url": channel_link}
+                        ]]
+                    }
+                }
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
+
+
+
+
+
+            
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -161,6 +145,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
 ##############################################################################################################################################
         if text == "Change Time Expiry":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
             keyboard = [["S5", "S10", "S15"]]
             payload = {
                 "chat_id": chat_id,
@@ -170,6 +159,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "S5":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -179,6 +173,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "S10":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
             keyboard = [crypto_pairs[i:i+3] for i in range(0, len(stocks), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -188,6 +187,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "S15":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
             keyboard = [stocks[i:i+3] for i in range(0, len(crypto_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -198,6 +202,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 ##############################################################################################################################################
         if text in crypto_pairs or text in otc_pairs or text in stocks:
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
             signals = ["⬆️", "⬇️"]
             signal = random.choice(signals)
         
@@ -251,13 +260,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     sheet.update(f"D{row_number}", [[pocket_option_id]])
                 else:
                     sheet.append_row([new_user_id, username, first_name, pocket_option_id])
-            
                 payload = {
                     "chat_id": chat_id,
                     "text": f"✅ Added Successful!\n\n{full_name} | {username_display} | {new_user_id} \nPocket Option ID: {pocket_option_id}"
                 }
                 await client.post(SEND_MESSAGE, json=payload)
-
             except ValueError:
                 payload = {
                     "chat_id": chat_id,
