@@ -229,7 +229,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 })
         
             signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
-            final_text = f"🎯 Signal for {pair}: {signal}"
+            final_text = f"{pair}:\n\n{signal}"
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
                 "message_id": message_id,
