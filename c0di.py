@@ -140,13 +140,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
         if text == "/start":
-            message = data.get("message", {})  
-            from_user = message.get("from", {}) 
-            full_name = from_user.get("first_name", "Trader")
-            username = from_user.get("username", "")
-            username_display = f"@{username}" if username else "No username"
-            user_id = from_user.get("id", "N/A")
-            tg_ids = authorized_sheet.col_values(1)
             if user_id not in AUTHORIZED_USERS:
                 keyboard = {
                     "inline_keyboard": [
@@ -158,6 +151,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
+
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": (
+                    "👇 Please choose a pair to get signal:"
+                ),
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
 
     
         
