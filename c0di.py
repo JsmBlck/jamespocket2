@@ -209,7 +209,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             pair = text
         
             analysis_steps = [
-                f"🤖 Pair Selected: {pair}\n\nAnalyzing chart data...",
+                f"🤖 Analyzing chart data...",
                 f"📊 Watching market activity on {pair}...",
                 f"🔍 Scanning for patterns and trends...",
                 f"📈 Running internal indicators...",
@@ -221,16 +221,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             message_id = resp.json().get("result", {}).get("message_id")
         
             for step in analysis_steps[1:]:
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.7)
                 await client.post(EDIT_MESSAGE, json={
                     "chat_id": chat_id,
                     "message_id": message_id,
                     "text": step
                 })
         
-            signal = random.choice(["↗️", "↘️"])
+            signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
             final_text = f"🎯 Signal for {pair}: {signal}"
-            await asyncio.sleep(1)
             await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
                 "message_id": message_id,
