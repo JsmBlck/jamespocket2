@@ -205,17 +205,40 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}  # Stop processing here if not authorized
         
-            # Authorized user logic
-            signals = ["⬆️", "⬇️"]
-            signal = random.choice(signals)
+            # Authorized user logic with analysis animation
+            pair = text
         
-            signal_message = f"{signal}"
-            payload = {
+            analysis_steps = [
+                f"🤖 Pair Selected: {pair}\n\nAnalyzing chart data...",
+                f"📊 Watching market activity on {pair}...",
+                f"🔍 Scanning for patterns and trends...",
+                f"📈 Running internal indicators...",
+                f"🧠 Finalizing signal for {pair}...",
+                f"✅ Analysis complete!"
+            ]
+        
+            resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+            message_id = resp.json().get("result", {}).get("message_id")
+        
+            for step in analysis_steps[1:]:
+                await asyncio.sleep(1)
+                await client.post(EDIT_MESSAGE, json={
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                    "text": step
+                })
+        
+            signal = random.choice(["↗️", "↘️"])
+            final_text = f"🎯 Signal for {pair}: {signal}"
+            await asyncio.sleep(1)
+            await client.post(EDIT_MESSAGE, json={
                 "chat_id": chat_id,
-                "text": signal_message
-            }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                "message_id": message_id,
+                "text": final_text
+            })
+        
             return {"ok": True}
+
 
 
         if text.startswith(("/addmember", "/add")):
