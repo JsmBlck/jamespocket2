@@ -140,6 +140,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
         if text == "/start":
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
