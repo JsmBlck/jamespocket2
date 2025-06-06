@@ -19,7 +19,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
+RENDER_URL = "https://jamespocket2-x6nh.onrender.com"
 
 client = None
 
