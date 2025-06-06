@@ -98,6 +98,36 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
+async def handle_analysis_flow(pair, chat_id, client):
+    analysis_steps = [
+        f"🤖 Analyzing chart data...",
+        f"📊 Watching market activity on {pair}...",
+        f"🔍 Scanning for patterns and trends...",
+        f"📈 Running internal indicators...",
+        f"🧠 Finalizing signal for {pair}...",
+        f"✅ Analysis complete!"
+    ]
+
+    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+    message_id = resp.json().get("result", {}).get("message_id")
+
+    for step in analysis_steps[1:]:
+        await asyncio.sleep(0.7)
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": step
+        })
+
+    signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
+    final_text = f"{pair}:\n\n{signal}"
+    await asyncio.sleep(0.5)
+    await client.post(EDIT_MESSAGE, json={
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "text": final_text
+    })
+
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
@@ -203,41 +233,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
                 }
                 await client.post(SEND_MESSAGE, json=payload)
-                return {"ok": True}  # Stop processing here if not authorized
+                return {"ok": True}
         
-            # Authorized user logic with analysis animation
-            pair = text
-        
-            analysis_steps = [
-                f"🤖 Analyzing chart data...",
-                f"📊 Watching market activity on {pair}...",
-                f"🔍 Scanning for patterns and trends...",
-                f"📈 Running internal indicators...",
-                f"🧠 Finalizing signal for {pair}...",
-                f"✅ Analysis complete!"
-            ]
-        
-            resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
-            message_id = resp.json().get("result", {}).get("message_id")
-        
-            for step in analysis_steps[1:]:
-                await asyncio.sleep(0.7)
-                await client.post(EDIT_MESSAGE, json={
-                    "chat_id": chat_id,
-                    "message_id": message_id,
-                    "text": step
-                })
-        
-            signal = random.choice(["↗️↗️↗️", "↘️↘️↘️"])
-            final_text = f"{pair}:\n\n{signal}"
-            await client.post(EDIT_MESSAGE, json={
-                "chat_id": chat_id,
-                "message_id": message_id,
-                "text": final_text
-            })
-        
+            # Run analysis in background without waiting
+            asyncio.create_task(handle_analysis_flow(text, chat_id, client))
             return {"ok": True}
-
 
 
         if text.startswith(("/addmember", "/add")):
