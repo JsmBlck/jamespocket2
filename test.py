@@ -304,7 +304,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "message_id": message_id,
                     "text": step
                 })
-        
+
+            existing_po_ids = authorized_sheet.col_values(4)
+            if po_id in existing_po_ids:
+                await client.post(SEND_MESSAGE, json={
+                    "chat_id": chat_id,
+                    "text": "❌ This Pocket Option ID is already registered. Please provide a different account ID."
+                })
+                return {"ok": True}
             # Now run the background verification task
             background_tasks.add_task(
                 delayed_verification_check,
