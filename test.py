@@ -304,15 +304,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "message_id": message_id,
                     "text": step
                 })
-            
-            
+                
             # Wait briefly then delete the message
             await asyncio.sleep(1.2)
             await client.post(DELETE_MESSAGE, json={
                 "chat_id": chat_id,
                 "message_id": message_id
             })
-            return {"ok": True}
             
             existing_po_ids = authorized_sheet.col_values(4)
             if po_id in existing_po_ids:
@@ -326,6 +324,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
+
+            return {"ok": True}
             
 
 ##############################################################################################################################################
