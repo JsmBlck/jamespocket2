@@ -1,3 +1,4 @@
+
 import os
 import httpx
 import asyncio
@@ -276,32 +277,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-            
-            # Check if PO ID already exists in Sheet11
-            authorized_sheet = spreadsheet.worksheet("Sheet11")
-            existing_po_ids = [row[3] for row in authorized_sheet.get_all_values()[1:] if len(row) > 3]
-        
-            if po_id in existing_po_ids:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "📌 Registration Link", "url": pocketlink}],
-                        [{"text": "✅ Check ID", "callback_data": "check_id"}]
-                    ]
-                }
-                payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "⚠️ Looks like this Account ID was already registered by someone else.\n\n"
-                        "To continue, follow these quick steps:\n"
-                        "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
-                        "2️⃣ Copy your Account ID from your profile.\n\n"
-                        "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
-                    ),
-                    "reply_markup": keyboard
-                }
-                await client.post(SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            
             checking_steps = [
                 "🔍 Checking Account ID.",
                 "🔍 Checking Account ID..",
@@ -342,7 +317,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "message_id": message_id
             })
             return {"ok": True}
-
 
 ##############################################################################################################################################
          # Handle OTC Pair Selection
