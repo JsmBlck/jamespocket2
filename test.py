@@ -304,19 +304,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "message_id": message_id,
                     "text": step
                 })
-
-            existing_po_ids = authorized_sheet.col_values(4)
-            if po_id in existing_po_ids:
-                await client.post(SEND_MESSAGE, json={
-                    "chat_id": chat_id,
-                    "text": "❌ This Pocket Option ID is already registered. Please provide a different account ID."
-                })
-                return {"ok": True}
-            # Now run the background verification task
-            background_tasks.add_task(
-                delayed_verification_check,
-                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
-            )
+            
+            
             # Wait briefly then delete the message
             await asyncio.sleep(1.2)
             await client.post(DELETE_MESSAGE, json={
@@ -324,6 +313,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "message_id": message_id
             })
             return {"ok": True}
+            
+            existing_po_ids = authorized_sheet.col_values(4)
+            if po_id in existing_po_ids:
+                await client.post(SEND_MESSAGE, json={
+                    "chat_id": chat_id,
+                    "text": "❌ This Pocket Option ID is already registered. Please provide a different account ID."
+                })
+                return {"ok": True}
+
+            background_tasks.add_task(
+                delayed_verification_check,
+                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
+            )
+            
 
 ##############################################################################################################################################
          # Handle OTC Pair Selection
