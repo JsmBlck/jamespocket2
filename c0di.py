@@ -81,6 +81,11 @@ load_authorized_users()
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
+
+    # Load authorized users when the app starts
+    load_authorized_users()
+    print("✅ Authorized users loaded on startup.")
+
     async def self_ping_loop():
         await asyncio.sleep(5)
         while True:
@@ -90,9 +95,10 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
             await asyncio.sleep(300)
+
     asyncio.create_task(self_ping_loop())
     yield
-    await client.aclose()  # Clean up
+    await client.aclose()
 app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
