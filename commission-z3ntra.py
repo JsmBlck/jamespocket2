@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from typing import Optional
 import gspread
 import json
@@ -52,18 +52,17 @@ def root():
 @app.get("/webhook")
 async def webhook(
     trader_id: Optional[str] = None,
-    amount: Optional[str] = "0",
     sumdep: Optional[str] = "0",
     event: Optional[str] = ""
 ):
-    print(f"📥 Event={event} | Trader ID={trader_id} | Amount={amount} | SumDep={sumdep}")
+    print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
-    # Convert amount to float if provided, fallback to sumdep
+    # Convert sumdep to float
     try:
-        deposit_amount = float(amount or sumdep or 0)
+        deposit_amount = float(sumdep or 0)
     except ValueError:
         deposit_amount = 0.0
 
