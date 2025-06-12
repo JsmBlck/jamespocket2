@@ -259,7 +259,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
             payload = {
                 "chat_id": chat_id,
-                "text": "Thank you! We're currently verifying your account. Please wait a few minutes.\n\nWe'll notify you once the process is complete."
+                "text": "✅ Thank you! We're currently verifying your account. Please wait a few minutes... ⏳\n\n📬 We'll notify you once the process is complete!"
             }
             await client.post(SEND_MESSAGE, json=payload)
         
