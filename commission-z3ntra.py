@@ -6,66 +6,97 @@ import httpx
 import asyncio
 from oauth2client.service_account import ServiceAccountCredentials
 import os
-from datetime import datetime
 
 # Constants
-RENDER_URL = "https://jamespocket2-xce2.onrender.com"
+RENDER_URL = "https://z3ntra-postback.onrender.com"
 SPREADSHEET_NAME = "TelegramBotMembers"
 WORKSHEET_NAME = "Sheet12"
 
-# Lifespan hook for self-ping
+# Lifespan hook for self-ping (keep-alive)
 async def lifespan(app: FastAPI):
     ping_client = httpx.AsyncClient(timeout=10)
 
     async def self_ping_loop():
-        await asyncio.sleep(5)
+        await asyncio.sleep(5)  # initial delay
         while True:
             try:
                 await ping_client.get(RENDER_URL)
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Self-ping failed: {e}")
-            await asyncio.sleep(300)
+            await asyncio.sleep(300)  # every 5 minutes
 
     asyncio.create_task(self_ping_loop())
     yield
     await ping_client.aclose()
 
+# Initialize FastAPI app
 app = FastAPI(lifespan=lifespan)
 
-# Google Sheets setup
+# Google Sheets authorization
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
+
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 gs_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gs_client = gspread.authorize(gs_creds)
-sheet = gs_client.open(SPREADSHEET_NAME).worksheet(WORKSHEET_NAME)
+spreadsheet = gs_client.open(SPREADSHEET_NAME)
+sheet = spreadsheet.worksheet(WORKSHEET_NAME)
 
 @app.get("/")
 def root():
-    return {"message": "✅ ZentraFx Commission Postback is live."}
+    return {"message": "✅ ZentraFx Postback Webhook is live."}
 
-@app.get("/postback")
-async def postback(
-    event: Optional[str] = None,
-    commission: Optional[str] = "0",
-    date_time: Optional[str] = None
+@app.get("/webhook")
+async def webhook(
+    trader_id: Optional[str] = None,
+    totaldep: Optional[str] = "0",
+    reg: Optional[str] = "",
+    sumdep: Optional[str] = "",
+    dep: Optional[str] = "",
+    ftd: Optional[str] = ""
 ):
-    if event != "commission":
-        return {"status": "ignored", "reason": "event not commission"}
+    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}")
+
+    if not trader_id:
+        return {"status": "error", "message": "❌ Missing trader_id"}
 
     try:
-        commission_value = float(commission)
+        deposit = float(totaldep or "0")
     except ValueError:
-        commission_value = 0.0
+        deposit = 0.0
 
-    timestamp = date_time or datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        # Try to find the trader ID in the sheet
+        cell = sheet.find(str(trader_id))
 
-    # Append commission and date to sheet
-    sheet.append_row([timestamp, commission_value])
-    print(f"✅ Logged: {timestamp} | ${commission_value}")
+        if cell is None:
+            raise ValueError("Trader not found")
 
-    return {"status": "logged", "date": timestamp, "commission": commission_value}
+        row = cell.row
+        # Overwrite with latest totaldep (do not add)
+        sheet.update_cell(row, 2, str(deposit))
+
+        print(f"✅ Updated trader {trader_id}: totaldep={deposit}")
+        return {
+            "status": "updated",
+            "trader_id": trader_id,
+            "totaldep": deposit
+        }
+
+    except (ValueError, gspread.exceptions.GSpreadException):
+        # Trader not found — register new
+        sheet.append_row([trader_id, deposit])
+        print(f"🆕 Registered new trader {trader_id}")
+        return {
+            "status": "registered",
+            "trader_id": trader_id,
+            "totaldep": deposit
+        }
+
+    except Exception as e:
+        print(f"❌ Error handling trader_id={trader_id}: {e}")
+        return {"status": "error", "message": str(e)}
