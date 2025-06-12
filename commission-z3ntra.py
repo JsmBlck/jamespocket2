@@ -12,7 +12,7 @@ RENDER_URL = "https://jamespocket2-xce2.onrender.com"
 SPREADSHEET_NAME = "TelegramBotMembers"
 WORKSHEET_NAME = "Sheet12"
 
-# Lifespan hook for self-ping (keep-alive)
+# Lifespan hook for keep-alive
 async def lifespan(app: FastAPI):
     ping_client = httpx.AsyncClient(timeout=10)
 
@@ -52,7 +52,7 @@ def root():
 @app.get("/webhook")
 async def webhook(
     trader_id: Optional[str] = None,
-    sumdep: Optional[str] = "0",
+    sumdep: Optional[str] = None,
     event: Optional[str] = ""
 ):
     print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep}")
@@ -60,13 +60,13 @@ async def webhook(
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
-    # Convert sumdep to float
     try:
-        deposit_amount = float(sumdep or 0)
+        reported_amount = float(sumdep or 0)
+        # Reverse the 6% fee (reported amount is ~94% of actual)
+        original_amount = round(reported_amount / 0.94)
     except ValueError:
-        deposit_amount = 0.0
+        original_amount = 0
 
-    # Fetch trader IDs
     trader_ids = sheet.col_values(1)
 
     try:
@@ -87,18 +87,18 @@ async def webhook(
                     current_total = float(current_value or 0)
                 except ValueError:
                     current_total = 0.0
-                new_total = current_total + deposit_amount
+                new_total = current_total + original_amount
                 sheet.update_cell(row, 2, str(new_total))
-                print(f"✅ Updated {trader_id}: {current_total} + {deposit_amount} = {new_total}")
+                print(f"✅ Updated {trader_id}: {current_total} + {original_amount} = {new_total}")
                 return {"status": "updated", "trader_id": trader_id, "total": new_total}
             else:
-                # Register trader directly if they deposited without registering first
-                sheet.append_row([trader_id, str(deposit_amount)])
-                print(f"🆕 Registered + deposited: {trader_id} | Amount: {deposit_amount}")
-                return {"status": "auto_registered", "trader_id": trader_id, "total": deposit_amount}
+                # Register and record deposit
+                sheet.append_row([trader_id, str(original_amount)])
+                print(f"🆕 Auto-registered {trader_id} | Deposit: {original_amount}")
+                return {"status": "auto_registered", "trader_id": trader_id, "total": original_amount}
 
         else:
-            print("⚠️ Unhandled event or no action needed.")
+            print("⚠️ Event ignored.")
             return {"status": "ignored", "event": event}
 
     except Exception as e:
