@@ -99,7 +99,7 @@ async def lifespan(app: FastAPI):
     await client.aclose()
 
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(300)
+    await asyncio.sleep(150)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
@@ -259,7 +259,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
             payload = {
                 "chat_id": chat_id,
-                "text": "Thanks! We're checking your account. Please wait around 5 minutes..."
+                "text": "Thank you! We're currently verifying your account. Please allow a few minutes.\nWe'll notify you once the process is complete."
             }
             await client.post(SEND_MESSAGE, json=payload)
         
