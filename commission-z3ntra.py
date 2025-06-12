@@ -53,16 +53,17 @@ def root():
 async def webhook(
     trader_id: Optional[str] = None,
     amount: Optional[str] = "0",
+    sumdep: Optional[str] = "0",
     event: Optional[str] = ""
 ):
-    print(f"📥 Event={event} | Trader ID={trader_id} | Amount={amount}")
+    print(f"📥 Event={event} | Trader ID={trader_id} | Amount={amount} | SumDep={sumdep}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
-    # Convert amount to float if provided (for deposits)
+    # Convert amount to float if provided, fallback to sumdep
     try:
-        deposit_amount = float(amount or 0)
+        deposit_amount = float(amount or sumdep or 0)
     except ValueError:
         deposit_amount = 0.0
 
