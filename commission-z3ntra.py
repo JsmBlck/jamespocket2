@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from typing import Optional
 import gspread
 import json
@@ -17,14 +17,14 @@ async def lifespan(app: FastAPI):
     ping_client = httpx.AsyncClient(timeout=10)
 
     async def self_ping_loop():
-        await asyncio.sleep(5)  # initial delay
+        await asyncio.sleep(5)
         while True:
             try:
                 await ping_client.get(RENDER_URL)
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Self-ping failed: {e}")
-            await asyncio.sleep(300)  # every 5 minutes
+            await asyncio.sleep(300)
 
     asyncio.create_task(self_ping_loop())
     yield
@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
 # Initialize FastAPI app
 app = FastAPI(lifespan=lifespan)
 
-# Google Sheets authorization
+# Google Sheets setup
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
@@ -43,8 +43,7 @@ scope = [
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 gs_creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gs_client = gspread.authorize(gs_creds)
-spreadsheet = gs_client.open(SPREADSHEET_NAME)
-sheet = spreadsheet.worksheet(WORKSHEET_NAME)
+sheet = gs_client.open(SPREADSHEET_NAME).worksheet(WORKSHEET_NAME)
 
 @app.get("/")
 def root():
@@ -53,50 +52,55 @@ def root():
 @app.get("/webhook")
 async def webhook(
     trader_id: Optional[str] = None,
-    totaldep: Optional[str] = "0",
-    reg: Optional[str] = "",
-    sumdep: Optional[str] = "",
-    dep: Optional[str] = "",
-    ftd: Optional[str] = ""
+    amount: Optional[str] = "0",
+    event: Optional[str] = ""
 ):
-    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}")
+    print(f"📥 Event={event} | Trader ID={trader_id} | Amount={amount}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
+    # Convert amount to float if provided (for deposits)
     try:
-        deposit = float(totaldep or "0")
+        deposit_amount = float(amount or 0)
     except ValueError:
-        deposit = 0.0
+        deposit_amount = 0.0
+
+    # Fetch trader IDs
+    trader_ids = sheet.col_values(1)
 
     try:
-        # Try to find the trader ID in the sheet
-        cell = sheet.find(str(trader_id))
+        if event == "registration":
+            if trader_id not in trader_ids:
+                sheet.append_row([trader_id, "0"])
+                print(f"🆕 Registered new trader {trader_id}")
+                return {"status": "registered", "trader_id": trader_id}
+            else:
+                print(f"ℹ️ Trader {trader_id} already registered.")
+                return {"status": "already_registered", "trader_id": trader_id}
 
-        if cell is None:
-            raise ValueError("Trader not found")
+        elif event in ["ftd", "redeposit"]:
+            if trader_id in trader_ids:
+                row = trader_ids.index(trader_id) + 1
+                current_value = sheet.cell(row, 2).value
+                try:
+                    current_total = float(current_value or 0)
+                except ValueError:
+                    current_total = 0.0
+                new_total = current_total + deposit_amount
+                sheet.update_cell(row, 2, str(new_total))
+                print(f"✅ Updated {trader_id}: {current_total} + {deposit_amount} = {new_total}")
+                return {"status": "updated", "trader_id": trader_id, "total": new_total}
+            else:
+                # Register trader directly if they deposited without registering first
+                sheet.append_row([trader_id, str(deposit_amount)])
+                print(f"🆕 Registered + deposited: {trader_id} | Amount: {deposit_amount}")
+                return {"status": "auto_registered", "trader_id": trader_id, "total": deposit_amount}
 
-        row = cell.row
-        # Overwrite with latest totaldep (do not add)
-        sheet.update_cell(row, 2, str(deposit))
-
-        print(f"✅ Updated trader {trader_id}: totaldep={deposit}")
-        return {
-            "status": "updated",
-            "trader_id": trader_id,
-            "totaldep": deposit
-        }
-
-    except (ValueError, gspread.exceptions.GSpreadException):
-        # Trader not found — register new
-        sheet.append_row([trader_id, deposit])
-        print(f"🆕 Registered new trader {trader_id}")
-        return {
-            "status": "registered",
-            "trader_id": trader_id,
-            "totaldep": deposit
-        }
+        else:
+            print("⚠️ Unhandled event or no action needed.")
+            return {"status": "ignored", "event": event}
 
     except Exception as e:
-        print(f"❌ Error handling trader_id={trader_id}: {e}")
+        print(f"❌ Error processing {trader_id}: {e}")
         return {"status": "error", "message": str(e)}
