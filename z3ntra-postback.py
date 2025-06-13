@@ -53,50 +53,55 @@ def root():
 @app.get("/webhook")
 async def webhook(
     trader_id: Optional[str] = None,
-    totaldep: Optional[str] = "0",
-    reg: Optional[str] = "",
-    sumdep: Optional[str] = "",
-    dep: Optional[str] = "",
-    ftd: Optional[str] = ""
+    sumdep: Optional[str] = None,
+    event: Optional[str] = ""
 ):
-    print(f"📥 Incoming: trader_id={trader_id}, totaldep={totaldep}")
+    print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
     try:
-        deposit = float(totaldep or "0")
+        reported_amount = float(sumdep or 0)
+        # Reverse the 6% fee (reported amount is ~94% of actual)
+        original_amount = round(reported_amount / 0.94)
     except ValueError:
-        deposit = 0.0
+        original_amount = 0
+
+    trader_ids = sheet.col_values(1)
 
     try:
-        # Try to find the trader ID in the sheet
-        cell = sheet.find(str(trader_id))
+        if event == "registration":
+            if trader_id not in trader_ids:
+                sheet.append_row([trader_id, "0"])
+                print(f"🆕 Registered new trader {trader_id}")
+                return {"status": "registered", "trader_id": trader_id}
+            else:
+                print(f"ℹ️ Trader {trader_id} already registered.")
+                return {"status": "already_registered", "trader_id": trader_id}
 
-        if cell is None:
-            raise ValueError("Trader not found")
+        elif event in ["ftd", "redeposit"]:
+            if trader_id in trader_ids:
+                row = trader_ids.index(trader_id) + 1
+                current_value = sheet.cell(row, 2).value
+                try:
+                    current_total = float(current_value or 0)
+                except ValueError:
+                    current_total = 0.0
+                new_total = current_total + original_amount
+                sheet.update_cell(row, 2, str(new_total))
+                print(f"✅ Updated {trader_id}: {current_total} + {original_amount} = {new_total}")
+                return {"status": "updated", "trader_id": trader_id, "total": new_total}
+            else:
+                # Register and record deposit
+                sheet.append_row([trader_id, str(original_amount)])
+                print(f"🆕 Auto-registered {trader_id} | Deposit: {original_amount}")
+                return {"status": "auto_registered", "trader_id": trader_id, "total": original_amount}
 
-        row = cell.row
-        # Overwrite with latest totaldep (do not add)
-        sheet.update_cell(row, 2, str(deposit))
-
-        print(f"✅ Updated trader {trader_id}: totaldep={deposit}")
-        return {
-            "status": "updated",
-            "trader_id": trader_id,
-            "totaldep": deposit
-        }
-
-    except (ValueError, gspread.exceptions.GSpreadException):
-        # Trader not found — register new
-        sheet.append_row([trader_id, deposit])
-        print(f"🆕 Registered new trader {trader_id}")
-        return {
-            "status": "registered",
-            "trader_id": trader_id,
-            "totaldep": deposit
-        }
+        else:
+            print("⚠️ Event ignored.")
+            return {"status": "ignored", "event": event}
 
     except Exception as e:
-        print(f"❌ Error handling trader_id={trader_id}: {e}")
+        print(f"❌ Error processing {trader_id}: {e}")
         return {"status": "error", "message": str(e)}
