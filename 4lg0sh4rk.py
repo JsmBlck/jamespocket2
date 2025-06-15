@@ -23,6 +23,7 @@ DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 RENDER_URL = "https://fourlgosh4rk.onrender.com"
 
 client = None
+AUTHORIZED_USERS = set()
 
 scope = [
     "https://spreadsheets.google.com/feeds",
@@ -32,13 +33,15 @@ scope = [
 
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-client = gspread.authorize(creds)
-spreadsheet = client.open("TelegramBotMembers")
+client_gsheet = gspread.authorize(creds)
+spreadsheet = client_gsheet.open("TelegramBotMembers")
 sheet = spreadsheet.worksheet("Sheet13")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
+
 pocketlink = os.getenv("POCKET_LINK")
 quotexlink = os.getenv("QUOTEX_LINK")
 botlink = os.getenv("BOT_LINK")
+
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
     "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
@@ -46,16 +49,21 @@ otc_pairs = [
     "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC",
     "🔄 Change Category"
 ]
+
 crypto_pairs = [
     "Bitcoin OTC", "Ethereum OTC", "Polkadot OTC", "Polygon OTC", "Bitcoin ETF OTC", "TRON OTC",
     "Chainlink OTC", "Dogecoin OTC", "Solana OTC", "Cardano OTC", "Toncoin OTC", "Avalanche OTC",
     "Bitcoin Cash OTC", "Bonk OTC", "Litecoin OTC", "Pepe OTC", "Ripple OTC", "Shiba Inu OTC",
     "🔄 Change Category"
 ]
+
 stocks = [
     "Apple OTC", "FACEBOOK INC OTC", "Intel OTC", "American Express OTC", "Johnson & Johnson OTC", "McDonald's OTC", "Tesla OTC", "Amazon OTC",
-    "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"]
+    "GameStop Corp OTC", "Netflix OTC", "VIX OTC", "VISA OTC", "🔄 Change Category"
+]
+
 user_data = {}
+
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -67,6 +75,18 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
                 return None
     return None
 
+def load_authorized_users():
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = set()
+    user_ids = authorized_sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {user_ids}")
+    for user_id in user_ids[1:]:
+        if user_id.strip():
+            try:
+                AUTHORIZED_USERS.add(int(user_id))
+            except ValueError:
+                print(f"Skipping invalid ID: {user_id}")
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
 
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
@@ -77,13 +97,15 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
         authorized_sheet.update(f"D{row}", [[po_id]])
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
+    AUTHORIZED_USERS.add(tg_id)
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
+
 @asynccontextmanager
-
-
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
+    load_authorized_users()
+
     async def self_ping_loop():
         await asyncio.sleep(5)
         while True:
@@ -92,7 +114,7 @@ async def lifespan(app: FastAPI):
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)  # Every 4 minutes
+            await asyncio.sleep(300)  # Every 5 minutes
 
     asyncio.create_task(self_ping_loop())
     yield
@@ -118,6 +140,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
+
     if dep >= 5:
         tg_id = user_id
         username = user.get("username")
@@ -135,6 +158,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
+
     payload = {
         "chat_id": chat_id,
         "text": (
@@ -146,8 +170,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     }
     await client.post(SEND_MESSAGE, json=payload)
 
-
 app = FastAPI(lifespan=lifespan)
+
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
