@@ -104,8 +104,7 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
-    load_authorized_users()
-
+    load_authorized_users()  # Load once on startup
     async def self_ping_loop():
         await asyncio.sleep(5)
         while True:
@@ -114,11 +113,16 @@ async def lifespan(app: FastAPI):
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)  # Every 5 minutes
-
+            try:
+                load_authorized_users()  # Refresh the authorized users
+                print("🔄 Refreshed authorized users.")
+            except Exception as e:
+                print(f"❌ Failed to load authorized users: {e}")
+            await asyncio.sleep(300)  # Wait 5 minutes
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
+
 
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
     await asyncio.sleep(150)
