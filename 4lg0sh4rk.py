@@ -367,7 +367,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 ##############################################################################################################################################
         if text in crypto_pairs or text in otc_pairs or text in stocks:
             tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
