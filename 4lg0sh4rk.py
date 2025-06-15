@@ -74,7 +74,6 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
-
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -87,7 +86,6 @@ def load_authorized_users():
             except ValueError:
                 print(f"Skipping invalid ID: {user_id}")
     print(f"Loaded authorized users: {AUTHORIZED_USERS}")
-
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -99,7 +97,6 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
     AUTHORIZED_USERS.add(tg_id)
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
@@ -125,7 +122,7 @@ async def lifespan(app: FastAPI):
 
 
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(150)
+    await asyncio.sleep(0.9)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
@@ -144,7 +141,6 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-
     if dep >= 5:
         tg_id = user_id
         username = user.get("username")
@@ -230,7 +226,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username_display = f"@{username}" if username else "No username"
             user_id = from_user.get("id", "N/A")
             tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
@@ -284,25 +280,72 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
-        
-            payload = {
+            checking_steps = [
+                "🔍 Checking Account ID.",
+                "🔍 Checking Account ID..",
+                "🔍 Checking Account ID...",
+                "🔎 Still checking...",
+                "⏳ Almost there...",
+                "🔄 Cross-checking registration...",
+                "🧠 Cheking deposit data...",
+                "📊 Reading account info...",
+                "💾 Finalizing verification...",
+                "✅ Checking complete!"
+            ]
+            # Send first message and store message_id
+            resp = await client.post(SEND_MESSAGE, json={
                 "chat_id": chat_id,
-                "text": "✅ Thank you! We're currently verifying your account. Please wait a few minutes... ⏳\n\n📬 We'll notify you once the process is complete!"
-            }
-            await client.post(SEND_MESSAGE, json=payload)
+                "text": checking_steps[0]
+            })
+            message_id = resp.json().get("result", {}).get("message_id")
         
-            # Schedule delayed check
+            # Edit the message with animation steps
+            for step in checking_steps[1:]:
+                await asyncio.sleep(0.7)
+                await client.post(EDIT_MESSAGE, json={
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                    "text": step
+                })
+                
+            # Wait briefly then delete the message
+            await asyncio.sleep(1.2)
+            await client.post(DELETE_MESSAGE, json={
+                "chat_id": chat_id,
+                "message_id": message_id
+            })
+            
+            existing_po_ids = authorized_sheet.col_values(4)
+            if po_id in existing_po_ids:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "📌 Registration Link", "url": pocketlink}],
+                        [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                    ]
+                }
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "⚠️ Looks like this Account ID was already registered by someone else.\n\n"
+                        "To continue, follow these quick steps:\n"
+                        "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
+                        "2️⃣ Copy your Account ID from your profile.\n\n"
+                        "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
+                    ),
+                    "reply_markup": keyboard
+                }
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
             background_tasks.add_task(
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
-        
+
             return {"ok": True}
 
 ##############################################################################################################################################
         if text == "🔄 Change Category":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
@@ -318,8 +361,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "Currencies":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
@@ -335,8 +377,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "Stocks":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
@@ -352,8 +393,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
         elif text == "Crypto":
-            tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) not in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
@@ -370,7 +410,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"ok": True}
 ##############################################################################################################################################
         if text in crypto_pairs or text in otc_pairs or text in stocks:
-            tg_ids = authorized_sheet.col_values(1)
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
