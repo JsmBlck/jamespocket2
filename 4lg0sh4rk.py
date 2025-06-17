@@ -226,7 +226,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username_display = f"@{username}" if username else "No username"
             user_id = from_user.get("id", "N/A")
             tg_ids = authorized_sheet.col_values(1)
-            if user_id not in AUTHORIZED_USERS:
+            if user_id in AUTHORIZED_USERS:
                 keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
