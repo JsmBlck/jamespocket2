@@ -53,26 +53,27 @@ def root():
 async def webhook(
     trader_id: Optional[str] = None,
     sumdep: Optional[str] = None,
-    event: Optional[str] = ""
+    event: Optional[str] = "",
+    ac: Optional[str] = None
 ):
-    print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep}")
+    print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep} | AC={ac}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
     try:
         reported_amount = float(sumdep or 0)
-        # Reverse the 6% fee (reported amount is ~94% of actual)
+        # Reverse 6% fee (to get original deposit)
         original_amount = round(reported_amount / 0.94)
     except ValueError:
         original_amount = 0
 
-    trader_ids = sheet.col_values(1)
+    trader_ids = sheet.col_values(1)  # Column A: trader_id
 
     try:
         if event == "registration":
             if trader_id not in trader_ids:
-                sheet.append_row([trader_id, "0"])
+                sheet.append_row([trader_id, "0", ac or ""])
                 print(f"🆕 Registered new trader {trader_id}")
                 return {"status": "registered", "trader_id": trader_id}
             else:
@@ -80,22 +81,13 @@ async def webhook(
                 return {"status": "already_registered", "trader_id": trader_id}
 
         elif event in ["ftd", "redeposit"]:
-            if trader_id in trader_ids:
-                row = trader_ids.index(trader_id) + 1
-                current_value = sheet.cell(row, 2).value
-                try:
-                    current_total = float(current_value or 0)
-                except ValueError:
-                    current_total = 0.0
-                new_total = current_total + original_amount
-                sheet.update_cell(row, 2, str(new_total))
-                print(f"✅ Updated {trader_id}: {current_total} + {original_amount} = {new_total}")
-                return {"status": "updated", "trader_id": trader_id, "total": new_total}
-            else:
-                # Register and record deposit
-                sheet.append_row([trader_id, str(original_amount)])
-                print(f"🆕 Auto-registered {trader_id} | Deposit: {original_amount}")
-                return {"status": "auto_registered", "trader_id": trader_id, "total": original_amount}
+            sheet.append_row([trader_id, str(original_amount), ac or ""])
+            print(f"💰 Logged deposit: trader_id={trader_id}, amount={original_amount}, ac={ac}")
+            return {
+                "status": "logged",
+                "trader_id": trader_id,
+                "amount": original_amount
+            }
 
         else:
             print("⚠️ Event ignored.")
