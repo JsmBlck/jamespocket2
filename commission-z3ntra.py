@@ -53,16 +53,17 @@ def root():
 async def webhook(
     trader_id: Optional[str] = None,
     sumdep: Optional[str] = None,
-    event: Optional[str] = ""
+    event: Optional[str] = "",
+    ac: Optional[str] = ""
 ):
-    print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep}")
+    print(f"📥 Event={event} | Trader ID={trader_id} | SumDep={sumdep} | AC={ac}")
 
     if not trader_id:
         return {"status": "error", "message": "❌ Missing trader_id"}
 
     try:
         reported_amount = float(sumdep or 0)
-        original_amount = round(reported_amount / 0.94)  # reverse fee
+        original_amount = round(reported_amount / 0.94)  # reverse ~6% fee
     except ValueError:
         original_amount = 0
 
@@ -71,7 +72,7 @@ async def webhook(
     try:
         if event == "registration":
             if trader_id not in trader_ids:
-                sheet.append_row([trader_id, "0"])
+                sheet.append_row([trader_id, "0", ac])
                 print(f"🆕 Registered new trader {trader_id}")
                 return {"status": "registered", "trader_id": trader_id}
             else:
@@ -87,12 +88,14 @@ async def webhook(
                 except ValueError:
                     current_total = 0.0
                 new_total = current_total + original_amount
-                sheet.update_cell(row, 2, str(new_total))
+                sheet.update_cell(row, 2, str(new_total))  # update deposit total
+                if ac:
+                    sheet.update_cell(row, 3, ac)  # update campaign ID
                 print(f"✅ Updated {trader_id}: {current_total} + {original_amount} = {new_total}")
                 return {"status": "updated", "trader_id": trader_id, "total": new_total}
             else:
                 # New trader with deposit
-                sheet.append_row([trader_id, str(original_amount)])
+                sheet.append_row([trader_id, str(original_amount), ac])
                 print(f"🆕 Auto-registered {trader_id} | Deposit: {original_amount}")
                 return {"status": "auto_registered", "trader_id": trader_id, "total": original_amount}
 
