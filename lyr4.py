@@ -103,7 +103,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     dot_states = [".", "..", "..."]
     dot_index = 0
     while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.3, 0.5))
+        await asyncio.sleep(random.uniform(0.1, 0.2))
         current_percent += random.randint(3, 17)
         current_percent = min(current_percent, 100)
         filled_blocks = int(current_percent / 10)
@@ -116,7 +116,6 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "text": f"🔄 Analyzing{dots}\n{progress_bar} {current_percent}%"
         })
     signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
-    await asyncio.sleep(0.5)
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
