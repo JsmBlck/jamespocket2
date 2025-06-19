@@ -52,6 +52,18 @@ def get_deposit_for_trader(trader_id: str) -> float | None:
             except (ValueError, IndexError):
                 return None
     return None
+def load_authorized_users():
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = set()
+    user_ids = authorized_sheet.col_values(1)
+    print(f"Fetched user IDs from GSheet: {user_ids}")
+    for user_id in user_ids[1:]:
+        if user_id.strip():
+            try:
+                AUTHORIZED_USERS.add(int(user_id))
+            except ValueError:
+                print(f"Skipping invalid ID: {user_id}")
+    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -61,11 +73,13 @@ def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_nam
         authorized_sheet.update(f"D{row}", [[po_id]])
     else:
         authorized_sheet.append_row([tg_id, username or "Unknown", first_name or "Trader", po_id])
+    AUTHORIZED_USERS.add(tg_id)
     print(f"✅ Authorized user saved: TG ID {tg_id}, PO ID {po_id}")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
+    load_authorized_users()  # Load once on startup
     async def self_ping_loop():
         await asyncio.sleep(5)
         while True:
@@ -74,7 +88,12 @@ async def lifespan(app: FastAPI):
                 print("✅ Self-ping successful!")
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
-            await asyncio.sleep(300)  # Every 4 minutes
+            try:
+                load_authorized_users()  # Refresh the authorized users
+                print("🔄 Refreshed authorized users.")
+            except Exception as e:
+                print(f"❌ Failed to load authorized users: {e}")
+            await asyncio.sleep(300)  # Wait 5 minutes
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
