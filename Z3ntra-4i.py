@@ -56,14 +56,14 @@ def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
     user_ids = authorized_sheet.col_values(1)
-    print(f"Fetched user IDs from GSheet: {user_ids}")
+    print(f"Fetched user IDs from GSheet done.")
     for user_id in user_ids[1:]:
         if user_id.strip():
             try:
                 AUTHORIZED_USERS.add(int(user_id))
             except ValueError:
                 print(f"Skipping invalid ID: {user_id}")
-    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
+    print(f"Loaded authorized users done.")
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
