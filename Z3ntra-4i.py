@@ -237,7 +237,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username_display = f"@{username}" if username else "No username"
             user_id = from_user.get("id", "N/A")
             tg_ids = authorized_sheet.col_values(1)
-            if str(user_id) in tg_ids:
+            if user_id in AUTHORIZED_USERS:
                 keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
@@ -313,7 +313,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": checking_steps[0]
             })
             message_id = resp.json().get("result", {}).get("message_id")
-        
             # Edit the message with animation steps
             for step in checking_steps[1:]:
                 await asyncio.sleep(0.7)
@@ -322,7 +321,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "message_id": message_id,
                     "text": step
                 })
-                
             # Wait briefly then delete the message
             await asyncio.sleep(1.2)
             await client.post(DELETE_MESSAGE, json={
@@ -355,7 +353,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
-
             return {"ok": True}
             
 
@@ -366,7 +363,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
             username = user.get("username")
             username_display = f"@{username}" if username else "Not set"
-            if str(user_id) not in tg_ids:
+            if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
                     "text": "❌ You are not authorized to use this command.\nPlease press /start to begin."
