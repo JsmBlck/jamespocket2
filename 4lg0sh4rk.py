@@ -34,7 +34,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client_gsheet = gspread.authorize(creds)
 spreadsheet = client_gsheet.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet13")        # Trader data sheet (read-only for deposit)
+sheet = spreadsheet.worksheet("Sheet19")        # Trader data sheet (read-only for deposit)
 authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
 
 pocketlink = os.getenv("POCKET_LINK")
