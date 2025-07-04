@@ -165,7 +165,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         f"💰 Total Deposit: {dep}\n\n"
         "✅ Your account is registered!\n\n"
         "🔓 Almost there! Just one more step to unlock full access.\n\n"
-        "💵 To proceed:\nMake a minimum deposit of **$30** to your account.\n\n"
+        "💵 To proceed:\nMake a minimum deposit of $30 to your account.\n\n"
         "Once done, resend your Account ID to complete the verification process."
         )
     }
