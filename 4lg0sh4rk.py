@@ -120,6 +120,24 @@ async def lifespan(app: FastAPI):
     await client.aclose()
 
 
+channelusername = os.getenv("CHANNEL_USERNAME")  
+async def check_user_joined_channel(user_id: int) -> bool:
+    url = f"{API_BASE}/getChatMember"
+    params = {
+        "chat_id": channelusername, # Replace with your channel username or -100123456789
+        "user_id": user_id
+    }
+    try:
+        resp = await client.get(url, params=params)
+        data = resp.json()
+        if data.get("ok"):
+            status = data["result"]["status"]
+            return status in ["member", "administrator", "creator"]
+    except Exception as e:
+        print(f"❌ Failed to check channel membership: {e}")
+    return False
+
+
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
     await asyncio.sleep(0.9)
     dep = get_deposit_for_trader(po_id)
@@ -132,9 +150,9 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         payload = {
             "chat_id": chat_id,
             "text": (
-                "⚠️ Oops! It looks like your account isn’t registered through our official link.\n\n"
-                "To proceed, please create a new account using the correct registration link provided earlier.\n\n"
-                "Tap below to start over 👇"
+                "⚠️ Uh-oh! Your account isn’t linked through our official registration link.\n\n"
+                "To continue, please sign up again using the correct link we shared earlier.\n\n"
+                "Tap the button below to get started 👇"
             ),
             "reply_markup": keyboard
         }
@@ -161,8 +179,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     payload = {
         "chat_id": chat_id,
         "text": (
-        f"📄 Account ID: {po_id}\n"
-        f"💰 Total Deposit: {dep}\n\n"
+        f"✅ Account ID: {po_id}\n\n"
+        f"💰 Total Deposit: ${dep}\n\n"
         "✅ Your account is registered!\n\n"
         "🔓 Almost there! Just one more step to unlock full access.\n\n"
         "💵 To proceed:\nMake a minimum deposit of $30 to your account.\n\n"
@@ -226,7 +244,25 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             username = from_user.get("username", "")
             username_display = f"@{username}" if username else "No username"
             user_id = from_user.get("id", "N/A")
-            tg_ids = authorized_sheet.col_values(1)
+            
+            # Check if user joined the required channel
+            is_member = await check_user_joined_channel(user_id)
+            if not is_member:
+                join_payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "📢 *Join Required*\n\n"
+                        "To use this bot, you need to join our official Telegram channel first.\n\n"
+                        "👉 [Join the Channel](https://t.me/yourchannel)\n\n"
+                        "Once you’ve joined, press /start again."
+                    ),
+                    "parse_mode": "Markdown",
+                    "disable_web_page_preview": True
+                }
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=join_payload)
+                return {"ok": True}
+        
+            # Continue if the user is a member
             if user_id in AUTHORIZED_USERS:
                 keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
@@ -237,6 +273,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        
                 pair_payload = {
                     "chat_id": -1002676665035,
                     "text": (
@@ -250,7 +287,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
                 return {"ok": True}
 
-    
+            
             keyboard = {
                 "inline_keyboard": [
                     [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
