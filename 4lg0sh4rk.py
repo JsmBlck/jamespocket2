@@ -40,6 +40,8 @@ authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
 quotexlink = os.getenv("QUOTEX_LINK")
 botlink = os.getenv("BOT_LINK")
+joinchannel = os.getenv("CHANNEL_LINK")
+channelusername = os.getenv("CHANNEL_USERNAME")  
 
 expiry_options = ["S5", "S10", "S15"]
 otc_pairs = [
@@ -119,8 +121,6 @@ async def lifespan(app: FastAPI):
     yield
     await client.aclose()
 
-
-channelusername = os.getenv("CHANNEL_USERNAME")  
 async def check_user_joined_channel(user_id: int) -> bool:
     url = f"{API_BASE}/getChatMember"
     params = {
@@ -253,12 +253,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "text": (
                         "📢 *Join Required*\n\n"
                         "To use this bot, you need to join our official Telegram channel first.\n\n"
-                        "👉 [Join the Channel](https://t.me/yourchannel)\n\n"
-                        "Once you’ve joined, press /start again."
+                        "Once you've joined, press /start again."
                     ),
                     "parse_mode": "Markdown",
-                    "disable_web_page_preview": True
+                    "reply_markup": {
+                        "inline_keyboard": [
+                            [{"text": "🔗 Join Channel", "url": joinchannel}]
+                        ]
+                    }
                 }
+
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=join_payload)
                 return {"ok": True}
         
