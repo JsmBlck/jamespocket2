@@ -140,7 +140,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-    if dep >= 5:
+    if dep >= 30:
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
@@ -161,10 +161,12 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     payload = {
         "chat_id": chat_id,
         "text": (
-            "✅ Your account is registered!\n\n"
-            "🔓 You're just one step away from full access.\n\n"
-            "💰 Final Step:\nFund your account with any amount.\n\n"
-            "Once you’ve made the deposit, simply send your Account ID again to complete verification."
+        "📄 Account ID: [insert ID here]\n"
+        "💰 Total Deposit: [insert amount here]\n\n"
+        "✅ Your account is registered!\n\n"
+        "🔓 Almost there! Just one more step to unlock full access.\n\n"
+        "💵 To proceed:\nMake a minimum deposit of **$30** to your account.\n\n"
+        "Once done, resend your Account ID to complete the verification process."
         )
     }
     await client.post(SEND_MESSAGE, json=payload)
