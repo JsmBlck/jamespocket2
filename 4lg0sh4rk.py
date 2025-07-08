@@ -199,8 +199,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if user_id in ADMIN_IDS:
             media_group_id = msg.get("media_group_id")
             caption = msg.get("caption", "")
-            chat_id = msg["chat"]["id"]
-        
+
             if media_group_id:
                 file_type = None
                 if "photo" in msg:
@@ -209,50 +208,49 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 elif "video" in msg:
                     file_type = "video"
                     file_id = msg["video"]["file_id"]
-                else:
-                    file_type = None
-        
+
                 if file_type and file_id:
                     media_groups[media_group_id].append({
                         "type": file_type,
                         "media": file_id,
-                        "caption": caption if not media_groups[media_group_id] else "",  # caption on first only
+                        "caption": caption if not media_groups[media_group_id] else "",
                         "parse_mode": "HTML"
                     })
-        
-                # Wait a few seconds to ensure all parts are collected, then send
+
                 async def finalize_album_send():
-                    await asyncio.sleep(3)  # give time for all parts to arrive
+                    await asyncio.sleep(3)
                     media = media_groups.pop(media_group_id, [])
-        
+
                     if not media:
                         return
-        
-                    # Send the album
+
                     send_url = f"{API_BASE}/sendMediaGroup"
-                    resp = await client.post(send_url, json={
-                        "chat_id": -1002614452363,  # your channel ID
-                        "media": media
-                    })
-                    result = resp.json()
-        
-                    # Add buttons to the first media message
-                    if result.get("ok"):
-                        first_message_id = result["result"][0]["message_id"]
-                        inline_keyboard = {
-                            "inline_keyboard": [[
-                                {
-                                    "text": "🚀 Get Started for Free",
-                                    "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-                                }
-                            ]]
-                        }
-                        await client.post(f"{API_BASE}/editMessageReplyMarkup", json={
-                            "chat_id": -1002750311750,
-                            "message_id": first_message_id,
-                            "reply_markup": inline_keyboard
+                    try:
+                        resp = await client.post(send_url, json={
+                            "chat_id": -1002614452363,  # your channel ID
+                            "media": media
                         })
-        
+                        result = resp.json()
+                        print("SEND ALBUM RESPONSE:", result)
+
+                        if result.get("ok"):
+                            first_message_id = result["result"][0]["message_id"]
+                            inline_keyboard = {
+                                "inline_keyboard": [[
+                                    {
+                                        "text": "🚀 Get Started for Free",
+                                        "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
+                                    }
+                                ]]
+                            }
+                            await client.post(f"{API_BASE}/editMessageReplyMarkup", json={
+                                "chat_id": -1002614452363,
+                                "message_id": first_message_id,
+                                "reply_markup": inline_keyboard
+                            })
+                    except Exception as e:
+                        print("SEND ALBUM ERROR:", e)
+
                 background_tasks.add_task(finalize_album_send)
                 return {"ok": True}
 
