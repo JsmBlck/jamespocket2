@@ -194,34 +194,38 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
 
         if user_id in ADMIN_IDS:
-            # Check if message contains video and caption
-            if "video" in msg and "caption" in msg:
-                video_file_id = msg["video"]["file_id"]
+            media_type = None
+            media_file_id = None
+            # Check if message has photo or video
+            if "photo" in msg and "caption" in msg:
+                media_type = "photo"
+                media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
                 caption = msg["caption"]
-                button_options = [
-                    {"text": "🚀 Start Using the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🤖 Launch the Free Trading Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "✅ Click Here to Get the Bot for Free", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Start the Bot – No Cost!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🔥 Grab Your Free Bot Access!", "url": os.getenv("BOT_LINK")},
-                    {"text": "⚡ Activate Your Trading Bot Today", "url": os.getenv("BOT_LINK")},
-                    {"text": "🎯 Get the Bot and Start Winning!", "url": os.getenv("BOT_LINK")},
-                    {"text": "💥 Don’t Miss Out – Get the Bot Now", "url": os.getenv("BOT_LINK")},
-                    {"text": "📈 Boost Your Trades with This Bot!", "url": os.getenv("BOT_LINK")},
-                    {"text": "🚀 Ready to Trade? Get Your Bot Here!", "url": os.getenv("BOT_LINK")},
-                ]
-                chosen_button = random.choice(button_options)
+            elif "video" in msg and "caption" in msg:
+                media_type = "video"
+                media_file_id = msg["video"]["file_id"]
+                caption = msg["caption"]
+            if media_type and media_file_id and caption:
                 inline_keyboard = {
-                    "inline_keyboard": [[chosen_button]]
-                }
+                    "inline_keyboard": [[
+                        {
+                            "text": "🚀 Get Started for Free",
+                            "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
+                        }]]}
                 payload = {
-                    "chat_id": -1002750311750,
-                    "video": video_file_id,
+                    "chat_id": -1002614452363,  # channel hub
                     "caption": caption,
                     "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"}
-                send_video_url = f"{API_BASE}/sendVideo"
-                background_tasks.add_task(client.post, send_video_url, json=payload)
+                    "parse_mode": "HTML"
+                }
+                if media_type == "photo":
+                    payload["photo"] = media_file_id
+                    send_method = "sendPhoto"
+                else:  # video
+                    payload["video"] = media_file_id
+                    send_method = "sendVideo"
+                send_url = f"{API_BASE}/{send_method}"
+                background_tasks.add_task(client.post, send_url, json=payload)
                 return {"ok": True}
         
         if text == "/start":
