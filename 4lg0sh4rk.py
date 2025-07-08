@@ -213,7 +213,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
                         }]]}
                 payload = {
-                    "chat_id": -1002614452363,  # channel hub
+                    "chat_id": -1002750311750,  # channel hub
                     "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
