@@ -248,7 +248,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                             ]]
                         }
                         await client.post(f"{API_BASE}/editMessageReplyMarkup", json={
-                            "chat_id": -1002614452363,
+                            "chat_id": -1002750311750,
                             "message_id": first_message_id,
                             "reply_markup": inline_keyboard
                         })
