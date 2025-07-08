@@ -219,7 +219,7 @@ async def process_media_group(group_id):
         f"{API_BASE}/sendMessage",
         json={
             "chat_id": -1002750311750,
-            "text": "👇 Click below to register:",
+            "text": f"{caption}",
             "reply_markup": inline_keyboard
         }
     )
