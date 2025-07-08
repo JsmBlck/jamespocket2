@@ -224,6 +224,8 @@ async def process_media_group(group_id):
         }
     )
 
+media_buffer = defaultdict(list)
+media_captions = {}
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
@@ -234,8 +236,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-        media_buffer = defaultdict(list)
-        media_captions = {}
+        
         if user_id in ADMIN_IDS:
             media_type = None
             media_file_id = None
