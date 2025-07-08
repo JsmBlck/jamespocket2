@@ -276,7 +276,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
                 payload = {
                     "chat_id": -1002750311750,
-                    "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
                 }
