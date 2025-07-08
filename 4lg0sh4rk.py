@@ -184,48 +184,7 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 
-async def process_media_group(group_id):
-    await asyncio.sleep(3)  # Wait to collect all parts
-
-    items = media_buffer.pop(group_id, [])
-    caption = media_captions.pop(group_id, "")
-
-    if not items:
-        return
-
-    # Attach caption only to first media
-    items[0]["caption"] = caption
-    items[0]["parse_mode"] = "HTML"
-
-    await client.post(
-        f"{API_BASE}/sendMediaGroup",
-        json={
-            "chat_id": -1002750311750,
-            "media": items
-        }
-    )
-
-    # Send the inline button after the album
-    inline_keyboard = {
-        "inline_keyboard": [[
-            {
-                "text": "🚀 Get Started for Free",
-                "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-            }
-        ]]
-    }
-
-    await client.post(
-        f"{API_BASE}/sendMessage",
-        json={
-            "chat_id": -1002750311750,
-            "text": f"{caption}",
-            "reply_markup": inline_keyboard
-        }
-    )
-
-media_buffer = defaultdict(list)
-media_captions = {}
+media_groups = defaultdict(list)
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
@@ -238,58 +197,64 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
         
         if user_id in ADMIN_IDS:
-            media_type = None
-            media_file_id = None
-            caption = msg.get("caption")
             media_group_id = msg.get("media_group_id")
+            caption = msg.get("caption", "")
+            chat_id = msg["chat"]["id"]
         
-            # Detect photo
-            if "photo" in msg:
-                media_type = "photo"
-                media_file_id = msg["photo"][-1]["file_id"]
-            # Detect video
-            elif "video" in msg:
-                media_type = "video"
-                media_file_id = msg["video"]["file_id"]
-        
-            # ✅ If it's part of a media group (album)
-            if media_group_id and media_type and media_file_id:
-                media_buffer[media_group_id].append({
-                    "type": media_type,
-                    "media": media_file_id
-                })
-                if caption:
-                    media_captions[media_group_id] = caption
-                background_tasks.add_task(process_media_group, media_group_id)
-                return {"ok": "album buffering"}
-        
-            # ✅ Single media file (not album)
-            if media_type and media_file_id and caption:
-                inline_keyboard = {
-                    "inline_keyboard": [[
-                        {
-                            "text": "🚀 Get Started for Free",
-                            "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-                        }
-                    ]]
-                }
-        
-                payload = {
-                    "chat_id": -1002750311750,
-                    "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"
-                }
-        
-                if media_type == "photo":
-                    payload["photo"] = media_file_id
-                    send_method = "sendPhoto"
+            if media_group_id:
+                file_type = None
+                if "photo" in msg:
+                    file_type = "photo"
+                    file_id = msg["photo"][-1]["file_id"]
+                elif "video" in msg:
+                    file_type = "video"
+                    file_id = msg["video"]["file_id"]
                 else:
-                    payload["video"] = media_file_id
-                    send_method = "sendVideo"
+                    file_type = None
         
-                send_url = f"{API_BASE}/{send_method}"
-                background_tasks.add_task(client.post, send_url, json=payload)
-                return {"ok": "single media sent"}
+                if file_type and file_id:
+                    media_groups[media_group_id].append({
+                        "type": file_type,
+                        "media": file_id,
+                        "caption": caption if not media_groups[media_group_id] else "",  # caption on first only
+                        "parse_mode": "HTML"
+                    })
+        
+                # Wait a few seconds to ensure all parts are collected, then send
+                async def finalize_album_send():
+                    await asyncio.sleep(3)  # give time for all parts to arrive
+                    media = media_groups.pop(media_group_id, [])
+        
+                    if not media:
+                        return
+        
+                    # Send the album
+                    send_url = f"{API_BASE}/sendMediaGroup"
+                    resp = await client.post(send_url, json={
+                        "chat_id": -1002614452363,  # your channel ID
+                        "media": media
+                    })
+                    result = resp.json()
+        
+                    # Add buttons to the first media message
+                    if result.get("ok"):
+                        first_message_id = result["result"][0]["message_id"]
+                        inline_keyboard = {
+                            "inline_keyboard": [[
+                                {
+                                    "text": "🚀 Get Started for Free",
+                                    "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
+                                }
+                            ]]
+                        }
+                        await client.post(f"{API_BASE}/editMessageReplyMarkup", json={
+                            "chat_id": -1002614452363,
+                            "message_id": first_message_id,
+                            "reply_markup": inline_keyboard
+                        })
+        
+                background_tasks.add_task(finalize_album_send)
+                return {"ok": True}
 
         
         if text == "/start":
