@@ -4,6 +4,7 @@ import asyncio
 import random
 import json
 import gspread
+from collections import defaultdict
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
@@ -183,6 +184,47 @@ async def healthcheck(request: Request):
     return {"status": "ok"}
 
 
+async def process_media_group(group_id):
+    await asyncio.sleep(3)  # Wait to collect all parts
+
+    items = media_buffer.pop(group_id, [])
+    caption = media_captions.pop(group_id, "")
+
+    if not items:
+        return
+
+    # Attach caption only to first media
+    items[0]["caption"] = caption
+    items[0]["parse_mode"] = "HTML"
+
+    await client.post(
+        f"{API_BASE}/sendMediaGroup",
+        json={
+            "chat_id": -1002750311750,
+            "media": items
+        }
+    )
+
+    # Send the inline button after the album
+    inline_keyboard = {
+        "inline_keyboard": [[
+            {
+                "text": "🚀 Get Started for Free",
+                "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
+            }
+        ]]
+    }
+
+    await client.post(
+        f"{API_BASE}/sendMessage",
+        json={
+            "chat_id": -1002750311750,
+            "text": "👇 Click below to register:",
+            "reply_markup": inline_keyboard
+        }
+    )
+
+
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
@@ -192,41 +234,63 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-
+        media_buffer = defaultdict(list)
+        media_captions = {}
         if user_id in ADMIN_IDS:
             media_type = None
             media_file_id = None
-            # Check if message has photo or video
-            if "photo" in msg and "caption" in msg:
+            caption = msg.get("caption")
+            media_group_id = msg.get("media_group_id")
+        
+            # Detect photo
+            if "photo" in msg:
                 media_type = "photo"
-                media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
-                caption = msg["caption"]
-            elif "video" in msg and "caption" in msg:
+                media_file_id = msg["photo"][-1]["file_id"]
+            # Detect video
+            elif "video" in msg:
                 media_type = "video"
                 media_file_id = msg["video"]["file_id"]
-                caption = msg["caption"]
+        
+            # ✅ If it's part of a media group (album)
+            if media_group_id and media_type and media_file_id:
+                media_buffer[media_group_id].append({
+                    "type": media_type,
+                    "media": media_file_id
+                })
+                if caption:
+                    media_captions[media_group_id] = caption
+                background_tasks.add_task(process_media_group, media_group_id)
+                return {"ok": "album buffering"}
+        
+            # ✅ Single media file (not album)
             if media_type and media_file_id and caption:
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
                             "text": "🚀 Get Started for Free",
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-                        }]]}
+                        }
+                    ]]
+                }
+        
                 payload = {
-                    "chat_id": -1002750311750,  # channel hub
+                    "chat_id": -1002750311750,
                     "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
                 }
+        
                 if media_type == "photo":
                     payload["photo"] = media_file_id
                     send_method = "sendPhoto"
-                else:  # video
+                else:
                     payload["video"] = media_file_id
                     send_method = "sendVideo"
+        
                 send_url = f"{API_BASE}/{send_method}"
                 background_tasks.add_task(client.post, send_url, json=payload)
-                return {"ok": True}
+                return {"ok": "single media sent"}
+
         
         if text == "/start":
             message = data.get("message", {})  
