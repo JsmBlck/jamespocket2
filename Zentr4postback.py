@@ -48,7 +48,7 @@ sheet = spreadsheet.worksheet(WORKSHEET_NAME)
 
 @app.get("/")
 def root():
-    return {"message": "✅ ZentraFx Postback Webhook is live."}
+    return {"message": "Postback Webhook is live."}
 
 @app.get("/webhook")
 async def webhook(
