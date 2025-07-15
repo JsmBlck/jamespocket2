@@ -207,11 +207,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "🎉 Welcome to the bot!\n\n"
-                        "👉 To get started,\nFollow these steps:\n\n"
-                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                        "Copy your Account ID and send it to support to start activation."
-                    ),
+                            "🚀 To use the Bot, register using our link with a fresh email.\n\n"
+                            "✅ After signing up, copy your Account ID and send it to support for activation."
+                        ),
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [[
