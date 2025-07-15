@@ -27,8 +27,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS2"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
-sheet = spreadsheet.worksheet("Sheet1")
-tg_channel = "t.me/ZentraAiRegister"
+sheet = spreadsheet.worksheet("Sheet3")
 
 otc_pairs = [
     "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
