@@ -181,7 +181,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                         "reply_markup": {
                             "inline_keyboard": [
                                 [
-                                    {"text": "📝 Register Here", "url": os.getenv(pocketlink)},
+                                    {"text": "📝 Register Here", "url": os.getenv("REGISTRATION_LINK")},
                                     {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
                                 ]
                             ]
@@ -205,21 +205,20 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             # Default /start behavior
             if user_id not in AUTHORIZED_USERS:
                 payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "🚀 To use the Bot, register using our link with a fresh email.\n\n"
-                            "✅ After signing up, copy your Account ID and send it to support for activation."
-                        ),
-                        "parse_mode": "HTML",
-                        "reply_markup": {
-                            "inline_keyboard": [
-                                [
-                                    {"text": "📝 Register Here", "url": os.getenv(pocketlink)},
-                                    {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                                ]
-                            ]
-                        }
+                    "chat_id": chat_id,
+                    "text": (
+                        "🎉 Welcome to the bot!\n\n"
+                        "👉 To get started,\nFollow these steps:\n\n"
+                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                        "Copy your Account ID and send it to support to start activation."
+                    ),
+                    "parse_mode": "HTML",
+                    "reply_markup": {
+                        "inline_keyboard": [[
+                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                        ]]
                     }
+                }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
