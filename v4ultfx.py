@@ -17,7 +17,7 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 
-RENDER_URL = "https://v4ultfx.onrender.com"
+RENDER_URL = "https://jamespocket2-uhlu.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
 pocketlink = os.getenv("POCKET_LINK")
 
@@ -28,6 +28,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet3")
+tg_channel = "t.me/ZentraAiRegister"
 
 otc_pairs = [
     "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
@@ -174,18 +175,15 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "🚀 To use the Bot, register using our link with a fresh email.\n\n"
-                            "✅ After signing up, copy your Account ID and send it to support for activation."
-                        ),
+                            "🎉 Welcome to the bot!\n\n"
+                            "👉 To get started, follow these steps:\n"
+                            f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                            "Copy your Account ID and send it to support to start activation."),
                         "parse_mode": "HTML",
                         "reply_markup": {
-                            "inline_keyboard": [
-                                [
-                                    {"text": "📝 Register Here", "url": os.getenv("REGISTRATION_LINK")},
-                                    {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                                ]
-                            ]
-                        }
+                            "inline_keyboard": [[
+                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                            ]]}
                     }
                     background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             
@@ -207,17 +205,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "🚀 To use the Bot, register using our link with a fresh email.\n\n"
-                        "✅ After signing up, copy your Account ID and send it to support for activation."
+                        "🎉 Welcome to the bot!\n\n"
+                        "👉 To get started,\nFollow these steps:\n\n"
+                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
+                        "Copy your Account ID and send it to support to start activation."
                     ),
                     "parse_mode": "HTML",
                     "reply_markup": {
-                        "inline_keyboard": [
-                            [
-                                {"text": "📝 Register Here", "url": os.getenv("REGISTRATION_LINK")},
-                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                            ]
-                        ]
+                        "inline_keyboard": [[
+                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                        ]]
                     }
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
