@@ -174,7 +174,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
-                            "text": "✅ Start the Bot",
+                            "text": "✅ Get the Bot Now",
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
                         }
                     ]]
