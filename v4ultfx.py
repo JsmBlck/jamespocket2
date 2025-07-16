@@ -87,40 +87,64 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str):
+import itertools
+
+async def simulate_analysis_v2(chat_id: int, pair: str, expiry: str):
+    # Send initial message
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"{pair}\nTime Frame: {expiry}"
+        "text": f"📊 Pair: <b>{pair}</b>\n🕒 Expiry: <b>{expiry}</b>\n\n⏳ Starting market scan...",
+        "parse_mode": "HTML"
     })
-    current_percent = random.randint(0, 30)
-    filled_blocks = int(current_percent / 10)
-    progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
+
+    spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"🔄 Analyzing.\n{progress_bar} {current_percent}%"
+        "text": "⏳ Scanning... ⠋"
     })
     message_id = resp.json().get("result", {}).get("message_id")
-    dot_states = [".", "..", "..."]
-    dot_index = 0
-    while current_percent < 100:
-        await asyncio.sleep(random.uniform(0.1, 0.2))
-        current_percent += random.randint(3, 17)
-        current_percent = min(current_percent, 100)
-        filled_blocks = int(current_percent / 10)
-        progress_bar = "█" * filled_blocks + "░" * (10 - filled_blocks)
-        dots = dot_states[dot_index % len(dot_states)]
-        dot_index += 1
+
+    steps = random.randint(10, 15)
+    for _ in range(steps):
+        await asyncio.sleep(random.uniform(0.2, 0.4))
+        spin = next(spinner)
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": f"🔄 Analyzing{dots}\n{progress_bar} {current_percent}%"
+            "text": f"⏳ Scanning market... {spin}"
         })
-    signal = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
+
+    await asyncio.sleep(0.5)
+
+    # Signal decision
+    direction = random.choice(["⬆️ BUY SIGNAL", "⬇️ SELL SIGNAL"])
+    confidence = random.randint(70, 95)
+    comment = random.choice([
+        "Strong momentum detected.",
+        "Clear breakout zone.",
+        "Support/resistance confirmed.",
+        "Trend continuation likely.",
+        "Volatility spike observed."
+    ])
+
+    final_text = (
+        f"<b>✅ Analysis Complete</b>\n\n"
+        f"📊 Pair: <b>{pair}</b>\n"
+        f"🕒 Expiry: <b>{expiry}</b>\n"
+        f"📈 Signal: <b>{direction}</b>\n"
+        f"🔍 Confidence Level: <b>{confidence}%</b>\n"
+        f"📌 Note: {comment}"
+    )
+
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
-        "text": f"{signal}"
+        "text": final_text,
+        "parse_mode": "HTML"
     })
+
+
+
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
