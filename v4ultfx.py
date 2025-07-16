@@ -203,15 +203,21 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "🎉 Welcome to the bot!\n\n"
-                            "👉 To get started, follow these steps:\n"
-                            f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                            "Copy your Account ID and send it to support to start activation."),
+                            "🎉 Welcome to the Bot!\n\n"
+                            "👉 To get started, follow these steps:\n\n"
+                            "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
+                            "2️⃣ Copy your Account ID\n"
+                            "3️⃣ Send it to support for activation ✅"
+                        ).replace("{pocketlink}", pocketlink),
                         "parse_mode": "HTML",
                         "reply_markup": {
-                            "inline_keyboard": [[
-                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                            ]]}
+                            "inline_keyboard": [
+                                [
+                                    {"text": "📝 Register Here", "url": pocketlink},
+                                    {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                                ]
+                            ]
+                        }
                     }
                     background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             
@@ -233,18 +239,23 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "🎉 Welcome to the bot!\n\n"
-                        "👉 To get started,\nFollow these steps:\n\n"
-                        f'Register using my <a href="{pocketlink}">referral link</a>\n\n'
-                        "Copy your Account ID and send it to support to start activation."
-                    ),
+                        "🎉 Welcome to the Bot!\n\n"
+                        "👉 To get started, follow these steps:\n\n"
+                        "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
+                        "2️⃣ Copy your Account ID\n"
+                        "3️⃣ Send it to support for activation ✅"
+                    ).replace("{pocketlink}", pocketlink),
                     "parse_mode": "HTML",
                     "reply_markup": {
-                        "inline_keyboard": [[
-                            {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
-                        ]]
+                        "inline_keyboard": [
+                            [
+                                {"text": "📝 Register Here", "url": pocketlink},
+                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                            ]
+                        ]
                     }
                 }
+
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
