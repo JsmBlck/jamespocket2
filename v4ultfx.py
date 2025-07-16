@@ -89,7 +89,7 @@ async def healthcheck(request: Request):
 
 import itertools
 
-async def simulate_analysis_v2(chat_id: int, pair: str, expiry: str):
+async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     # Send initial message
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
