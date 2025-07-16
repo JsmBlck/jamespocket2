@@ -106,7 +106,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
 
     steps = 15  # Faster with fixed shorter loop
     for _ in range(steps):
-        await asyncio.sleep(0.08)  # Reduced delay for speed
+        await asyncio.sleep(0.1)  # Reduced delay for speed
         spin = next(spinner)
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
