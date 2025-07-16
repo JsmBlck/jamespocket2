@@ -203,7 +203,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "🎉 Welcome to the Bot!\n\n"
                             "👉 To get started, follow these steps:\n\n"
                             "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
                             "2️⃣ Copy your Account ID\n"
@@ -227,7 +226,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "Select an OTC pair:"
+                            "Select a pair to get Signal:"
                         ),
                         "parse_mode": "Markdown",
                         "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
@@ -239,7 +238,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "🎉 Welcome to the Bot!\n\n"
                         "👉 To get started, follow these steps:\n\n"
                         "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
                         "2️⃣ Copy your Account ID\n"
