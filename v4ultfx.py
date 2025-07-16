@@ -90,7 +90,7 @@ async def healthcheck(request: Request):
 import itertools
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Send initial message
+    # Initial message
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"📊 Pair: <b>{pair}</b>\n🕒 Expiry: <b>{expiry}</b>\n\n⏳ Starting market scan...",
@@ -104,9 +104,9 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     })
     message_id = resp.json().get("result", {}).get("message_id")
 
-    steps = random.randint(10, 15)
+    steps = 15  # Faster with fixed shorter loop
     for _ in range(steps):
-        await asyncio.sleep(random.uniform(0.2, 0.4))
+        await asyncio.sleep(0.08)  # Reduced delay for speed
         spin = next(spinner)
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
@@ -114,10 +114,8 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "text": f"⏳ Scanning market... {spin}"
         })
 
-    await asyncio.sleep(0.5)
-
-    # Signal decision
-    direction = random.choice(["⬆️ BUY SIGNAL", "⬇️ SELL SIGNAL"])
+    # Final signal
+    direction = random.choice(["⬆️⬆️ SIGNAL", "⬇️⬇️ SIGNAL"])
     confidence = random.randint(70, 95)
     comment = random.choice([
         "Strong momentum detected.",
