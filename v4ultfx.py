@@ -4,6 +4,7 @@ import asyncio
 import random
 import json
 import gspread
+import itertools
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
@@ -30,8 +31,14 @@ spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet3")
 
 otc_pairs = [
-    "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
-    "💸 NZD/USD OTC 🚀", "💸 BHD/CNY OTC 🚀", "💸 AUD/USD OTC 🚀", "💸 AED/CNY OTC 🚀"]
+    "🇦🇪 AED/CNY OTC", "🇦🇺 AUD/CAD OTC",
+    "🇧🇭 BHD/CNY OTC", "🇪🇺 EUR/USD OTC",
+    "🇬🇧 GBP/USD OTC", "🇦🇺 AUD/NZD OTC",
+    "🇳🇿 NZD/USD OTC", "🇪🇺 EUR/JPY OTC",
+    "🇨🇦 CAD/JPY OTC", "🇦🇺 AUD/USD OTC",
+    "🇦🇺 AUD/CHF OTC", "🇬🇧 GBP/AUD OTC"
+]
+
 expiry_options = ["S5", "S10", "S15"]
 def load_authorized_users():
     global AUTHORIZED_USERS
@@ -86,7 +93,7 @@ app = FastAPI(lifespan=lifespan)
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-import itertools
+
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     # Initial message
