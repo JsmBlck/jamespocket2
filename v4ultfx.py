@@ -214,7 +214,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                             "inline_keyboard": [
                                 [
                                     {"text": "📝 Register Here", "url": pocketlink},
-                                    {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                                    {"text": "✅ Support", "url": os.getenv("SUPPORT")}
                                 ]
                             ]
                         }
@@ -250,7 +250,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                         "inline_keyboard": [
                             [
                                 {"text": "📝 Register Here", "url": pocketlink},
-                                {"text": "💬 Send Account ID to Support", "url": os.getenv("SUPPORT")}
+                                {"text": "✅ Support", "url": os.getenv("SUPPORT")}
                             ]
                         ]
                     }
