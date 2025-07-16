@@ -129,7 +129,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         f"<b>✅ Analysis Complete</b>\n\n"
         f"📊 Pair: <b>{pair}</b>\n"
         f"🕒 Expiry: <b>{expiry}</b>\n"
-        f"📈 <b>Signal:<b> <b>{direction}</b>\n"
+        f"📈 Signal: <b>{direction}</b>\n"
         f"🔍 Confidence Level: <b>{confidence}%</b>\n"
         f"📌 Note: {comment}"
     )
