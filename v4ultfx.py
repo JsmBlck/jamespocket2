@@ -28,7 +28,6 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet3")
-tg_channel = "t.me/ZentraAiRegister"
 
 otc_pairs = [
     "💸 EUR/USD OTC 🚀", "💸 CAD/JPY OTC 🚀", "💸 AUD/CAD OTC 🚀", "💸 EUR/JPY OTC 🚀",
@@ -174,7 +173,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     ]]
                 }
                 payload = {
-                    "chat_id": -1002614452363,  # channel hub
+                    "chat_id": -1002807272410,  # channel hub
                     "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
