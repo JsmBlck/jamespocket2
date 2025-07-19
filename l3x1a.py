@@ -18,7 +18,7 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 
-RENDER_URL = "https://v4ultfx.onrender.com"
+RENDER_URL = "https://lexia-9ziw.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
 pocketlink = os.getenv("POCKET_LINK")
 
