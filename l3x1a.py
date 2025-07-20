@@ -91,7 +91,7 @@ async def healthcheck(request: Request):
 
 
 
-async def simulate_analysis_ultra(chat_id: int, pair: str, expiry: str):
+async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"📊 Analyzing <b>{pair}</b>...",
