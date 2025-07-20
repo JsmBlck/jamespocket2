@@ -97,7 +97,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     # Send base message
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"🔍 Analyzing <b>{pair}</b> using top indicators...",
+        "text": f"🔍 Analyzing <b>{pair}</b>...",
         "parse_mode": "HTML"
     })
     message_id = resp.json().get("result", {}).get("message_id")
@@ -108,7 +108,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
         await client.post(EDIT_MESSAGE, json={
             "chat_id": chat_id,
             "message_id": message_id,
-            "text": f"📊 Checking <b>{name}</b> for <b>{pair}</b>...",
+            "text": f"📊 Checking <b>{name}</b>\n\n<b>{pair}</b>...",
             "parse_mode": "HTML"
         })
 
