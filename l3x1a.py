@@ -35,7 +35,7 @@ otc_pairs = [
     "BHD/CNY OTC", "EUR/USD OTC"
 ]
 
-expiry_options = ["S5", "S10", "S15"]
+expiry_options = ["5", "10", "15"]
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -91,22 +91,27 @@ async def healthcheck(request: Request):
 
 
 
-async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    await client.post(SEND_MESSAGE, json={
+async def simulate_analysis_ultra(chat_id: int, pair: str, expiry: str):
+    resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"📊 Analyzing <b>{pair}</b>...",
         "parse_mode": "HTML"
     })
-
+    message_id = resp.json().get("result", {}).get("message_id")
     await asyncio.sleep(1.5)
-
     direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
-
+   
     await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"<b>{pair}</b>\nSignal: <b>{direction}</b>",
         "parse_mode": "HTML"
     })
+    
+    if message_id:
+        await client.post(DELETE_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id
+        })
 
 
 
