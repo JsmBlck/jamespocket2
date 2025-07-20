@@ -92,26 +92,43 @@ async def healthcheck(request: Request):
 
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
+    indicators = ["MACD", "EMA", "RSI"]
+    
+    # Send base message
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"📊 Analyzing <b>{pair}</b>...",
+        "text": f"🔍 Analyzing <b>{pair}</b> using top indicators...",
         "parse_mode": "HTML"
     })
     message_id = resp.json().get("result", {}).get("message_id")
-    await asyncio.sleep(1.5)
+
+    # Animate each indicator check
+    for name in indicators:
+        await asyncio.sleep(1)
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": f"📊 Checking <b>{name}</b> for <b>{pair}</b>...",
+            "parse_mode": "HTML"
+        })
+
+    await asyncio.sleep(1)
+
+    # Choose a random signal direction
     direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
-   
-    await client.post(SEND_MESSAGE, json={
+
+    # Final result
+    await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
-        "text": f"<b>{pair}</b>\nSignal: <b>{direction}</b>",
+        "message_id": message_id,
+        "text": (
+            f"<b>✅ Signal from Indicators</b>\n\n"
+            f"📊 Pair: <b>{pair}</b>\n"
+            f"📌 Indicators: MACD, EMA, RSI\n"
+            f"📈 Signal: <b>{direction}</b>"
+        ),
         "parse_mode": "HTML"
     })
-    
-    if message_id:
-        await client.post(DELETE_MESSAGE, json={
-            "chat_id": chat_id,
-            "message_id": message_id
-        })
 
 
 
