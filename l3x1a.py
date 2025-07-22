@@ -32,8 +32,7 @@ sheet = spreadsheet.worksheet("Sheet4")
 
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC",
-    "BHD/CNY OTC", "EUR/USD OTC",
-    "AUD/USD OTC", "CAD/JPY OTC"
+    "BHD/CNY OTC", "EUR/USD OTC"
 ]
 
 expiry_options = ["5", "10", "15"]
@@ -94,12 +93,16 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     indicators = ["MACD", "EMA", "RSI"]
+    
+    # Send base message
     resp = await client.post(SEND_MESSAGE, json={
         "chat_id": chat_id,
         "text": f"🔍 Analyzing <b>{pair}</b>...",
         "parse_mode": "HTML"
     })
     message_id = resp.json().get("result", {}).get("message_id")
+
+    # Animate each indicator check
     for name in indicators:
         await asyncio.sleep(1)
         await client.post(EDIT_MESSAGE, json={
@@ -108,8 +111,13 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
             "text": f"📊 Checking <b>{name}</b>\n\n<b>{pair}</b>...",
             "parse_mode": "HTML"
         })
+
     await asyncio.sleep(1)
+
+    # Choose a random signal direction
     direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
+
+    # Final result
     await client.post(EDIT_MESSAGE, json={
         "chat_id": chat_id,
         "message_id": message_id,
@@ -175,7 +183,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             if param == "register":
                 if user_id not in AUTHORIZED_USERS:
                     # User not authorized - send welcome/register instructions
-                    payload = {https://github.com/JsmBlck/jamespocket2/blob/main/l3x1a.py
+                    payload = {
                         "chat_id": chat_id,
                         "text": (
                             "👉 To get started, follow these steps:\n\n"
