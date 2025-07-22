@@ -157,7 +157,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
-                            "text": "✅ Get the Bot Now",
+                            "text": "Get Access Now!",
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
                         }
                     ]]
@@ -186,17 +186,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "👉 To get started, follow these steps:\n\n"
-                            "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
-                            "2️⃣ Copy your Account ID\n"
-                            "3️⃣ Send it to support for activation ✅"
+                            "🚀 Ready to activate the Bot? Just follow these quick steps:\n\n"
+                            "🔗 <a href=\"{pocketlink}\">Sign up using this special link</a> (use a fresh email)\n"
+                            "🆔 Grab your Account ID after registering\n"
+                            "📩 Send it to support and we’ll handle the rest!"
                         ).replace("{pocketlink}", pocketlink),
                         "parse_mode": "HTML",
                         "reply_markup": {
                             "inline_keyboard": [
                                 [
-                                    {"text": "📝 Register Here", "url": pocketlink},
-                                    {"text": "✅ Support", "url": os.getenv("SUPPORT")}
+                                    {"text": "💬 Contact Support", "url": os.getenv("SUPPORT")},
+                                    {"text": "📝 Register Now", "url": pocketlink}
                                 ]
                             ]
                         }
@@ -221,17 +221,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "👉 To get started, follow these steps:\n\n"
-                        "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
-                        "2️⃣ Copy your Account ID\n"
-                        "3️⃣ Send it to support for activation ✅"
+                        "🚀 Ready to activate the Bot? Just follow these quick steps:\n\n"
+                        "🔗 <a href=\"{pocketlink}\">Sign up using this special link</a> (use a fresh email)\n"
+                        "🆔 Grab your Account ID after registering\n"
+                        "📩 Send it to support and we’ll handle the rest!"
                     ).replace("{pocketlink}", pocketlink),
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [
                             [
-                                {"text": "📝 Register Here", "url": pocketlink},
-                                {"text": "✅ Support", "url": os.getenv("SUPPORT")}
+                                {"text": "💬 Contact Support", "url": os.getenv("SUPPORT")},
+                                {"text": "📝 Register Now", "url": pocketlink}
                             ]
                         ]
                     }
