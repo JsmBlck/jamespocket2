@@ -32,7 +32,8 @@ sheet = spreadsheet.worksheet("Sheet4")
 
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC",
-    "BHD/CNY OTC", "EUR/USD OTC"
+    "BHD/CNY OTC", "EUR/USD OTC",
+    "CAD/JPY OTC", "AUD/NZD OTC"
 ]
 
 expiry_options = ["5", "10", "15"]
@@ -260,7 +261,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                        "🚫 You don’t have access to this command yet.\n\nJoin my channel first by clicking the button below to unlock access."),
                     "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
