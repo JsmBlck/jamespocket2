@@ -19,7 +19,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
+RENDER_URL = "https://fourlgosh4rk.onrender.com"
 
 client = None
 
@@ -33,8 +33,8 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
-authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
+sheet = spreadsheet.worksheet("Sheet19")        # Trader data sheet (read-only for deposit)
+authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
 supportacccount = os.getenv("SUPPORT_LINK")
 otc_pairs = [
