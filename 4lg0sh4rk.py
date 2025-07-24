@@ -4,7 +4,6 @@ import asyncio
 import random
 import json
 import gspread
-from collections import defaultdict
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
@@ -20,10 +19,9 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://fourlgosh4rk.onrender.com"
+RENDER_URL = "https://jamespocket2-k9lz.onrender.com"
 
 client = None
-AUTHORIZED_USERS = set()
 
 scope = [
     "https://spreadsheets.google.com/feeds",
@@ -33,26 +31,17 @@ scope = [
 
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-client_gsheet = gspread.authorize(creds)
-spreadsheet = client_gsheet.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet19")        # Trader data sheet (read-only for deposit)
-authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
-
+client = gspread.authorize(creds)
+spreadsheet = client.open("TelegramBotMembers")
+sheet = spreadsheet.worksheet("Sheet9")        # Trader data sheet (read-only for deposit)
+authorized_sheet = spreadsheet.worksheet("Sheet11")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
-quotexlink = os.getenv("QUOTEX_LINK")
-botlink = os.getenv("BOT_LINK")
-joinchannel = os.getenv("CHANNEL_LINK")
-channelusername = os.getenv("CHANNEL_USERNAME")  
-
-expiry_options = ["S5", "S10", "S15"]
+supportacccount = os.getenv("SUPPORT_LINK")
 otc_pairs = [
-    "AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC", "CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC",
-    "EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC", "NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC",
-    "NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC", "EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC"
-]
-
+    "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
+    "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
+expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
 user_data = {}
-
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
     deposits = sheet.col_values(2)
@@ -67,14 +56,14 @@ def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
     user_ids = authorized_sheet.col_values(1)
-    print(f"Fetched user IDs from GSheet: {user_ids}")
+    print(f"Fetched user IDs from GSheet done.")
     for user_id in user_ids[1:]:
         if user_id.strip():
             try:
                 AUTHORIZED_USERS.add(int(user_id))
             except ValueError:
                 print(f"Skipping invalid ID: {user_id}")
-    print(f"Loaded authorized users: {AUTHORIZED_USERS}")
+    print(f"Loaded authorized users done.")
 def save_authorized_user(tg_id: int, po_id: str, username: str = None, first_name: str = None):
     tg_ids = authorized_sheet.col_values(1)
     if str(tg_id) in tg_ids:
@@ -108,50 +97,34 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
-
-async def check_user_joined_channel(user_id: int) -> bool:
-    url = f"{API_BASE}/getChatMember"
-    params = {
-        "chat_id": channelusername, # Replace with your channel username or -100123456789
-        "user_id": user_id
-    }
-    try:
-        resp = await client.get(url, params=params)
-        data = resp.json()
-        if data.get("ok"):
-            status = data["result"]["status"]
-            return status in ["member", "administrator", "creator"]
-    except Exception as e:
-        print(f"❌ Failed to check channel membership: {e}")
-    return False
-
-
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
     await asyncio.sleep(0.9)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
-            "inline_keyboard": [
-                [{"text": "🔄 Restart Process", "callback_data": "restart_process"}]
-            ]
-        }
+                "inline_keyboard": [
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                ]
+            }
         payload = {
             "chat_id": chat_id,
             "text": (
-                "⚠️ Uh-oh! Your account isn’t linked through our official registration link.\n\n"
-                "To continue, please sign up again using the correct link we shared earlier.\n\n"
-                "Tap the button below to get started 👇"
+                "⚠️ Looks like your account wasn't made using our official link.\n\n"
+                "To continue, follow these quick steps:\n"
+                "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
+                "2️⃣ Copy your Account ID from your profile.\n\n"
+                "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
             ),
             "reply_markup": keyboard
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-    if dep >= 30:
+    if dep >= 20:
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
         save_authorized_user(tg_id, po_id, username, first_name)
-
         keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
         payload = {
             "chat_id": chat_id,
@@ -163,139 +136,119 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}],
+            [{"text": "💬 Contact Support", "url": supportacccount}],
+        ]
+    }
     payload = {
         "chat_id": chat_id,
         "text": (
-        f"✅ Account ID: {po_id}\n\n"
-        f"💰 Total Deposit: ${dep}\n\n"
-        "✅ Your account is registered!\n\n"
-        "🔓 Almost there! Just one more step to unlock full access.\n\n"
-        "💵 To proceed:\nMake a minimum deposit of $30 to your account.\n\n"
-        "Once done, resend your Account ID to complete the verification process."
-        )
+            "✅ Your account has been registered!\n\n"
+            "🔓 You're almost there — just one last step to unlock full access.\n\n"
+            f"💰 Current Deposit: ${dep}\n\n"
+            "⛔️ To complete your verification, you need to fund your account with a minimum total deposit of $20.\n\n"
+            "📌 Once your total deposit reaches $20 or more, click the button below to continue verification."
+        ),
+        "reply_markup": keyboard
     }
     await client.post(SEND_MESSAGE, json=payload)
 
 app = FastAPI(lifespan=lifespan)
-
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
+async def simulate_analysis(chat_id: int, pair: str, expiry: str):
+    analysis_steps = [
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n🔎 Analyzing..",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n🔎 Analyzing...",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data.",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📊 Gathering data..",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📊 Gathering data...",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal.",
+        f"🤖 You selected {pair} ☑️\n\n⌛ Time: {expiry}\n\n📉 Calculating signal..",
+        f"🤖 You selected {pair} ☑️\n\n⏳ Time: {expiry}\n\n📈 Calculating signal...",
+        f"🤖 You selected {pair} ✅\n\n⌛ Time: {expiry}\n\n✅ Analysis complete."]
+    resp = await client.post(SEND_MESSAGE, json={"chat_id": chat_id, "text": analysis_steps[0]})
+    message_id = resp.json().get("result", {}).get("message_id")
+    for step in analysis_steps[1:]:
+        await client.post(EDIT_MESSAGE, json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "text": step})
+    signal = random.choice(["↗️", "↘️"])
+    final_text = f"{signal}"
+    await client.post(EDIT_MESSAGE, json={
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "text": final_text})
 
-media_groups = defaultdict(list)
 
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
-        
         if user_id in ADMIN_IDS:
-            media_group_id = msg.get("media_group_id")
-            caption = msg.get("caption", "")
-
-            if media_group_id:
-                file_type = None
-                if "photo" in msg:
-                    file_type = "photo"
-                    file_id = msg["photo"][-1]["file_id"]
-                elif "video" in msg:
-                    file_type = "video"
-                    file_id = msg["video"]["file_id"]
-
-                if file_type and file_id:
-                    media_groups[media_group_id].append({
-                        "type": file_type,
-                        "media": file_id,
-                        "caption": caption if not media_groups[media_group_id] else "",
-                        "parse_mode": "HTML"
-                    })
-
-                async def finalize_album_send():
-                    await asyncio.sleep(3)
-                    media = media_groups.pop(media_group_id, [])
-
-                    if not media:
-                        return
-
-                    send_url = f"{API_BASE}/sendMediaGroup"
-                    try:
-                        resp = await client.post(send_url, json={
-                            "chat_id": -1002614452363,  # your channel ID
-                            "media": media
-                        })
-                        result = resp.json()
-                        print("SEND ALBUM RESPONSE:", result)
-
-                        if result.get("ok"):
-                            first_message_id = result["result"][0]["message_id"]
-                            inline_keyboard = {
-                                "inline_keyboard": [[
-                                    {
-                                        "text": "🚀 Get Started for Free",
-                                        "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
-                                    }
-                                ]]
-                            }
-                            await client.post(f"{API_BASE}/editMessageReplyMarkup", json={
-                                "chat_id": -1002750311750,
-                                "message_id": first_message_id,
-                                "reply_markup": inline_keyboard
-                            })
-                    except Exception as e:
-                        print("SEND ALBUM ERROR:", e)
-
-                background_tasks.add_task(finalize_album_send)
+            # Check if message contains video and caption
+            if "video" in msg and "caption" in msg:
+                video_file_id = msg["video"]["file_id"]
+                caption = msg["caption"]
+                button_options = [
+                    {"text": "🚀 Start Using the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "✅ Get the Bot for Free", "url": os.getenv("BOT_LINK")},
+                    {"text": "🔥 Claim Your Free Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "⚡ Launch the Bot Now", "url": os.getenv("BOT_LINK")},
+                    {"text": "📈 Boost Trades with the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "🤖 Try the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "💼 Use the Bot Today", "url": os.getenv("BOT_LINK")},
+                    {"text": "🆓 Start Trading with the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "👆 Tap Here to Get the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "✨ Use the Bot", "url": os.getenv("BOT_LINK")},
+                    {"text": "📲 Grab the Bot ", "url": os.getenv("BOT_LINK")},
+                ]
+                chosen_button = random.choice(button_options)
+                inline_keyboard = {
+                    "inline_keyboard": [[chosen_button]]
+                }
+                payload = {
+                    "chat_id": -1002567612473,
+                    "video": video_file_id,
+                    "caption": caption,
+                    "reply_markup": inline_keyboard,
+                    "parse_mode": "HTML"}
+                send_video_url = f"{API_BASE}/sendVideo"
+                background_tasks.add_task(client.post, send_video_url, json=payload)
                 return {"ok": True}
-
         
-        if text == "/start":
+        if text and text.startswith("/start"):
+            parts = text.split(" ")
+            start_payload = parts[1] if len(parts) > 1 else None
             message = data.get("message", {})  
             from_user = message.get("from", {}) 
             full_name = from_user.get("first_name", "Trader")
             username = from_user.get("username", "")
             username_display = f"@{username}" if username else "No username"
             user_id = from_user.get("id", "N/A")
-            
-            # Check if user joined the required channel
-            is_member = await check_user_joined_channel(user_id)
-            if not is_member:
-                join_payload = {
-                    "chat_id": chat_id,
-                    "text": (
-                        "📢 *Join Required*\n\n"
-                        "To use this bot, you need to join our official Telegram channel first.\n\n"
-                        "Once you've joined, press /start again."
-                    ),
-                    "parse_mode": "Markdown",
-                    "reply_markup": {
-                        "inline_keyboard": [
-                            [{"text": "🔗 Join Channel", "url": joinchannel}]
-                        ]
-                    }
-                }
-
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=join_payload)
-                return {"ok": True}
-        
-            # Continue if the user is a member
+            tg_ids = authorized_sheet.col_values(1)
             if user_id in AUTHORIZED_USERS:
                 keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "👇 Please choose a pair to get signal:"
+                        "⚠️ Not financial advice. ⚠️ \n\nTrading is risky - play smart, play sharp.\n"
+                        "If you’re here to win, let’s make it worth it.\n\n"
+                        "👇 Pick an OTC pair and let’s go get it:"
                     ),
                     "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        
                 pair_payload = {
                     "chat_id": -1002676665035,
                     "text": (
@@ -308,25 +261,26 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
                 return {"ok": True}
-
-            
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
             payload = {
                 "chat_id": chat_id,
                 "text": (
-                    f"Hey {full_name}, welcome! 🙌\n\n"
-                    "Which broker do you want to use?"
+                   f"👋 Welcome, {full_name}!\n\n"
+                    "You're just a few simple steps away from getting started:\n\n"
+                    "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
+                    "2️⃣ Copy your Account ID from your profile.\n\n"
+                    "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
                 ),
                 "reply_markup": keyboard
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             pair_payload = {
-                "chat_id": -1002676665035,
+                "chat_id": -1002294677733,
                 "text": (
                     f"✅ User Started\n\n"
                     f"*Full Name:* {full_name}\n"
@@ -338,6 +292,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
             return {"ok": True}
 
+        
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
             checking_steps = [
@@ -358,7 +313,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 "text": checking_steps[0]
             })
             message_id = resp.json().get("result", {}).get("message_id")
-        
             # Edit the message with animation steps
             for step in checking_steps[1:]:
                 await asyncio.sleep(0.7)
@@ -367,7 +321,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "message_id": message_id,
                     "text": step
                 })
-                
             # Wait briefly then delete the message
             await asyncio.sleep(1.2)
             await client.post(DELETE_MESSAGE, json={
@@ -400,11 +353,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 delayed_verification_check,
                 client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
             )
-
             return {"ok": True}
+            
 
 ##############################################################################################################################################
-
+         # Handle OTC Pair Selection
         if text in otc_pairs:
             tg_ids = authorized_sheet.col_values(1)
             full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
@@ -441,11 +394,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 ##############################################################################################################################################
         payload = {
             "chat_id": chat_id,
-            "text": "Unknown command. Please press /start to begin."}
+            "text": f"Unknown command. \nClick this 👉 /start."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
-
-    
+##############################################################################################################################################
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -453,15 +405,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         cq_id = cq.get("id")
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-        
+
         if data_str == "check_id":
             payload = {
                 "chat_id": chat_id,
-                "text": "Please send your Account ID (numbers only).\n❌ : id 123123123\n✅ : 123123123"
+                "text": "Please send your Account ID (numbers only)."
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
             from_user = cq.get("from", {})
             tg_id = from_user.get("id")
             username = from_user.get("username")
@@ -479,40 +430,65 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
 
-        if data_str.startswith("expiry|"):
-            _, pair, expiry = data_str.split("|", 2)
-            signals = ["⬆️", "⬇️"]
-            signal = random.choice(signals)
-            
-            # Send signal to user
-            signal_message = f"{signal}"
+        if data_str == "check_deposit":
             payload = {
                 "chat_id": chat_id,
-                "text": signal_message
+                "text": "Please send your Account ID (numbers only)."
             }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-        
-            # Safe user info extraction
+            return {"ok": True}
+            from_user = cq.get("from", {})
+            tg_id = from_user.get("id")
+            username = from_user.get("username")
+            first_name = from_user.get("first_name")
+            save_authorized_user(tg_id, po_id, username, first_name)
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "✅ You are now verified and can access the bot fully.\n\n"
+                        "👇 Please choose a pair to get signal:"
+                    ),
+                    "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+             # Schedule delayed check
+            background_tasks.add_task(
+                delayed_verification_check,
+                client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs
+            )
+            return {"ok": True}
+
+
+        if data_str == "restart_process":
             message = cq.get("message", {})
             from_user = cq.get("from", {})
-            full_name = from_user.get("first_name", "Unknown")
-            username = from_user.get("username", "")
-            username_display = f"@{username}" if username else "No username"
-            user_id = from_user.get("id", "N/A")
-        
-            # Send user trade log to channel/group
-            pair_payload = {
-                "chat_id": -1002676665035,
-                "text": (
-                    "📊 *User Trade Action*\n\n"
-                    f"*Full Name:* {full_name}\n"
-                    f"*Username:* {username_display}\n"
-                    f"*Telegram ID:* `{user_id}`\n"
-                    f"*Selected Pair:* {pair}\n"
-                    f"*Selected Time:* {expiry}\n"
-                    f"*Signal:* {signal}"
-                ),
-                "parse_mode": "Markdown"
+            full_name = from_user.get("first_name", "Trader")
+            keyboard = {
+                "inline_keyboard": [
+                    [{"text": "📌 Registration Link", "url": pocketlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
+                ]
             }
-            background_tasks.add_task(client.post, SEND_MESSAGE, json=pair_payload)
+            payload = {
+                "chat_id": chat_id,
+                "text": (
+                    f"👋 Welcome, {full_name}!\n\n"
+                    "You're just a few simple steps away from getting started:\n\n"
+                    "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
+                    "2️⃣ Copy your Account ID from your profile.\n\n"
+                    "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
+                ),
+                "reply_markup": keyboard
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+            
+        _, pair, expiry = data_str.split("|", 2)
+        background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
+        return {"ok": True}
+
+        if __name__ == "__main__":
+            import uvicorn
+            port = int(os.environ.get("PORT", 10000))
+            uvicorn.run("app:app", host="0.0.0.0", port=port)
