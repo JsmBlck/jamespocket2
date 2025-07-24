@@ -139,6 +139,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     keyboard = {
         "inline_keyboard": [
             [{"text": "💬 Contact Support", "url": supportacccount}],
+            [{"text": "💬 Contact Support", "url": supportacccount}],
         ]
     }
     payload = {
