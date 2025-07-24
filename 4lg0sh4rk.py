@@ -104,20 +104,23 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         keyboard = {
                 "inline_keyboard": [
                     [{"text": "📌 Registration Link", "url": pocketlink}],
+                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
         payload = {
             "chat_id": chat_id,
             "text": (
-                "⚠️ Your account isn't linked with us.\n\n"
-                "👉 Register using the official link with a fresh email.\n"
-                "📋 Then just send your Account ID below to verify."
+                "⚠️ Looks like your account wasn't made using our official link.\n\n"
+                "To continue, follow these quick steps:\n"
+                "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
+                "2️⃣ Copy your Account ID from your profile.\n\n"
+                "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
             ),
             "reply_markup": keyboard
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-    if dep >= 30:
+    if dep >= 20:
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
@@ -126,8 +129,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         payload = {
             "chat_id": chat_id,
             "text": (
-                "✅ You're verified!\n\n"
-                "👇 Pick a pair to get your signal:"
+                "✅ You are now verified and can access the bot fully.\n\n"
+                "👇 Please choose a pair to get signal:"
             ),
             "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
         }
@@ -151,6 +154,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         "reply_markup": keyboard
     }
     await client.post(SEND_MESSAGE, json=payload)
+
 
 app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
