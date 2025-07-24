@@ -104,23 +104,20 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         keyboard = {
                 "inline_keyboard": [
                     [{"text": "📌 Registration Link", "url": pocketlink}],
-                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
                 ]
             }
         payload = {
             "chat_id": chat_id,
             "text": (
-                "⚠️ Looks like your account wasn't made using our official link.\n\n"
-                "To continue, follow these quick steps:\n"
-                "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
-                "2️⃣ Copy your Account ID from your profile.\n\n"
-                "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
+                "⚠️ Your account isn't linked with us.\n\n"
+                "👉 Register using the official link with a fresh email.\n"
+                "📋 Then just send your Account ID below to verify."
             ),
             "reply_markup": keyboard
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
-    if dep >= 20:
+    if dep >= 30:
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
@@ -129,8 +126,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         payload = {
             "chat_id": chat_id,
             "text": (
-                "✅ You are now verified and can access the bot fully.\n\n"
-                "👇 Please choose a pair to get signal:"
+                "✅ You're verified!\n\n"
+                "👇 Pick a pair to get your signal:"
             ),
             "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
         }
@@ -138,23 +135,21 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         return
     keyboard = {
         "inline_keyboard": [
-            [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}],
             [{"text": "💬 Contact Support", "url": supportacccount}],
         ]
     }
     payload = {
         "chat_id": chat_id,
         "text": (
-            "✅ Your account has been registered!\n\n"
-            "🔓 You're almost there — just one last step to unlock full access.\n\n"
-            f"💰 Current Deposit: ${dep}\n\n"
-            "⛔️ To complete your verification, you need to fund your account with a minimum total deposit of $20.\n\n"
-            "📌 Once your total deposit reaches $20 or more, click the button below to continue verification."
+            f"✅ {po_id} is registered!\n\n"
+            f"🆔 : {po_id}\n"
+            f"💰 Total Deposit : ${dep}\n\n"
+            "Almost there! Top up to reach $30 for lifetime access.\n"
+            "Once done, just send your PO ID here to verify."
         ),
         "reply_markup": keyboard
     }
     await client.post(SEND_MESSAGE, json=payload)
-
 
 app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
