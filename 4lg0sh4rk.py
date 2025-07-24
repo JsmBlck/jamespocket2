@@ -135,17 +135,18 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         return
     keyboard = {
         "inline_keyboard": [
+            [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}],
             [{"text": "💬 Contact Support", "url": supportacccount}],
         ]
     }
     payload = {
         "chat_id": chat_id,
         "text": (
-            f"✅ {po_id} is registered!\n\n"
-            f"🆔 : {po_id}\n"
-            f"💰 Total Deposit : ${dep}\n\n"
-            "Almost there! Top up to reach $30 for lifetime access.\n"
-            "Once done, just send your PO ID here to verify."
+            "✅ Your account has been registered!\n\n"
+            "🔓 You're almost there — just one last step to unlock full access.\n\n"
+            f"💰 Current Deposit: ${dep}\n\n"
+            "⛔️ To complete your verification, you need to fund your account with a minimum total deposit of $20.\n\n"
+            "📌 Once your total deposit reaches $20 or more, click the button below to continue verification."
         ),
         "reply_markup": keyboard
     }
