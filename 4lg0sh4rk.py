@@ -141,9 +141,11 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     payload = {
         "chat_id": chat_id,
         "text": (
-            f"💰 Deposit so far: ${dep}\n\n"
-            "Just a bit more to hit minimum $30 and unlock lifetime access.\n"
-            "Top up and send your Account ID below to verify."
+            f"✅ {po_id} is registered!\n\n"
+            f"🆔 : {po_id}\n"
+            f"💰 Total Deposit : ${dep}\n\n"
+            "Almost there! Top up to reach $30 for lifetime access.\n"
+            "Once done, just send your PO ID here to verify."
         ),
         "reply_markup": keyboard
     }
@@ -291,17 +293,16 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 keyboard = {
                     "inline_keyboard": [
                         [{"text": "📌 Registration Link", "url": pocketlink}],
-                        [{"text": "✅ Check ID", "callback_data": "check_id"}]
                     ]
                 }
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "⚠️ Looks like this Account ID was already registered by someone else.\n\n"
-                        "To continue, follow these quick steps:\n"
-                        "1️⃣ Tap the 📌 Registration Link and sign up using a fresh, unused email. Make sure to use the exact link provided.\n\n"
-                        "2️⃣ Copy your Account ID from your profile.\n\n"
-                        "3️⃣ Tap ✅ Check ID and send your ID here to get verified."
+                        "⚠️ That Account ID is already in use.\n\n"
+                        "To continue:\n"
+                        "1️⃣ Register again with a fresh email using our official link\n"
+                        "2️⃣ Copy your new Account ID\n"
+                        "3️⃣ Send it below to get verified ✅"
                     ),
                     "reply_markup": keyboard
                 }
