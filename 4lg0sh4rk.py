@@ -266,9 +266,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 f"🔍 Checking {po_id}.",
                 f"🔍 Checking {po_id}..",
                 f"🔍 Checking {po_id}...",
-                f"🔍 Checking {po_id}.",
-                f"🔍 Checking {po_id}..",
-                f"🔍 Checking {po_id}...",
                 f"✅ Checking {po_id} Done!"
             ]
             # Send first message and store message_id
