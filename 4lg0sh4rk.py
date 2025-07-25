@@ -120,7 +120,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
             ),
             "reply_markup": keyboard
         }
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        await client.post(SEND_MESSAGE, json=payload
         return
 
     if dep >= 20:
@@ -137,7 +137,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
             ),
             "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
         }
-        background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+        await client.post(SEND_MESSAGE, json=payload
         return
 
     keyboard = {
@@ -157,7 +157,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         ),
         "reply_markup": keyboard
     }
-    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+    await client.post(SEND_MESSAGE, json=payload
 
 
 
