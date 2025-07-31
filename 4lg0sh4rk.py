@@ -97,16 +97,22 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(self_ping_loop())
     yield
     await client.aclose()
+
+
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
     await asyncio.sleep(0.9)
+
     dep = get_deposit_for_trader(po_id)
+    print(f"[DEBUG] Raw deposit for PO ID {po_id}: {dep} (type: {type(dep)})")
 
     try:
         dep = float(dep)
     except (TypeError, ValueError):
         dep = None
+    print(f"[DEBUG] Parsed deposit: {dep}")
 
     if dep is None:
+        print("[DEBUG] Branch: dep is None (unregistered)")
         keyboard = {
             "inline_keyboard": [
                 [{"text": "📌 Registration Link", "url": pocketlink}],
@@ -128,10 +134,12 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         return
 
     if dep >= 20:
+        print("[DEBUG] Branch: dep >= 20 (verified)")
         tg_id = user_id
         username = user.get("username")
         first_name = user.get("first_name")
         save_authorized_user(tg_id, po_id, username, first_name)
+
         keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
         payload = {
             "chat_id": chat_id,
@@ -144,7 +152,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         await client.post(SEND_MESSAGE, json=payload)
         return
 
-    # Low deposit
+    # Deposit is less than 20
+    print("[DEBUG] Branch: dep < 20 (low deposit)")
     keyboard = {
         "inline_keyboard": [
             [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}],
@@ -163,6 +172,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         "reply_markup": keyboard
     }
     await client.post(SEND_MESSAGE, json=payload)
+
 
 
 app = FastAPI(lifespan=lifespan)
