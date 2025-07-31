@@ -100,13 +100,19 @@ async def lifespan(app: FastAPI):
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
     await asyncio.sleep(0.9)
     dep = get_deposit_for_trader(po_id)
+
+    try:
+        dep = float(dep)
+    except (TypeError, ValueError):
+        dep = None
+
     if dep is None:
         keyboard = {
-                "inline_keyboard": [
-                    [{"text": "📌 Registration Link", "url": pocketlink}],
-                    [{"text": "✅ Check ID", "callback_data": "check_id"}]
-                ]
-            }
+            "inline_keyboard": [
+                [{"text": "📌 Registration Link", "url": pocketlink}],
+                [{"text": "✅ Check ID", "callback_data": "check_id"}]
+            ]
+        }
         payload = {
             "chat_id": chat_id,
             "text": (
@@ -120,6 +126,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
+
     if dep >= 20:
         tg_id = user_id
         username = user.get("username")
@@ -136,6 +143,8 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         }
         await client.post(SEND_MESSAGE, json=payload)
         return
+
+    # Low deposit
     keyboard = {
         "inline_keyboard": [
             [{"text": "✅ Check Deposit", "callback_data": "check_deposit"}],
@@ -154,6 +163,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         "reply_markup": keyboard
     }
     await client.post(SEND_MESSAGE, json=payload)
+
 
 app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
