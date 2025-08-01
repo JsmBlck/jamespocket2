@@ -141,8 +141,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
     payload = {
         "chat_id": chat_id,
         "text": (
-            f"✅ {po_id} is registered!\n\n"
-            f"🆔 : {po_id}\n"
+            f"✅ {po_id} is registered!\n"
             f"💰 Total Deposit : ${dep}\n\n"
             "Almost there! Top up to reach $30 for lifetime access.\n"
             "Once done, just send your PO ID here to verify."
@@ -250,18 +249,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if text.isdigit() and len(text) > 5:
             po_id = text.strip()
             checking_steps = [
-                f"🔍 Checking {po_id}.",
-                f"🔍 Checking {po_id}..",
-                f"🔍 Checking {po_id}...",
-                f"🔍 Checking {po_id}.",
-                f"🔍 Checking {po_id}..",
-                f"🔍 Checking {po_id}...",
-                f"🔍 Checking {po_id}.",
-                f"🔍 Checking {po_id}..",
-                f"🔍 Checking {po_id}...",
-                f"🔍 Checking {po_id}.",
-                f"🔍 Checking {po_id}..",
-                f"🔍 Checking {po_id}...",
                 f"🔍 Checking {po_id}.",
                 f"🔍 Checking {po_id}..",
                 f"🔍 Checking {po_id}...",
