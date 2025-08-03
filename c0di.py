@@ -181,6 +181,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
                 
         if text == "/start":
+            parts = text.split()
+            param = parts[1] if len(parts) > 1 else None
             if user_id not in AUTHORIZED_USERS:
                 payload = {
                     "chat_id": chat_id,
