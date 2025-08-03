@@ -93,7 +93,7 @@ async def healthcheck(request: Request):
 
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    indicators = ["MACD", "EMA", "RSI"]
+    indicators = ["INDICATORS", "INDICATORS", "INDICATORS"]
     
     # Send base message
     resp = await client.post(SEND_MESSAGE, json={
