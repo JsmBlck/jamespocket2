@@ -160,7 +160,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
-                            "text": "🤖 Unlock Your Bot Access",
+                            "text": "📌 Get Access",
                             "url": os.getenv("BOT_LINK")
                         }
                     ]]
