@@ -166,7 +166,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     ]]
                 }
                 payload = {
-                    "chat_id": -1002549064084,  # channel hub
+                    "chat_id": -1002774394321,  # channel hub
                     "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
