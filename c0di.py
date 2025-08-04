@@ -102,7 +102,7 @@ async def healthcheck(request: Request):
 
 
 
-async def handle_analysis_flow(pair, chat_id, client):
+async def simulate_analysis(pair, chat_id, client):
     analysis_steps = [
         f"🤖 Analyzing chart data...",
         f"📊 Watching market activity on {pair}...",
