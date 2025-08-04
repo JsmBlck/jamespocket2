@@ -240,27 +240,76 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
 
         # Handle OTC Pair Selection
-        if text in otc_pairs:
+        if text == "Change Time Expiry":
             if user_id not in AUTHORIZED_USERS:
-                keyboard = {
-                    "inline_keyboard": [
-                        [{"text": "Join Channel", "url": channel_link}],]}
                 payload = {
                     "chat_id": chat_id,
-                    "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
-                    "reply_markup": keyboard}
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]]
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
+            keyboard = [["S5"], ["S10", "S15"]]
             payload = {
                 "chat_id": chat_id,
-                "text": f"{text}\nTime Frame: ❔ ",
-                "reply_markup": {"inline_keyboard": inline_kb}}
+                "text": "What Time Expiry you want to use?",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
+        elif text == "S5":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
+            keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "You’ve successfully changed the Time Expiry to S5!",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+        elif text == "S10":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
+            keyboard = [crypto_pairs[i:i+3] for i in range(0, len(stocks), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "You’ve successfully changed the Time Expiry to S10!",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+        elif text == "S15":
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."}
+                await client.post(SEND_MESSAGE, json=payload)
+            keyboard = [stocks[i:i+3] for i in range(0, len(crypto_pairs), 3)]
+            payload = {
+                "chat_id": chat_id,
+                "text": "You’ve successfully changed the Time Expiry to S15!",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+##############################################################################################################################################
+        if text in crypto_pairs or text in otc_pairs or text in stocks:
+            if user_id not in AUTHORIZED_USERS:
+                payload = {
+                    "chat_id": chat_id,
+                    "text": "⚠️ You need to get verified to use this bot.\nPlease press /start to begin."
+                }
+                await client.post(SEND_MESSAGE, json=payload)
+                return {"ok": True}
+        
+            # Run analysis in background without waiting
+            asyncio.create_task(handle_analysis_flow(text, chat_id, client))
+            return {"ok": True}
+
 
         if text.startswith(("/addmember", "/add")):
             parts = text.strip().split()
