@@ -160,10 +160,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "inline_keyboard": [[
                         {
                             "text": "🤖 Unlock Your Bot Access",
-                            "url": os.getenv('BOT_LINK')"
+                            "url": os.getenv("BOT_LINK")
                         }
                     ]]
                 }
+
                 payload = {
                     "chat_id": -1002549064084,  # channel hub
                     "caption": caption,
