@@ -1,10 +1,10 @@
+
 import os
 import httpx
 import asyncio
 import random
 import json
 import gspread
-import itertools
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
@@ -30,6 +30,7 @@ client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet2")
 
+
 otc_pairs = [
     "S5 AUD/CHF OTC", "S5 GBP/JPY OTC", "S5 QAR/CNY OTC", "S5 CAD/JPY OTC", "S5 AED/CNY OTC", "S5 AUD/NZD OTC",
     "S5 EUR/USD OTC", "S5 BHD/CNY OTC", "S5 EUR/GBP OTC", "S5 NZD/USD OTC", "S5 LBP/USD OTC", "S5 GBP/USD OTC",
@@ -45,8 +46,6 @@ stocks = [
     "S15 EUR/USD OTC", "S15 BHD/CNY OTC", "S15 EUR/GBP OTC", "S15 NZD/USD OTC", "S15 LBP/USD OTC", "S15 GBP/USD OTC",
     "Change Time Expiry"
 ]
-
-expiry_options = ["S5", "S10", "S15"]
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -83,6 +82,11 @@ load_authorized_users()
 async def lifespan(app: FastAPI):
     global client
     client = httpx.AsyncClient(timeout=10)
+
+    # Load authorized users when the app starts
+    load_authorized_users()
+    print("✅ Authorized users loaded on startup.")
+
     async def self_ping_loop():
         await asyncio.sleep(5)
         while True:
@@ -92,17 +96,16 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 print(f"❌ Ping failed: {e}")
             await asyncio.sleep(300)
+
     asyncio.create_task(self_ping_loop())
     yield
-    await client.aclose()  # Clean up
+    await client.aclose()
 app = FastAPI(lifespan=lifespan)
 @app.api_route("/", methods=["GET", "HEAD"])
 async def healthcheck(request: Request):
     return {"status": "ok"}
 
-
-
-async def simulate_analysis(pair, chat_id, client):
+async def handle_analysis_flow(pair, chat_id, client):
     analysis_steps = [
         f"🤖 Analyzing chart data...",
         f"📊 Watching market activity on {pair}...",
@@ -132,16 +135,15 @@ async def simulate_analysis(pair, chat_id, client):
         "text": final_text
     })
 
-
 @app.post("/webhook")
 async def webhook(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    # --- HANDLE NORMAL TEXT MESSAGES ---
     if msg := data.get("message"):
         text = msg.get("text", "")
         chat_id = msg["chat"]["id"]
         user = msg["from"]
         user_id = user["id"]
+
         if user_id in ADMIN_IDS:
             media_type = None
             media_file_id = None
@@ -159,7 +161,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "inline_keyboard": [[
                         {
                             "text": "🤖 Unlock Your Bot Access",
-                            "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
+                            "url": f"https://t.me/{os.getenv('BOT_LINK')}?start=register"
                         }
                     ]]
                 }
@@ -178,56 +180,27 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 send_url = f"{API_BASE}/{send_method}"
                 background_tasks.add_task(client.post, send_url, json=payload)
                 return {"ok": True}
-        if text.startswith("/start"):
+                
+        if text == "/start":
             parts = text.split()
             param = parts[1] if len(parts) > 1 else None
-            if param == "register":
-                if user_id not in AUTHORIZED_USERS:
-                    # User not authorized - send welcome/register instructions
-                    payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "🚫 You’re not verified yet!\n\n"
-                            "✅ To get access, join my channel and tap the pinned message 📌\n"
-                            "Follow the simple steps there to get started 💼"
-                        ),
-                        "reply_markup": {
-                            "inline_keyboard": [[
-                                {"text": "📢 Join Channel", "url": channel_link}
-                            ]]
-                        }
-                    }
-                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-            
-                elif user_id in AUTHORIZED_USERS:
-                    # Authorized user - show OTC pair keyboard
-                    keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
-                    payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "👇 Please choose a pair to get signal:"
-                        ),
-                        "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
-                    }
-                    background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
-                return {"ok": True}
-            # Default /start behavior
             if user_id not in AUTHORIZED_USERS:
                 payload = {
-                        "chat_id": chat_id,
-                        "text": (
-                            "🚫 You’re not verified yet!\n\n"
-                            "✅ To get access, join my channel and tap the pinned message 📌\n"
-                            "Follow the simple steps there to get started 💼"
-                        ),
-                        "reply_markup": {
-                            "inline_keyboard": [[
-                                {"text": "📢 Join Channel", "url": channel_link}
-                            ]]
-                        }
+                    "chat_id": chat_id,
+                    "text": (
+                        "🚫 You’re not verified yet!\n\n"
+                        "✅ To get access, join my channel and tap the pinned message 📌\n"
+                        "Follow the simple steps there to get started 💼"
+                    ),
+                    "reply_markup": {
+                        "inline_keyboard": [[
+                            {"text": "📢 Join Channel", "url": channel_link}
+                        ]]
                     }
-                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                }
+                await client.post(SEND_MESSAGE, json=payload)
                 return {"ok": True}
+                
             keyboard = [otc_pairs[i:i+3] for i in range(0, len(otc_pairs), 3)]
             payload = {
                 "chat_id": chat_id,
@@ -236,10 +209,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 ),
                 "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
             }
+            background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
-        
 
-        # Handle OTC Pair Selection
+    
+        
+##############################################################################################################################################
         if text == "Change Time Expiry":
             if user_id not in AUTHORIZED_USERS:
                 payload = {
@@ -307,7 +282,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
             # Run analysis in background without waiting
-            asyncio.create_task(simulate_analysis(text, chat_id, client))
+            asyncio.create_task(handle_analysis_flow(text, chat_id, client))
             return {"ok": True}
 
 
@@ -353,26 +328,27 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     sheet.update(f"D{row_number}", [[pocket_option_id]])
                 else:
                     sheet.append_row([new_user_id, username, first_name, pocket_option_id])
-            
                 payload = {
                     "chat_id": chat_id,
                     "text": f"✅ Added Successful!\n\n{full_name} | {username_display} | {new_user_id} \nPocket Option ID: {pocket_option_id}"
                 }
                 await client.post(SEND_MESSAGE, json=payload)
-
             except ValueError:
                 payload = {
                     "chat_id": chat_id,
                     "text": "⚠️ Invalid user ID. Please enter a valid number."}
                 await client.post(SEND_MESSAGE, json=payload)
             return {"ok": True}
+
+
+
         payload = {
             "chat_id": chat_id,
-            "text": f"Unknown command. \nUse /start to get started."}
+            "text": "Unknown command. Please press /start to begin."}
         background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
         return {"ok": True}
 
-    # --- HANDLE CALLBACKS ---
+    
     if cq := data.get("callback_query"):
         data_str = cq.get("data", "")
         chat_id = cq["message"]["chat"]["id"]
@@ -380,11 +356,3 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         cq_id = cq.get("id")
         background_tasks.add_task(client.post, f"{API_BASE}/answerCallbackQuery", json={"callback_query_id": cq_id})
         background_tasks.add_task(client.post, DELETE_MESSAGE, json={"chat_id": chat_id, "message_id": message_id})
-        _, pair, expiry = data_str.split("|", 2)
-        background_tasks.add_task(simulate_analysis, chat_id, pair, expiry)
-        return {"ok": True}
-    return {"ok": True}
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("4l60Shark:app", host="0.0.0.0", port=port)
