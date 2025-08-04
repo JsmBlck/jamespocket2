@@ -307,7 +307,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
         
             # Run analysis in background without waiting
-            asyncio.create_task(handle_analysis_flow(text, chat_id, client))
+            asyncio.create_task(simulate_analysis(text, chat_id, client))
             return {"ok": True}
 
 
