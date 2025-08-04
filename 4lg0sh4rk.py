@@ -143,7 +143,7 @@ async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_
         "text": (
             f"✅ {po_id} is registered!\n"
             f"💰 Total Deposit : ${dep}\n\n"
-            "Almost there! Top up to reach $30 for lifetime access.\n"
+            "Almost there! Top up to reach $30 for lifetime access.\n\n"
             "Once done, just send your PO ID here to verify."
         ),
         "reply_markup": keyboard
@@ -175,8 +175,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         user_id = user["id"]
         if user_id in ADMIN_IDS:
             # Check if message contains video and caption
-            if "video" in msg and "caption" in msg:
-                video_file_id = msg["video"]["file_id"]
+            if "caption" in msg:
                 caption = msg["caption"]
                 button_options = [
                     {"text": "🚀 Start Using the Bot", "url": os.getenv("BOT_LINK")},
@@ -189,21 +188,37 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     {"text": "🆓 Start Trading with the Bot", "url": os.getenv("BOT_LINK")},
                     {"text": "👆 Tap Here to Get the Bot", "url": os.getenv("BOT_LINK")},
                     {"text": "✨ Use the Bot", "url": os.getenv("BOT_LINK")},
-                    {"text": "📲 Grab the Bot ", "url": os.getenv("BOT_LINK")},
+                    {"text": "📲 Grab the Bot", "url": os.getenv("BOT_LINK")},
                 ]
                 chosen_button = random.choice(button_options)
                 inline_keyboard = {
                     "inline_keyboard": [[chosen_button]]
                 }
+            
+                if "video" in msg:
+                    media_file_id = msg["video"]["file_id"]
+                    media_type = "video"
+                    send_url = f"{API_BASE}/sendVideo"
+                    media_key = "video"
+                elif "photo" in msg:
+                    media_file_id = msg["photo"][-1]["file_id"]  # highest resolution photo
+                    media_type = "photo"
+                    send_url = f"{API_BASE}/sendPhoto"
+                    media_key = "photo"
+                else:
+                    return {"ok": False, "error": "No supported media type found"}
+            
                 payload = {
                     "chat_id": -1002750311750,
-                    "video": video_file_id,
+                    media_key: media_file_id,
                     "caption": caption,
                     "reply_markup": inline_keyboard,
-                    "parse_mode": "HTML"}
-                send_video_url = f"{API_BASE}/sendVideo"
-                background_tasks.add_task(client.post, send_video_url, json=payload)
+                    "parse_mode": "HTML"
+                }
+            
+                background_tasks.add_task(client.post, send_url, json=payload)
                 return {"ok": True}
+
         
         if text and text.startswith("/start"):
             parts = text.split(" ")
