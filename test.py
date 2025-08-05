@@ -8,9 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks
 from contextlib import asynccontextmanager
 from oauth2client.service_account import ServiceAccountCredentials
-
 load_dotenv()
-
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID", "0"))
@@ -19,28 +17,33 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
-RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
-
 client = None
-
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-
 creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("TelegramBotMembers")
-sheet = spreadsheet.worksheet("Sheet19")        # Trader data sheet (read-only for deposit)
-authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
 pocketlink = os.getenv("POCKET_LINK")
 supportacccount = os.getenv("SUPPORT_LINK")
+
+
+
+RENDER_URL = "https://jamespocket2-pcs7.onrender.com"
+sheet = spreadsheet.worksheet("Sheet19")        # Trader data sheet (read-only for deposit)
+authorized_sheet = spreadsheet.worksheet("Sheet14")  # Authorized users sheet
+
+
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC", "BHD/CNY OTC", "EUR/USD OTC", "GBP/USD OTC", "AUD/NZD OTC",
     "NZD/USD OTC", "EUR/JPY OTC", "CAD/JPY OTC", "AUD/USD OTC",  "AUD/CHF OTC", "GBP/AUD OTC"]
 expiry_options = ["S5", "S10", "S15", "S30", "M1", "M2"]
+
+
+
 user_data = {}
 def get_deposit_for_trader(trader_id: str) -> float | None:
     trader_ids = sheet.col_values(1)
