@@ -178,7 +178,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             
                 elif user_id in AUTHORIZED_USERS:
                     # Authorized user - show OTC pair keyboard
-                    keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
+                    keyboard = otc_pairs
                     payload = {
                         "chat_id": chat_id,
                         "text": (
@@ -212,7 +212,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 }
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
+            keyboard = otc_pairs
             payload = {
                 "chat_id": chat_id,
                 "text": (
