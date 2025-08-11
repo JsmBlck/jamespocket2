@@ -132,13 +132,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
-                            "text": "✅ Get the Bot Now",
+                            "text": "Aether IQ Access",
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
                         }
                     ]]
                 }
                 payload = {
-                    "chat_id": -1002807272410,  # channel hub
+                    "chat_id": -1002713918801,  # channel hub
                     "caption": caption,
                     "reply_markup": inline_keyboard,
                     "parse_mode": "HTML"
@@ -161,17 +161,18 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "👉 To get started, follow these steps:\n\n"
-                            "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
-                            "2️⃣ Copy your Account ID\n"
-                            "3️⃣ Send it to support for activation ✅"
+                            "⚡ <b>Welcome to AetherIQ</b>\n\n"
+                            "Follow these quick steps to activate your access:\n"
+                            "1️⃣ Sign up using our <a href=\"{pocketlink}\">official link</a>\n"
+                            "2️⃣ Grab your <b>Account ID</b> from Pocket Option\n"
+                            "3️⃣ Send it to our support team for instant activation ✅"
                         ).replace("{pocketlink}", pocketlink),
                         "parse_mode": "HTML",
                         "reply_markup": {
                             "inline_keyboard": [
                                 [
-                                    {"text": "📝 Register Here", "url": pocketlink},
-                                    {"text": "✅ Support", "url": os.getenv("SUPPORT")}
+                                    {"text": "🚀 Create Your Account", "url": pocketlink},
+                                    {"text": "💬 Contact Support", "url": os.getenv("SUPPORT")}
                                 ]
                             ]
                         }
@@ -196,22 +197,22 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "👉 To get started, follow these steps:\n\n"
-                        "1️⃣ Register using my <a href=\"{pocketlink}\">referral link</a>\n"
-                        "2️⃣ Copy your Account ID\n"
-                        "3️⃣ Send it to support for activation ✅"
+                        "⚡ <b>Welcome to AetherIQ</b>\n\n"
+                        "Follow these quick steps to activate your access:\n"
+                        "1️⃣ Sign up using our <a href=\"{pocketlink}\">official link</a>\n"
+                        "2️⃣ Grab your <b>Account ID</b> from Pocket Option\n"
+                        "3️⃣ Send it to our support team for instant activation ✅"
                     ).replace("{pocketlink}", pocketlink),
                     "parse_mode": "HTML",
                     "reply_markup": {
                         "inline_keyboard": [
                             [
-                                {"text": "📝 Register Here", "url": pocketlink},
-                                {"text": "✅ Support", "url": os.getenv("SUPPORT")}
+                                {"text": "🚀 Create Your Account", "url": pocketlink},
+                                {"text": "💬 Contact Support", "url": os.getenv("SUPPORT")}
                             ]
                         ]
                     }
                 }
-
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
             keyboard = [otc_pairs[i:i+2] for i in range(0, len(otc_pairs), 2)]
