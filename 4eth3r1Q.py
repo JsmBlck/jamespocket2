@@ -39,7 +39,7 @@ otc_pairs = [
     "🇦🇺 AUD/CHF OTC", "🇬🇧 GBP/AUD OTC"
 ]
 
-expiry_options = ["S5", "S10", "S15"]
+expiry_options = ["5 Seconds", "10 Seconds", "15 Seconds"]
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -286,7 +286,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                  for i in range(len(expiry_options))]]
             payload = {
                 "chat_id": chat_id,
-                "text": f"{text}\nTime Frame: ❔ ",
+                "text": f"Time: ",
                 "reply_markup": {"inline_keyboard": inline_kb}}
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
             return {"ok": True}
