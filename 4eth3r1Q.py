@@ -17,6 +17,7 @@ SEND_MESSAGE = f"{API_BASE}/sendMessage"
 SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
+SEND_PHOTO = f"{API_BASE}/sendPhoto"
 
 RENDER_URL = "https://jamespocket2-v6ir.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
