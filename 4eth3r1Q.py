@@ -32,8 +32,12 @@ spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet5")
 
 otc_pairs = [
-    ["EUR/USD OTC", "GBP/USD OTC", "AUD/USD OTC"],
-    ["NZD/USD OTC", "EUR/JPY OTC", "GBP/AUD OTC"]
+    ["AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC"],
+    ["CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC"],
+    ["EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC"],
+    ["NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC"],
+    ["NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC"],
+    ["EUR/JPY OTC", "CHF/NOK OTC", "AUD/CAD OTC"]
 ]
 
 # Flatten for quick "if text in PAIR_SET" checks
