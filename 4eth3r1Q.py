@@ -32,13 +32,10 @@ spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet5")
 
 otc_pairs = [
-    "🇦🇪 AED/CNY OTC", "🇦🇺 AUD/CAD OTC",
-    "🇧🇭 BHD/CNY OTC", "🇪🇺 EUR/USD OTC",
-    "🇬🇧 GBP/USD OTC", "🇦🇺 AUD/NZD OTC",
-    "🇳🇿 NZD/USD OTC", "🇪🇺 EUR/JPY OTC",
-    "🇨🇦 CAD/JPY OTC", "🇦🇺 AUD/USD OTC",
-    "🇦🇺 AUD/CHF OTC", "🇬🇧 GBP/AUD OTC"
+    ["EUR/USD OTC", "GBP/USD OTC", "AUD/USD OTC"],
+    ["NZD/USD OTC", "EUR/JPY OTC", "GBP/AUD OTC"]
 ]
+
 
 expiry_options = ["5 Seconds", "10 Seconds", "15 Seconds"]
 def load_authorized_users():
