@@ -96,55 +96,12 @@ async def healthcheck(request: Request):
 
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
-    # Initial message
-    await client.post(SEND_MESSAGE, json={
-        "chat_id": chat_id,
-        "text": f"📊 Pair: <b>{pair}</b>\n🕒 Expiry: <b>{expiry}</b>\n\n⏳ Starting market scan...",
-        "parse_mode": "HTML"
-    })
-
-    spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
-    resp = await client.post(SEND_MESSAGE, json={
-        "chat_id": chat_id,
-        "text": "⏳ Scanning... ⠋"
-    })
-    message_id = resp.json().get("result", {}).get("message_id")
-
-    steps = 10  # Faster with fixed shorter loop
-    for _ in range(steps):
-        await asyncio.sleep(0.1)  # Reduced delay for speed
-        spin = next(spinner)
-        await client.post(EDIT_MESSAGE, json={
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "text": f"⏳ Scanning market... {spin}"
-        })
-
-    # Final signal
     direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
-    confidence = random.randint(70, 95)
-    comment = random.choice([
-        "Strong momentum detected.",
-        "Clear breakout zone.",
-        "Support/resistance confirmed.",
-        "Trend continuation likely.",
-        "Volatility spike observed."
-    ])
+    photo_id = "AgACAgUAAxkBAAECDAJomh-5CNtqbzC_L_2mclVexGkerQACyswxG4JE0FT7cgtscHPqGwEAAwIAA3MAAzYE" if "⬆️" in direction else "AgACAgUAAxkBAAECDAhomiA6hNUDuIpVxMkMQiCPpQexigACXMQxG0gQ0FSD2VOieULhwQEAAwIAA3MAAzYE"
 
-    final_text = (
-        f"<b>✅ Analysis Complete</b>\n\n"
-        f"📊 Pair: <b>{pair}</b>\n"
-        f"🕒 Expiry: <b>{expiry}</b>\n"
-        f"📈 Signal: <b>{direction}</b>\n"
-        f"🔍 Confidence Level: <b>{confidence}%</b>\n"
-        f"📌 Note: {comment}"
-    )
-
-    await client.post(EDIT_MESSAGE, json={
+    await client.post(SEND_PHOTO, json={
         "chat_id": chat_id,
-        "message_id": message_id,
-        "text": final_text,
-        "parse_mode": "HTML"
+        "photo": photo_id
     })
 
 
