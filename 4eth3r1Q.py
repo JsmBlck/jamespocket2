@@ -18,7 +18,7 @@ SEND_CHAT_ACTION = f"{API_BASE}/sendChatAction"
 EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 
-RENDER_URL = "https://v4ultfx.onrender.com"
+RENDER_URL = "https://jamespocket2-v6ir.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
 pocketlink = os.getenv("POCKET_LINK")
 
@@ -28,7 +28,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS2"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
-sheet = spreadsheet.worksheet("Sheet3")
+sheet = spreadsheet.worksheet("Sheet4")
 
 otc_pairs = [
     "🇦🇪 AED/CNY OTC", "🇦🇺 AUD/CAD OTC",
