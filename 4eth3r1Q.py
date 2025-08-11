@@ -36,6 +36,10 @@ otc_pairs = [
     ["NZD/USD OTC", "EUR/JPY OTC", "GBP/AUD OTC"]
 ]
 
+# Flatten for quick "if text in PAIR_SET" checks
+PAIR_SET = {p for row in otc_pairs for p in row}
+
+
 
 expiry_options = ["5 Seconds", "10 Seconds", "15 Seconds"]
 def load_authorized_users():
@@ -225,7 +229,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         
 
         # Handle OTC Pair Selection
-        if text in otc_pairs:
+        if text in PAIR_SET:
             if user_id not in AUTHORIZED_USERS:
                 keyboard = {
                     "inline_keyboard": [
