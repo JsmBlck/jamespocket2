@@ -33,9 +33,9 @@ sheet = spreadsheet.worksheet("Sheet5")
 
 otc_pairs = [
     ["AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC"],
-    ["CAD/JPY OTC", "AED/CNY OTC", "AUD/NZD OTC"],
+    ["CAD/JPY OTC", "AED/CNY OTC"],
     ["EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC"],
-    ["NZD/USD OTC", "LBP/USD OTC", "GBP/USD OTC"],
+    ["NZD/USD OTC", "LBP/USD OTC"],
     ["NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC"]
 ]
 
