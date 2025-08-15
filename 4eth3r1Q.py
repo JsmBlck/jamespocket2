@@ -102,12 +102,17 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
-    photo_id = "AgACAgUAAxkBAAECDAJomh-5CNtqbzC_L_2mclVexGkerQACyswxG4JE0FT7cgtscHPqGwEAAwIAA3MAAzYE" if "⬆️" in direction else "AgACAgUAAxkBAAECDAhomiA6hNUDuIpVxMkMQiCPpQexigACXMQxG0gQ0FSD2VOieULhwQEAAwIAA3MAAzYE"
+    photo_url = (
+        "https://pocketoption.com/uploads/users/80/c0/4e/108697911_user.png?t=1755270224"
+        if "⬆️" in direction
+        else "https://pocketoption.com/uploads/users/41/6d/84/109166729_user.png?t=1755271724"
+    )
 
     await client.post(SEND_PHOTO, json={
         "chat_id": chat_id,
-        "photo": photo_id
+        "photo": photo_url
     })
+
 
 
 
