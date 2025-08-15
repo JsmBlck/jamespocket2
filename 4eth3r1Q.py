@@ -22,6 +22,8 @@ SEND_PHOTO = f"{API_BASE}/sendPhoto"
 RENDER_URL = "https://jamespocket2-v6ir.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
 pocketlink = os.getenv("POCKET_LINK")
+BUY_URL = os.getenv("BUY_URL")
+SELL_URL = os.getenv("SELL_URL")
 
 client = None
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -102,11 +104,7 @@ async def healthcheck(request: Request):
 
 async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
-    photo_url = (
-        "https://pocketoption.com/uploads/users/80/c0/4e/108697911_user.png?t=1755270224"
-        if "⬆️" in direction
-        else "https://pocketoption.com/uploads/users/41/6d/84/109166729_user.png?t=1755271724"
-    )
+    photo_url = BUY_URL if "⬆️" in direction else SELL_URL
 
     await client.post(SEND_PHOTO, json={
         "chat_id": chat_id,
