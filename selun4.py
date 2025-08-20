@@ -278,10 +278,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
             direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
             photo_url = BUY_URL if "⬆️" in direction else SELL_URL
-        
+            
+            reply_kb = {
+                "keyboard": otc_pairs,
+                "resize_keyboard": True,
+                "one_time_keyboard": False
+            }
+            
             await client.post(SEND_PHOTO, json={
                 "chat_id": chat_id,
-                "photo": photo_url
+                "photo": photo_url,
+                "reply_markup": reply_kb
             })
             return {"ok": True}
 
