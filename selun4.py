@@ -34,15 +34,20 @@ spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet6")
 
 otc_pairs = [
-    ["AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC"],
-    ["CAD/JPY OTC", "AED/CNY OTC"],
+    ["AUD/CHF OTC", "GBP/JPY OTC", "AUD/CAD OTC"],
     ["EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC"],
-    ["NZD/USD OTC", "LBP/USD OTC"],
-    ["NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC"]
+    ["AED/CNY OTC", "AUD/USD OTC", "GBP/AUD OTC"]
+]
+otc_pairs2 = [
+    ["5S", "10S", "15S"],
+    ["AUD/CHF OTC", "GBP/JPY OTC", "AUD/CAD OTC"],
+    ["EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC"],
+    ["AED/CNY OTC", "AUD/USD OTC", "GBP/AUD OTC"]
 ]
 
 # Flatten for quick "if text in PAIR_SET" checks
 PAIR_SET = {p for row in otc_pairs for p in row}
+PAIR_SET2 = {p for row in otc_pairs2 for p in row}
 
 
 
@@ -247,14 +252,37 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
-            inline_kb = [
-                [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]]
+            keyboard = otc_pairs2
             payload = {
                 "chat_id": chat_id,
-                "text": f"Please Choose Time to Trade for {text}",
-                "reply_markup": {"inline_keyboard": inline_kb}}
+                "text": (
+                    "Choose time to trade:"
+                ),
+                "parse_mode": "Markdown",
+                "reply_markup": {"keyboard": keyboard, "resize_keyboard": True}
+            }
             background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+            return {"ok": True}
+            
+        if text in PAIR_SET2:
+            if user_id not in AUTHORIZED_USERS:
+                keyboard = {
+                    "inline_keyboard": [
+                        [{"text": "Join Channel", "url": channel_link}],]}
+                payload = {
+                    "chat_id": chat_id,
+                    "text": (
+                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                    "reply_markup": keyboard}
+                background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
+                return {"ok": True}
+            direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
+            photo_url = BUY_URL if "⬆️" in direction else SELL_URL
+        
+            await client.post(SEND_PHOTO, json={
+                "chat_id": chat_id,
+                "photo": photo_url
+            })
             return {"ok": True}
 
         if text.startswith(("/addmember", "/add")):
