@@ -150,7 +150,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
-                            "text": "Aether IQ Access",
+                            "text": "Access",
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
                         }
                     ]]
@@ -179,11 +179,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "⚡ <b>Welcome to AetherIQ</b>\n\n"
-                            "Follow these quick steps to activate your access:\n"
-                            "1️⃣ Sign up using our <a href=\"{pocketlink}\">official link</a>\n"
-                            "2️⃣ Grab your <b>Account ID</b> from Pocket Option\n"
-                            "3️⃣ Send it to our support team for instant activation ✅"
+                            "🌙 <b>Welcome aboard Seluna Bot</b>\n\n"
+                            "Here’s how to get started:\n"
+                            "1️⃣ Register through our <a href=\"{pocketlink}\">official link</a>\n"
+                            "2️⃣ Copy your <b>Pocket Option ID</b>\n"
+                            "3️⃣ Send it to support and unlock your access instantly 🚀"
                         ).replace("{pocketlink}", pocketlink),
                         "parse_mode": "HTML",
                         "reply_markup": {
@@ -215,11 +215,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "⚡ <b>Welcome to AetherIQ</b>\n\n"
-                        "Follow these quick steps to activate your access:\n"
-                        "1️⃣ Sign up using our <a href=\"{pocketlink}\">official link</a>\n"
-                        "2️⃣ Grab your <b>Account ID</b> from Pocket Option\n"
-                        "3️⃣ Send it to our support team for instant activation ✅"
+                        "🌙 <b>Welcome aboard Seluna Bot</b>\n\n"
+                        "Here’s how to get started:\n"
+                        "1️⃣ Register through our <a href=\"{pocketlink}\">official link</a>\n"
+                        "2️⃣ Copy your <b>Pocket Option ID</b>\n"
+                        "3️⃣ Send it to support and unlock your access instantly 🚀"
                     ).replace("{pocketlink}", pocketlink),
                     "parse_mode": "HTML",
                     "reply_markup": {
@@ -254,7 +254,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                        "⚠️ Access Denied\n\nYou’re not authorized to use this command yet.\n\nJoin the Seluna Bot channel to unlock access — just tap the button below 🌙"),
                     "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
@@ -278,7 +278,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "❌ You are not authorized to use this command yet.\n\nPlease Join my Channel to get access, just click the button below."),
+                        "⚠️ Access Denied\n\nYou’re not authorized to use this command yet.\n\nJoin the Seluna Bot channel to unlock access — just tap the button below 🌙"),
                     "reply_markup": keyboard}
                 background_tasks.add_task(client.post, SEND_MESSAGE, json=payload)
                 return {"ok": True}
