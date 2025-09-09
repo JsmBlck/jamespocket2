@@ -99,7 +99,7 @@ async def lifespan(app: FastAPI):
     await client.aclose()
 
 async def delayed_verification_check(client, SEND_MESSAGE, chat_id, po_id, user_id, user, save_authorized_user, otc_pairs):
-    await asyncio.sleep(150)
+    await asyncio.sleep(60)
     dep = get_deposit_for_trader(po_id)
     if dep is None:
         keyboard = {
