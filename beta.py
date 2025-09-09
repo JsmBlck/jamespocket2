@@ -435,8 +435,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             full_name = from_user.get("first_name", "Trader")
             keyboard = {
                 "inline_keyboard": [
-                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}],
-                    [{"text": "Quotex", "callback_data": "broker_quotex"}]
+                    [{"text": "Pocket Broker", "callback_data": "broker_pocket"}]
                 ]
             }
             payload = {
