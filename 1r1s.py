@@ -27,22 +27,23 @@ client = None
 
 
 otc_pairs = [
-    ["🇦🇺/🇺🇸 AUD/USD OTC 💵"],
-    ["🇦🇺/🇨🇦 AUD/CAD OTC 🍁"],
-    ["🇧🇭/🇨🇳 BHD/CNY OTC 🏮"],
-    ["🇪🇺/🇺🇸 EUR/USD OTC 💶"],
-    ["🇦🇪/🇨🇳 AED/CNY OTC 🕌"]
+    ["AUD/USD OTC", "AUD/CAD OTC"],
+    ["BHD/CNY OTC", "EUR/USD OTC"],
+    ["AED/CNY OTC", "GBP/JPY OTC"],
+    ["CHF/JPY OTC", "EUR/GBP OTC"],
+    ["USD/JPY OTC", "NZD/USD OTC"],
+    ["CAD/JPY OTC", "AUD/CHF OTC"]
 ]
 
 otc_pairs2 = [
-    ["⏱️ 5S", "⏱️ 10S", "⏱️ 15S"],
-    ["🇦🇺/🇺🇸 AUD/USD OTC 💵"],
-    ["🇦🇺/🇨🇦 AUD/CAD OTC 🍁"],
-    ["🇧🇭/🇨🇳 BHD/CNY OTC 🏮"],
-    ["🇪🇺/🇺🇸 EUR/USD OTC 💶"],
-    ["🇦🇪/🇨🇳 AED/CNY OTC 🕌"]
+    ["AUD/USD OTC", "AUD/CAD OTC"],
+    ["BHD/CNY OTC", "EUR/USD OTC"],
+    ["AED/CNY OTC", "GBP/JPY OTC"],
+    ["CHF/JPY OTC", "EUR/GBP OTC"],
+    ["USD/JPY OTC", "NZD/USD OTC"],
+    ["CAD/JPY OTC", "AUD/CHF OTC"]
+    ["5 Sec", "10 Sec", "15 Sec"]
 ]
-
 # Flatten for quick "if text in PAIR_SET" checks
 PAIR_SET = {p for row in otc_pairs for p in row}
 PAIR_SET2 = {p for row in otc_pairs2 for p in row}
