@@ -19,7 +19,7 @@ EDIT_MESSAGE = f"{API_BASE}/editMessageText"
 DELETE_MESSAGE = f"{API_BASE}/deleteMessage"
 SEND_PHOTO = f"{API_BASE}/sendPhoto"
 
-RENDER_URL = "https://selun4.onrender.com"
+RENDER_URL = "https://oner1s.onrender.com"
 channel_link = os.getenv("CHANNEL_LINK")
 pocketlink = os.getenv("POCKET_LINK")
 BUY_URL = os.getenv("BUY_URL")
