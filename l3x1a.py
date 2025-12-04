@@ -117,7 +117,7 @@ async def simulate_analysis(chat_id: int, pair: str, expiry: str):
     await asyncio.sleep(1)
 
     # Choose a random signal direction
-    direction = random.choice(["⬆️⬆️", "⬇️⬇️"])
+    direction = random.choice(["⬆️⬆️⬆️", "⬇️⬇️⬇️"])
 
     # Final result
     await client.post(EDIT_MESSAGE, json={
