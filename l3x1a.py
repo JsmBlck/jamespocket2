@@ -33,7 +33,8 @@ sheet = spreadsheet.worksheet("Sheet4")
 otc_pairs = [
     "AED/CNY OTC", "AUD/CAD OTC",
     "BHD/CNY OTC", "EUR/USD OTC",
-    "CAD/JPY OTC", "AUD/NZD OTC"
+    "CAD/JPY OTC", "AUD/NZD OTC",
+    "GBP/USD OTC", "GBP/JPY OTC"
 ]
 
 expiry_options = ["5", "10", "15"]
