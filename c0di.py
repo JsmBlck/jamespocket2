@@ -32,21 +32,21 @@ sheet = spreadsheet.worksheet("Sheet2")
 
 
 otc_pairs = [
-    "🚀 S5 AUD/CHF OTC", "🚀 S5 GBP/JPY OTC", "🚀 S5 QAR/CNY OTC", "🚀 S5 CAD/JPY OTC",
-    "🚀 S5 AED/CNY OTC", "🚀 S5 AUD/NZD OTC", "🚀 S5 EUR/USD OTC", "🚀 S5 BHD/CNY OTC",
-    "🚀 S5 EUR/GBP OTC", "🚀 S5 NZD/USD OTC", "🚀 S5 LBP/USD OTC", "🚀 S5 GBP/USD OTC",
+    "🚀 S5 AUD/CHF OTC", "🚀 S5 GBP/JPY OTC", "🚀 S5 CAD/JPY OTC",
+    "🚀 S5 AED/CNY OTC", "🚀 S5 EUR/USD OTC", "🚀 S5 BHD/CNY OTC",
+    "🚀 S5 EUR/GBP OTC", "🚀 S5 NZD/USD OTC", "🚀 S5 GBP/USD OTC",
     "⏱️ Change Time Expiry"
 ]
 crypto_pairs = [
-    "💰 S10 AUD/CHF OTC", "💰 S10 GBP/JPY OTC", "💰 S10 QAR/CNY OTC", "💰 S10 CAD/JPY OTC",
-    "💰 S10 AED/CNY OTC", "💰 S10 AUD/NZD OTC", "💰 S10 EUR/USD OTC", "💰 S10 BHD/CNY OTC",
-    "💰 S10 EUR/GBP OTC", "💰 S10 NZD/USD OTC", "💰 S10 LBP/USD OTC", "💰 S10 GBP/USD OTC",
+    "💰 S10 AUD/CHF OTC", "💰 S10 GBP/JPY OTC", "💰 S10 CAD/JPY OTC",
+    "💰 S10 AED/CNY OTC", "💰 S10 EUR/USD OTC", "💰 S10 BHD/CNY OTC",
+    "💰 S10 EUR/GBP OTC", "💰 S10 NZD/USD OTC", "💰 S10 GBP/USD OTC",
     "⏱️ Change Time Expiry"
 ]
 stocks = [
-    "📈 S15 AUD/CHF OTC", "📈 S15 GBP/JPY OTC", "📈 S15 QAR/CNY OTC", "📈 S15 CAD/JPY OTC",
-    "📈 S15 AED/CNY OTC", "📈 S15 AUD/NZD OTC", "📈 S15 EUR/USD OTC", "📈 S15 BHD/CNY OTC",
-    "📈 S15 EUR/GBP OTC", "📈 S15 NZD/USD OTC", "📈 S15 LBP/USD OTC", "📈 S15 GBP/USD OTC",
+    "📈 S15 AUD/CHF OTC", "📈 S15 GBP/JPY OTC", "📈 S15 CAD/JPY OTC",
+    "📈 S15 AED/CNY OTC", "📈 S15 EUR/USD OTC", "📈 S15 BHD/CNY OTC",
+    "📈 S15 EUR/GBP OTC", "📈 S15 NZD/USD OTC", "📈 S15 GBP/USD OTC",
     "⏱️ Change Time Expiry"
 ]
 def load_authorized_users():
