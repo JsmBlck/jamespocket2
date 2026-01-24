@@ -34,19 +34,16 @@ spreadsheet = client.open("LyraExclusiveAccess")
 sheet = spreadsheet.worksheet("Sheet7")
 
 otc_pairs = [
-    ["AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC"],
-    ["CAD/JPY OTC", "AED/CNY OTC"],
-    ["EUR/USD OTC", "BHD/CNY OTC", "EUR/GBP OTC"],
-    ["NZD/USD OTC", "LBP/USD OTC"],
-    ["NGN/USD OTC", "AUD/USD OTC", "GBP/AUD OTC"]
+    ["AUD/USD OTC", "GBP/JPY OTC"],
+    ["NGN/USD OTC", "CAD/JPY OTC"],
+    ["AUD/CHF OTC", "NZD/USD OTC"],
+    ["AED/CNY OTC", "LBP/USD OTC"]
 ]
 
 # Flatten for quick "if text in PAIR_SET" checks
 PAIR_SET = {p for row in otc_pairs for p in row}
 
-
-
-expiry_options = ["5 Seconds", "10 Seconds", "15 Seconds"]
+expiry_options = ["3S", "15S", "30S"]
 def load_authorized_users():
     global AUTHORIZED_USERS
     AUTHORIZED_USERS = set()
@@ -139,7 +136,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 inline_keyboard = {
                     "inline_keyboard": [[
                         {
-                            "text": "Aether IQ Access",
+                            "text": "PULSE ENTRY",
                             "url": f"https://t.me/{os.getenv('BOT_USERNAME')}?start=register"
                         }
                     ]]
@@ -168,7 +165,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     payload = {
                         "chat_id": chat_id,
                         "text": (
-                            "⚡ <b>Welcome to AetherIQ</b>\n\n"
+                            "⚡ <b>Welcome to Pulse Entry</b>\n\n"
                             "Follow these quick steps to activate your access:\n"
                             "1️⃣ Sign up using our <a href=\"{pocketlink}\">official link</a>\n"
                             "2️⃣ Grab your <b>Account ID</b> from Pocket Option\n"
@@ -178,8 +175,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                         "reply_markup": {
                             "inline_keyboard": [
                                 [
-                                    {"text": "🚀 Create Your Account", "url": pocketlink},
-                                    {"text": "💬 Contact Support", "url": os.getenv("SUPPORT")}
+                                    {"text": "Register here.", "url": pocketlink},
+                                    {"text": "Contact the Support", "url": os.getenv("SUPPORT")}
                                 ]
                             ]
                         }
@@ -214,8 +211,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                     "reply_markup": {
                         "inline_keyboard": [
                             [
-                                {"text": "🚀 Create Your Account", "url": pocketlink},
-                                {"text": "💬 Contact Support", "url": os.getenv("SUPPORT")}
+                                {"text": "Register here.", "url": pocketlink},
+                                {"text": "Contact Support", "url": os.getenv("SUPPORT")}
                             ]
                         ]
                     }
