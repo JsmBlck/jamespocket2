@@ -31,7 +31,7 @@ creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS2"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("LyraExclusiveAccess")
-sheet = spreadsheet.worksheet("Sheet5")
+sheet = spreadsheet.worksheet("Sheet7")
 
 otc_pairs = [
     ["AUD/CHF OTC", "GBP/JPY OTC", "QAR/CNY OTC"],
