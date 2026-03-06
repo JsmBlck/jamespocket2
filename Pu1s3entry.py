@@ -43,9 +43,7 @@ otc_pairs = [
 # Flatten for quick "if text in PAIR_SET" checks
 PAIR_SET = {p for row in otc_pairs for p in row}
 
-expiry_options = [
-    ["3S", "5S", "10S", "15S", "30S", "1M", "3M", "5M", "1M", "30M", "1H", "4H"
-]
+expiry_options = ["3S", "5S", "10S", "15S", "30S", "1M", "3M", "5M", "1M", "30M", "1H", "4H"]
 
 
 def load_authorized_users():
