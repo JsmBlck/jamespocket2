@@ -44,10 +44,7 @@ otc_pairs = [
 PAIR_SET = {p for row in otc_pairs for p in row}
 
 expiry_options = [
-    ["3S", "5S", "10S"],
-    ["15S", "30S", "1M"],
-    ["3M", "5M", "1M"],
-    ["30M", "1H", "4H"]
+    ["3S", "5S", "10S", "15S", "30S", "1M", "3M", "5M", "1M", "30M", "1H", "4H"
 ]
 
 
@@ -253,7 +250,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 return {"ok": True}
             inline_kb = [
                 [{"text": expiry_options[i], "callback_data": f"expiry|{text}|{expiry_options[i]}"} 
-                 for i in range(len(expiry_options))]]
+                 for i in range(row, row + 3)]
+                for row in range(0, len(expiry_options), 3)]
             payload = {
                 "chat_id": chat_id,
                 "text": f"Please Choose Time to Trade for {text}",
