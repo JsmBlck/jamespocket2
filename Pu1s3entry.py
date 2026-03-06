@@ -38,7 +38,6 @@ otc_pairs = [
     ["GBP/AUD OTC", "AUD/CHF OTC", "NZD/USD OTC"],
     ["CAD/JPY OTC", "EUR/USD OTC", "CHF/NOK OTC"],
     ["AUD/CAD OTC", "LBP/USD OTC", "QAR/CNY OTC"],
-    ["NGN/USD OTC", "AUD/NZD OTC", "GBP/JPY OTC"],
     ["EUR/GBP OTC", "AED/CNY OTC", "GBP/USD OTC"]
 ]
 # Flatten for quick "if text in PAIR_SET" checks
