@@ -43,7 +43,7 @@ otc_pairs = [
 # Flatten for quick "if text in PAIR_SET" checks
 PAIR_SET = {p for row in otc_pairs for p in row}
 
-expiry_options = ["3S", "5S", "8S", "10S", "15S", "30S", "1M", "3M", "5M", "30M", "1H", "4H"]
+expiry_options = ["3S", "5S", "8S", "10S", "15S", "30S", "1M", "3M"]
 
 
 def load_authorized_users():
@@ -203,7 +203,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 payload = {
                     "chat_id": chat_id,
                     "text": (
-                        "⚡ <b>Welcome to AetherIQ</b>\n\n"
+                        "⚡ <b>Welcome to Pulse Entry</b>\n\n"
                         "Follow these quick steps to activate your access:\n"
                         "1️⃣ Sign up using our <a href=\"{pocketlink}\">official link</a>\n"
                         "2️⃣ Grab your <b>Account ID</b> from Pocket Option\n"
